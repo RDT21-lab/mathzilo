@@ -1,0 +1,1680 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0A1230">
+<title>Mathzilo · prototipo</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 512 512%22 width=%22512%22 height=%22512%22 role=%22img%22%3E%3Ctitle%3EMathzilo %E2%80%94 favicon%3C/title%3E%3Crect width=%22512%22 height=%22512%22 rx=%22112%22 fill=%22%2312275F%22/%3E%3Cpath d=%22M256.00 72.00L310.08 187.57L436.70 203.29L343.50 290.43L367.68 415.71L256.00 354.00L144.32 415.71L168.50 290.43L75.30 203.29L201.92 187.57Z%22 fill=%22%23FFC933%22 stroke=%22%23FFC933%22 stroke-width=%2230%22 stroke-linejoin=%22round%22/%3E%3C/svg%3E%0A">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+/* Fondo de estrellas del dispositivo: puntos planos, sin degradados de color */
+:root { --stars: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22400%22%3E%3Ccircle cx=%22129.5%22 cy=%2260.3%22 r=%220.8%22 fill=%22%23FFC933%22 fill-opacity=%220.5%22/%3E%3Ccircle cx=%2237.7%22 cy=%22233.1%22 r=%220.8%22 fill=%22%23FFC933%22 fill-opacity=%220.35%22/%3E%3Ccircle cx=%22167.3%22 cy=%2296.3%22 r=%221.4%22 fill=%22%23FFC933%22 fill-opacity=%220.5%22/%3E%3Ccircle cx=%2249.5%22 cy=%2289.3%22 r=%220.8%22 fill=%22%23F7F7FA%22 fill-opacity=%220.35%22/%3E%3Ccircle cx=%2219.8%22 cy=%2288.4%22 r=%220.8%22 fill=%22%23F7F7FA%22 fill-opacity=%220.25%22/%3E%3Ccircle cx=%22216.3%22 cy=%22228.4%22 r=%220.8%22 fill=%22%23FFC933%22 fill-opacity=%220.5%22/%3E%3Ccircle cx=%22255.6%22 cy=%22149.0%22 r=%220.8%22 fill=%22%23F7F7FA%22 fill-opacity=%220.5%22/%3E%3Ccircle cx=%2282.4%22 cy=%22272.2%22 r=%221.4%22 fill=%22%23F7F7FA%22 fill-opacity=%220.35%22/%3E%3Ccircle cx=%22234.2%22 cy=%22181.3%22 r=%221.1%22 fill=%22%23F7F7FA%22 fill-opacity=%220.25%22/%3E%3Ccircle cx=%22279.6%22 cy=%2297.6%22 r=%221.1%22 fill=%22%23F7F7FA%22 fill-opacity=%220.35%22/%3E%3Ccircle cx=%22291.8%22 cy=%22115.2%22 r=%220.8%22 fill=%22%23FFC933%22 fill-opacity=%220.35%22/%3E%3Ccircle cx=%2266.0%22 cy=%22136.8%22 r=%221.4%22 fill=%22%23F7F7FA%22 fill-opacity=%220.5%22/%3E%3Ccircle cx=%2231.0%22 cy=%22223.2%22 r=%221.1%22 fill=%22%23F7F7FA%22 fill-opacity=%220.35%22/%3E%3Ccircle cx=%22237.7%22 cy=%22232.0%22 r=%221.4%22 fill=%22%23FFC933%22 fill-opacity=%220.25%22/%3E%3Ccircle cx=%22377.9%22 cy=%22189.6%22 r=%220.8%22 fill=%22%23FFC933%22 fill-opacity=%220.5%22/%3E%3Ccircle cx=%22123.8%22 cy=%22231.2%22 r=%221.4%22 fill=%22%23F7F7FA%22 fill-opacity=%220.35%22/%3E%3Ccircle cx=%22354.8%22 cy=%22138.8%22 r=%221.4%22 fill=%22%23F7F7FA%22 fill-opacity=%220.5%22/%3E%3Ccircle cx=%2246.8%22 cy=%2223.6%22 r=%221.1%22 fill=%22%23FFC933%22 fill-opacity=%220.25%22/%3E%3Ccircle cx=%22159.2%22 cy=%22366.7%22 r=%221.4%22 fill=%22%23FFC933%22 fill-opacity=%220.35%22/%3E%3Ccircle cx=%22160.7%22 cy=%22111.1%22 r=%220.8%22 fill=%22%23F7F7FA%22 fill-opacity=%220.5%22/%3E%3Ccircle cx=%22111.4%22 cy=%22166.1%22 r=%221.1%22 fill=%22%23F7F7FA%22 fill-opacity=%220.35%22/%3E%3Ccircle cx=%22383.1%22 cy=%2260.4%22 r=%220.8%22 fill=%22%23FFC933%22 fill-opacity=%220.5%22/%3E%3Ccircle cx=%2293.3%22 cy=%22194.0%22 r=%220.8%22 fill=%22%23F7F7FA%22 fill-opacity=%220.25%22/%3E%3Ccircle cx=%2258.3%22 cy=%22213.8%22 r=%221.1%22 fill=%22%23F7F7FA%22 fill-opacity=%220.5%22/%3E%3Ccircle cx=%22343.7%22 cy=%22380.1%22 r=%220.8%22 fill=%22%23F7F7FA%22 fill-opacity=%220.5%22/%3E%3Ccircle cx=%22319.1%22 cy=%22157.0%22 r=%221.4%22 fill=%22%23F7F7FA%22 fill-opacity=%220.35%22/%3E%3Ccircle cx=%22253.7%22 cy=%2224.9%22 r=%220.8%22 fill=%22%23F7F7FA%22 fill-opacity=%220.35%22/%3E%3Ccircle cx=%2264.9%22 cy=%22136.0%22 r=%220.8%22 fill=%22%23FFC933%22 fill-opacity=%220.5%22/%3E%3Ccircle cx=%2260.5%22 cy=%2240.6%22 r=%221.1%22 fill=%22%23F7F7FA%22 fill-opacity=%220.25%22/%3E%3Ccircle cx=%22349.7%22 cy=%22245.6%22 r=%220.8%22 fill=%22%23F7F7FA%22 fill-opacity=%220.35%22/%3E%3Ccircle cx=%22240.9%22 cy=%22189.7%22 r=%220.8%22 fill=%22%23F7F7FA%22 fill-opacity=%220.35%22/%3E%3Ccircle cx=%22192.2%22 cy=%22124.7%22 r=%220.8%22 fill=%22%23FFC933%22 fill-opacity=%220.35%22/%3E%3Ccircle cx=%22296.1%22 cy=%22191.4%22 r=%220.8%22 fill=%22%23F7F7FA%22 fill-opacity=%220.25%22/%3E%3Ccircle cx=%22380.4%22 cy=%22211.3%22 r=%220.8%22 fill=%22%23F7F7FA%22 fill-opacity=%220.25%22/%3E%3Ccircle cx=%22303.3%22 cy=%22119.2%22 r=%220.8%22 fill=%22%23F7F7FA%22 fill-opacity=%220.35%22/%3E%3Ccircle cx=%22207.4%22 cy=%22363.3%22 r=%221.1%22 fill=%22%23F7F7FA%22 fill-opacity=%220.5%22/%3E%3Ccircle cx=%22216.6%22 cy=%22201.1%22 r=%220.8%22 fill=%22%23F7F7FA%22 fill-opacity=%220.25%22/%3E%3Ccircle cx=%22322.4%22 cy=%22327.3%22 r=%220.8%22 fill=%22%23F7F7FA%22 fill-opacity=%220.35%22/%3E%3Ccircle cx=%22142.2%22 cy=%2211.6%22 r=%220.8%22 fill=%22%23F7F7FA%22 fill-opacity=%220.35%22/%3E%3Ccircle cx=%22103.7%22 cy=%22277.0%22 r=%221.1%22 fill=%22%23F7F7FA%22 fill-opacity=%220.5%22/%3E%3Ccircle cx=%22395.2%22 cy=%22382.0%22 r=%221.1%22 fill=%22%23FFC933%22 fill-opacity=%220.25%22/%3E%3Ccircle cx=%2290.7%22 cy=%2278.7%22 r=%220.8%22 fill=%22%23F7F7FA%22 fill-opacity=%220.5%22/%3E%3Ccircle cx=%22336.2%22 cy=%22191.8%22 r=%221.1%22 fill=%22%23F7F7FA%22 fill-opacity=%220.25%22/%3E%3Ccircle cx=%22333.9%22 cy=%2248.0%22 r=%221.4%22 fill=%22%23F7F7FA%22 fill-opacity=%220.25%22/%3E%3Ccircle cx=%22191.2%22 cy=%2271.4%22 r=%221.1%22 fill=%22%23FFC933%22 fill-opacity=%220.5%22/%3E%3Ccircle cx=%22158.3%22 cy=%22160.6%22 r=%220.8%22 fill=%22%23F7F7FA%22 fill-opacity=%220.25%22/%3E%3C/svg%3E"); }
+/* Layout: página tranquila con un dispositivo en el centro (tablet 1024×680 para el niño,
+   móvil 390×800 para el padre). El dispositivo se escala con transform para caber en cualquier pantalla.
+   Look comprometido a un único mundo visual oscuro (azul noche + dorado), definido en los tokens. */
+:root {
+  --navy: #0A1230; --card: #12275F; --card-raised: #1B3680; --card-hi: #25479F;
+  --gold: #FFC933; --gold-deep: #E0A200; --gold-ink: #3A2A00;
+  --bone: #F7F7FA; --muted: #A9B6E0; --line: #2A4390;
+  --ok: #3DDC97; --soft-fail: #FF8A5B; --shield: #9AA8FF;
+  --page: #070C22;
+  --font: "Lexend", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { background: var(--page); }
+body {
+  margin: 0; background: var(--page); color: var(--bone);
+  font-family: var(--font); font-size: 16px; line-height: 1.5;
+  padding-block: 20px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  font-variant-numeric: tabular-nums;
+}
+button { font-family: inherit; color: inherit; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ---------- Página alrededor del dispositivo ---------- */
+.wrap { max-width: 1100px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+.head { display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: center; justify-content: space-between; }
+.brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.brand .mk { width: 40px; height: 40px; flex: none; }
+.brand .wm { height: 26px; width: auto; }
+.head p { margin: 0; color: var(--muted); font-size: 14px; max-width: 46ch; }
+.toolbar { display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: center; }
+.seg { display: inline-flex; background: var(--card); border-radius: 14px; padding: 4px; gap: 4px; }
+.seg button { border: 0; background: transparent; color: var(--muted); padding: 10px 16px; border-radius: 10px; font-size: 15px; font-weight: 500; cursor: pointer; min-height: 44px; }
+.seg button[aria-pressed="true"] { background: var(--gold); color: var(--gold-ink); font-weight: 700; }
+.tag-demo { font-size: 13px; color: var(--muted); border: 1px dashed var(--line); border-radius: 999px; padding: 6px 12px; }
+.jump { display: flex; flex-wrap: wrap; gap: 8px; }
+.jump button { border: 1px solid var(--line); background: transparent; color: var(--muted); border-radius: 999px; padding: 8px 14px; font-size: 14px; cursor: pointer; min-height: 40px; }
+.jump button[aria-current="true"] { background: var(--card-raised); color: var(--bone); border-color: var(--gold); }
+button:focus-visible, input:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+.stagebox { display: flex; justify-content: center; width: 100%; }
+.scaler { position: relative; }
+.device { position: absolute; left: 0; top: 0; transform-origin: 0 0; overflow: hidden; border-radius: 28px; border: 1px solid var(--line); background-color: var(--navy); background-image: var(--stars); color: var(--bone); }
+.notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-top: 8px; }
+.notes section { background: var(--card); border-radius: 16px; padding: 18px 20px; min-width: 0; }
+.notes h2 { font-size: 16px; margin: 0 0 8px; font-weight: 700; }
+.notes ol, .notes ul { margin: 0; padding-left: 20px; color: var(--muted); font-size: 14px; display: flex; flex-direction: column; gap: 6px; }
+
+/* ---------- Componentes del dispositivo ---------- */
+.device svg { display: block; }
+.btn { font-weight: 700; border: 0; border-radius: 18px; min-height: 56px; padding: 0 28px; font-size: 20px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 10px; transition: transform .15s, background .15s; }
+.btn.sm { font-size: 17px; padding: 0 20px; border-radius: 16px; }
+.btn-gold { background: var(--gold); color: var(--gold-ink); box-shadow: 0 4px 0 var(--gold-deep); }
+.btn-gold:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--gold-deep); }
+.btn-gold[disabled] { background: #34467f; color: #7b89bb; box-shadow: none; cursor: not-allowed; transform: none; }
+.btn-line { background: transparent; border: 2px solid var(--line); color: var(--bone); }
+.btn-line:hover { border-color: var(--muted); }
+.btn-ok { background: var(--ok); color: #05301e; box-shadow: 0 4px 0 #22a370; }
+.btn-ok:active { transform: translateY(3px); box-shadow: 0 1px 0 #22a370; }
+.icon-btn { width: 56px; height: 56px; border-radius: 16px; border: 2px solid var(--line); background: transparent; display: grid; place-items: center; cursor: pointer; }
+.icon-btn:hover { border-color: var(--muted); }
+.pill { display: inline-flex; align-items: center; gap: 8px; background: var(--card); border-radius: 999px; padding: 8px 16px; font-weight: 700; font-size: 18px; border: 0; }
+button.pill { cursor: pointer; }
+button.pill:hover { background: var(--card-raised); }
+.pill.gold { color: var(--gold); }
+.card { background: var(--card); border-radius: 24px; padding: 22px 24px; }
+.muted { color: var(--muted); }
+.gold { color: var(--gold); }
+.chip { white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 999px; font-size: 15px; font-weight: 500; background: var(--card-raised); }
+.chip.good { background: rgba(61,220,151,.16); color: var(--ok); }
+.chip.bad { background: rgba(255,138,91,.16); color: var(--soft-fail); }
+.caps { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+
+@keyframes pop { 0% { transform: scale(.6); opacity: 0; } 70% { transform: scale(1.08); opacity: 1; } 100% { transform: scale(1); } }
+@keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(255,201,51,.5); } 50% { box-shadow: 0 0 0 8px rgba(255,201,51,0); } }
+@keyframes shake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-10px); } 40% { transform: translateX(10px); } 60% { transform: translateX(-6px); } 80% { transform: translateX(6px); } }
+@keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+.rise { animation: rise .45s both; animation-delay: calc(var(--i, 0) * .28s); }
+.pop { animation: pop .5s both; animation-delay: calc(var(--i, 0) * .28s); }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+/* ---------- Tablet (niño) ---------- */
+.tscr { position: absolute; inset: 0; display: flex; flex-direction: column; padding: 24px 40px 28px; }
+.top { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 56px; flex: none; }
+.top .l, .top .r { display: flex; align-items: center; gap: 12px; }
+.brand-in { display: flex; align-items: center; gap: 12px; }
+.brand-in .mk { width: 44px; height: 44px; }
+.brand-in .wm { height: 28px; width: auto; }
+.ttl { font-size: 46px; font-weight: 800; margin: 14px 0 6px; text-align: center; line-height: 1.1; }
+.sub { text-align: center; color: var(--muted); font-size: 20px; margin: 0; }
+
+.pcards { display: flex; justify-content: center; align-items: center; gap: 28px; flex: 1; padding-bottom: 12px; }
+.pcard { width: 252px; height: 366px; border-radius: 28px; background: var(--card); border: 3px solid transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: transform .18s, border-color .18s; }
+.pcard:hover, .pcard:focus-visible { border-color: var(--gold); transform: translateY(-6px); }
+.pcard .nm { font-size: 30px; font-weight: 800; line-height: 1.1; }
+.pcard .row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+
+.home { display: grid; grid-template-columns: 430px 1fr; gap: 32px; flex: 1; min-height: 0; margin-top: 10px; }
+.stagepane { position: relative; min-height: 0; }
+.planet { position: absolute; left: 50%; bottom: 38px; width: 360px; height: 360px; margin-left: -180px; border-radius: 50%; background: var(--card); }
+.stagepane .mascot { position: absolute; left: 50%; bottom: 52px; width: 370px; height: 370px; margin-left: -185px; animation: bob 4s ease-in-out infinite; }
+.bubble { position: absolute; top: 4px; left: 8px; right: 8px; background: var(--bone); color: var(--navy); border-radius: 22px; padding: 14px 20px; font-weight: 500; font-size: 19px; line-height: 1.35; }
+.bubble::after { content: ""; position: absolute; left: 70px; bottom: -14px; border: 14px solid transparent; border-top-color: var(--bone); border-bottom: 0; }
+.nametag { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); white-space: nowrap; }
+.rcol { display: flex; flex-direction: column; gap: 14px; min-height: 0; }
+.streak .hd { display: flex; align-items: center; gap: 14px; }
+.streak .big { font-size: 60px; font-weight: 800; line-height: 1; }
+.week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 14px; }
+.day { display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 14px; color: var(--muted); }
+.dot { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; border: 2px solid var(--line); }
+.dot.done { background: var(--gold); border-color: var(--gold); color: var(--gold-ink); }
+.dot.shield { background: var(--shield); border-color: var(--shield); color: var(--navy); }
+.dot.today { border: 2px dashed var(--gold); animation: pulse 2s infinite; }
+.dot.miss { border-style: dotted; opacity: .6; }
+.dot.future { opacity: .45; }
+.shields { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 16px; color: var(--muted); }
+.shields .sh { color: var(--shield); }
+.shields .sh.off { opacity: .3; }
+.starscard { display: flex; flex-direction: column; gap: 10px; }
+.starscard .hd { display: flex; align-items: baseline; gap: 10px; }
+.starscard .num { font-size: 56px; font-weight: 800; color: var(--gold); line-height: 1; }
+.bar { height: 14px; border-radius: 7px; background: var(--navy); overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--gold); border-radius: 7px; }
+.cta { margin-top: auto; }
+.cta .btn { width: 100%; min-height: 78px; font-size: 28px; border-radius: 22px; }
+
+.lens { display: flex; gap: 24px; justify-content: center; align-items: stretch; flex: 1; padding: 22px 0 14px; }
+.lencard { width: 270px; border-radius: 28px; background: var(--card); border: 3px solid transparent; font: inherit; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; cursor: pointer; transition: transform .18s, border-color .18s; }
+.lencard:hover:not([disabled]), .lencard:focus-visible { border-color: var(--gold); transform: translateY(-6px); }
+.lencard[disabled] { opacity: .45; cursor: not-allowed; }
+.lencard .n { font-size: 92px; font-weight: 800; line-height: 1; color: var(--gold); }
+.lencard .u { font-size: 22px; font-weight: 500; }
+.note { text-align: center; color: var(--muted); font-size: 17px; margin: 0; }
+
+.prog { flex: 1; display: flex; gap: 6px; }
+.prog i { flex: 1; height: 12px; border-radius: 6px; background: #22397c; }
+.prog i.done { background: var(--gold); }
+.prog i.cur { background: #ffe59a; animation: pulse 1.6s infinite; }
+.count { font-size: 18px; color: var(--muted); min-width: 130px; text-align: right; }
+.minibanner { margin-top: 10px; background: rgba(154,168,255,.16); color: var(--shield); border-radius: 14px; padding: 8px 16px; font-weight: 500; font-size: 17px; text-align: center; }
+.qgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; flex: 1; margin-top: 16px; min-height: 0; }
+.qcard { background: var(--card); border-radius: 28px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; position: relative; min-height: 0; padding: 20px; }
+.qcard .skill { position: absolute; top: 18px; left: 22px; }
+.qtext { font-size: 70px; font-weight: 800; line-height: 1.05; white-space: nowrap; }
+.qtext .ans { color: var(--ok); }
+.qcard .mascot { position: absolute; left: 14px; bottom: 6px; width: 150px; height: 150px; }
+.qcard .gave { margin-top: 6px; font-size: 20px; }
+.answers { display: flex; flex-direction: column; gap: 14px; min-height: 0; }
+.opts { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; flex: 1; }
+.opt { border-radius: 24px; background: var(--card-raised); border: 3px solid transparent; font-size: 52px; font-weight: 800; cursor: pointer; min-height: 120px; transition: transform .12s, border-color .12s, background .12s; }
+.opt:hover { background: var(--card-hi); }
+.opt[aria-pressed="true"] { border-color: var(--gold); background: var(--card-hi); transform: scale(1.03); }
+.numdisplay { height: 84px; border-radius: 20px; background: var(--navy); border: 3px solid var(--line); font-size: 52px; font-weight: 800; padding: 0 26px; display: flex; align-items: center; justify-content: flex-end; flex: none; }
+.numdisplay.empty { color: #55659f; }
+.numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; flex: 1; }
+.nk { border-radius: 18px; background: var(--card-raised); border: 0; font-size: 32px; font-weight: 700; cursor: pointer; min-height: 56px; display: grid; place-items: center; }
+.nk:hover { background: var(--card-hi); }
+.nk.del { background: transparent; border: 2px solid var(--line); }
+.answers .btn { width: 100%; min-height: 66px; font-size: 24px; flex: none; }
+.fbcard { background: var(--card); border-radius: 28px; padding: 20px 24px; display: flex; flex-direction: column; gap: 12px; flex: 1; min-height: 0; overflow: auto; }
+.fbcard.ok { align-items: center; justify-content: center; text-align: center; gap: 10px; }
+.fbcard.ok .big { font-size: 46px; font-weight: 800; color: var(--ok); }
+.fbcard .stars-plus { font-size: 34px; font-weight: 800; color: var(--gold); animation: pop .5s both .1s; }
+.fbcard h3 { margin: 0; font-size: 26px; font-weight: 800; line-height: 1.15; }
+.fbcard p { margin: 0; font-size: 18px; color: var(--bone); }
+.cmp { display: flex; gap: 8px; flex-wrap: wrap; }
+.steps { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; counter-reset: s; }
+.steps li { counter-increment: s; font-size: 18px; line-height: 1.35; display: flex; gap: 12px; align-items: flex-start; }
+.steps li::before { content: counter(s); flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--gold); color: var(--gold-ink); font-weight: 800; font-size: 15px; display: grid; place-items: center; margin-top: 1px; }
+.fbcard .btn { margin-top: auto; width: 100%; flex: none; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chipn { min-width: 42px; height: 42px; padding: 0 8px; border-radius: 12px; background: var(--navy); display: grid; place-items: center; font-weight: 700; font-size: 18px; }
+.chipn.hi { background: var(--gold); color: var(--gold-ink); }
+.frames { display: flex; gap: 14px; flex-wrap: wrap; }
+.frame { display: grid; grid-template-columns: repeat(5, 24px); gap: 4px; padding: 6px; background: var(--navy); border-radius: 10px; }
+.fd { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #31478f; }
+.fd.a { background: var(--shield); border-color: var(--shield); }
+.fd.b { background: var(--gold); border-color: var(--gold); }
+.cols { display: inline-grid; grid-template-columns: 26px 38px 38px; gap: 2px 4px; align-items: center; justify-items: center; background: var(--navy); border-radius: 12px; padding: 10px 14px; font-size: 28px; font-weight: 800; line-height: 1.1; }
+.cols .cy { color: var(--soft-fail); font-size: 18px; }
+.cols .rule { grid-column: 1 / -1; width: 100%; height: 3px; background: var(--muted); border-radius: 2px; }
+.cols .rs { color: var(--gold); }
+.cols s { color: var(--muted); }
+.cols small { color: var(--soft-fail); font-size: 16px; margin-right: 1px; }
+.vis { display: flex; }
+
+.res { display: grid; grid-template-columns: 420px 1fr; gap: 32px; flex: 1; min-height: 0; margin-top: 12px; }
+.resl { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; position: relative; }
+.resl .mascot { width: 250px; height: 250px; }
+.resl h2 { font-size: 40px; margin: 0; font-weight: 800; text-align: center; line-height: 1.1; }
+.donut { position: absolute; top: 4px; right: 12px; }
+.resr { display: flex; flex-direction: column; gap: 12px; min-height: 0; }
+.rw { display: flex; justify-content: space-between; align-items: center; padding: 11px 0; border-bottom: 1px solid var(--line); font-size: 20px; gap: 12px; }
+.rw b { color: var(--gold); font-size: 22px; white-space: nowrap; }
+.rw.hl { background: rgba(255,201,51,.12); border-radius: 14px; border-bottom: 0; padding: 12px 14px; margin: 4px -6px; }
+.tot { display: flex; justify-content: space-between; align-items: baseline; font-size: 24px; font-weight: 700; padding-top: 6px; }
+.tot b { font-size: 50px; color: var(--gold); line-height: 1; }
+.evo { display: flex; align-items: center; gap: 14px; background: rgba(154,168,255,.16); border-radius: 18px; padding: 10px 16px; }
+.evo .mascot { width: 84px; height: 84px; flex: none; }
+.resbtns { display: flex; gap: 12px; margin-top: auto; }
+.resbtns .btn { flex: 1; }
+.exa { display: inline-block; font-size: 13px; padding: 2px 10px; border-radius: 999px; background: rgba(154,168,255,.18); color: var(--shield); margin-left: 8px; vertical-align: middle; }
+
+.mas { display: grid; grid-template-columns: 430px 1fr; gap: 32px; flex: 1; min-height: 0; margin-top: 10px; }
+.masl { display: flex; flex-direction: column; align-items: center; gap: 10px; position: relative; }
+.masl .planet { bottom: 142px; }
+.masl > :not(.planet) { position: relative; }
+.masl .mascot { position: relative; width: 340px; height: 340px; margin-top: 2px; }
+.nameedit { display: flex; align-items: center; gap: 10px; background: var(--card); border-radius: 18px; padding: 6px 8px 6px 18px; }
+.nameedit input { background: transparent; border: 0; color: var(--bone); font: inherit; font-size: 26px; font-weight: 800; width: 190px; padding: 6px 0; }
+.emos { display: flex; gap: 8px; }
+.emos button { border: 2px solid var(--line); background: transparent; border-radius: 14px; padding: 0 16px; min-height: 52px; font-size: 16px; font-weight: 500; cursor: pointer; }
+.emos button[aria-pressed="true"] { background: var(--gold); color: var(--gold-ink); border-color: var(--gold); font-weight: 700; }
+.masr { display: flex; flex-direction: column; gap: 10px; min-height: 0; }
+.ladder { display: flex; flex-direction: column; gap: 8px; }
+.step { display: flex; align-items: center; gap: 16px; background: var(--card); border: 3px solid transparent; border-radius: 20px; padding: 8px 18px 8px 10px; cursor: pointer; text-align: left; font: inherit; width: 100%; }
+.step[aria-pressed="true"] { border-color: var(--shield); }
+.step.now { border-color: var(--gold); }
+.step .mascot { width: 76px; height: 76px; flex: none; background: var(--navy); border-radius: 16px; }
+.step.lock .mascot svg, .sil svg { filter: brightness(0) invert(.8) opacity(.3); }
+.step .nm { font-size: 22px; font-weight: 800; }
+.step .rq { font-size: 15px; color: var(--muted); }
+.step .st { margin-left: auto; }
+.kindsel { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 15px; }
+
+.overlay { position: absolute; inset: 0; background: rgba(7,12,34,.84); display: flex; align-items: center; justify-content: center; z-index: 30; }
+.sheetbox { background: var(--card); border-radius: 28px; padding: 26px 30px; width: 600px; max-height: 590px; overflow: auto; display: flex; flex-direction: column; gap: 12px; }
+.sheetbox h3 { margin: 0; font-size: 30px; font-weight: 800; }
+.led { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--line); font-size: 17px; }
+.led b.pos { color: var(--ok); }
+.led b.neg { color: var(--soft-fail); }
+.toast { position: absolute; left: 50%; bottom: 28px; transform: translateX(-50%); background: var(--bone); color: var(--navy); padding: 12px 22px; border-radius: 16px; font-weight: 700; z-index: 40; max-width: 80%; text-align: center; animation: rise .35s both; }
+
+/* ---------- Móvil (padre) ---------- */
+.pscr { position: absolute; inset: 0; display: flex; flex-direction: column; }
+.pbody { flex: 1; overflow-y: auto; padding: 22px 20px 20px; display: flex; flex-direction: column; gap: 14px; }
+.pbody h2 { font-size: 28px; font-weight: 800; margin: 0; line-height: 1.15; }
+.pbody .lead { margin: -6px 0 0; color: var(--muted); font-size: 15px; }
+.tabbar { height: 74px; display: grid; grid-template-columns: repeat(3, 1fr); background: var(--card); border-top: 1px solid var(--line); flex: none; }
+.tabbar button { border: 0; background: transparent; color: var(--muted); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 13px; font-weight: 500; cursor: pointer; }
+.tabbar button[aria-current="true"] { color: var(--gold); font-weight: 700; }
+.pin { align-items: center; justify-content: center; padding: 24px 28px; gap: 16px; text-align: center; }
+.pin h2 { font-size: 30px; }
+.dots { display: flex; gap: 16px; margin: 6px 0 2px; }
+.dots.shake { animation: shake .4s; }
+.dots i { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--muted); }
+.dots i.on { background: var(--gold); border-color: var(--gold); }
+.err { color: var(--soft-fail); font-size: 15px; min-height: 22px; margin: 0; }
+.keys { display: grid; grid-template-columns: repeat(3, 76px); gap: 14px; }
+.keys button { width: 76px; height: 76px; border-radius: 50%; border: 0; background: var(--card-raised); font-size: 30px; font-weight: 700; cursor: pointer; display: grid; place-items: center; }
+.keys button:hover { background: var(--card-hi); }
+.keys button.ghost { background: transparent; }
+.link { background: none; border: 0; color: var(--muted); font-size: 15px; text-decoration: underline; cursor: pointer; padding: 10px; min-height: 44px; }
+.kidcard { background: var(--card); border-radius: 22px; padding: 14px 16px; border: 2px solid transparent; text-align: left; font: inherit; width: 100%; cursor: pointer; display: flex; flex-direction: column; gap: 10px; }
+.kidcard[aria-expanded="true"] { border-color: var(--line); background: var(--card-raised); }
+.kidcard .hd { display: flex; align-items: center; gap: 14px; }
+.kidcard .mascot { width: 66px; height: 66px; background: var(--navy); border-radius: 16px; flex: none; }
+.kidcard .nm { font-size: 22px; font-weight: 800; line-height: 1.15; }
+.kidcard .bal { margin-left: auto; font-size: 30px; font-weight: 800; color: var(--gold); white-space: nowrap; }
+.kidcard .chips2 { display: flex; flex-wrap: wrap; gap: 6px; }
+.kidcard[aria-expanded="true"] .chip:not(.good):not(.bad) { background: var(--card-hi); }
+.mast { display: flex; flex-direction: column; gap: 8px; }
+.mr { display: grid; grid-template-columns: 1fr 44px; gap: 4px 10px; align-items: center; font-size: 14px; }
+.mr .bar { grid-column: 1 / -1; height: 10px; }
+.mr .bar i.low { background: var(--soft-fail); }
+.mr .bar i.hi { background: var(--ok); }
+.sug { background: rgba(154,168,255,.16); border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; font-size: 15px; }
+.sug .acts { display: flex; gap: 8px; }
+.pbtn { border: 0; border-radius: 14px; min-height: 48px; padding: 0 18px; font-size: 16px; font-weight: 700; cursor: pointer; background: var(--gold); color: var(--gold-ink); }
+.pbtn.line { background: transparent; border: 2px solid var(--line); color: var(--bone); }
+.pbtn.full { width: 100%; min-height: 56px; font-size: 18px; }
+.pbtn[disabled] { background: #34467f; color: #7b89bb; cursor: not-allowed; }
+.kidsel { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.kidsel button { background: var(--card); border: 2px solid transparent; border-radius: 16px; padding: 8px 4px; display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; font-size: 14px; font-weight: 500; }
+.kidsel button[aria-pressed="true"] { border-color: var(--gold); background: var(--card-raised); }
+.kidsel .mascot { width: 48px; height: 48px; }
+.balbig { text-align: center; font-size: 15px; color: var(--muted); }
+.balbig b { display: block; font-size: 42px; color: var(--gold); line-height: 1.1; }
+.rrow { display: flex; justify-content: space-between; align-items: center; gap: 10px; min-height: 60px; padding: 10px 16px; border-radius: 16px; background: var(--card); border: 2px solid transparent; font: inherit; font-size: 17px; width: 100%; cursor: pointer; text-align: left; }
+.rrow[aria-pressed="true"] { border-color: var(--gold); background: var(--card-raised); }
+.rrow[disabled] { opacity: .5; cursor: not-allowed; }
+.rrow b { color: var(--gold); white-space: nowrap; }
+.rrow small { display: block; color: var(--muted); font-size: 13px; }
+.field { display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--muted); }
+.field input[type="text"] { background: var(--navy); border: 2px solid var(--line); border-radius: 12px; color: var(--bone); font: inherit; font-size: 16px; padding: 12px 14px; min-height: 48px; width: 100%; }
+.sumbar { background: var(--card-raised); border-radius: 18px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; font-size: 15px; }
+.hist { display: flex; flex-direction: column; }
+.hist .led { font-size: 14px; }
+.sect { background: var(--card); border-radius: 20px; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; }
+.sect h3 { margin: 0 0 4px; font-size: 17px; font-weight: 700; }
+.srow { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 15px; min-height: 56px; }
+.srow:last-child { border-bottom: 0; }
+.srow .lb { min-width: 0; }
+.srow small { display: block; color: var(--muted); font-size: 12.5px; line-height: 1.3; }
+.stepper { display: flex; align-items: center; gap: 6px; flex: none; }
+.stepper button { width: 44px; height: 44px; border-radius: 12px; border: 2px solid var(--line); background: transparent; font-size: 22px; font-weight: 700; cursor: pointer; line-height: 1; }
+.stepper button:hover { border-color: var(--muted); }
+.stepper b { min-width: 34px; text-align: center; font-size: 18px; }
+.segs { display: inline-flex; gap: 4px; background: var(--navy); padding: 4px; border-radius: 12px; }
+.segs button { border: 0; background: transparent; color: var(--muted); border-radius: 9px; min-height: 40px; padding: 0 14px; font-size: 15px; font-weight: 500; cursor: pointer; }
+.segs button[aria-pressed="true"] { background: var(--gold); color: var(--gold-ink); font-weight: 700; }
+.rw-edit { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.rw-edit input { flex: 1; min-width: 0; background: var(--navy); border: 2px solid var(--line); border-radius: 10px; color: var(--bone); font: inherit; font-size: 15px; padding: 8px 10px; min-height: 44px; }
+.rw-edit .x { width: 40px; height: 40px; border: 0; background: transparent; color: var(--soft-fail); cursor: pointer; border-radius: 10px; font-size: 20px; }
+.sheet-p { position: absolute; left: 0; right: 0; bottom: 0; background: var(--card); border-radius: 28px 28px 0 0; padding: 22px 24px 26px; display: flex; flex-direction: column; align-items: center; gap: 12px; z-index: 30; animation: rise .3s both; }
+.sheet-p .keys { grid-template-columns: repeat(3, 66px); gap: 10px; }
+.sheet-p .keys button { width: 66px; height: 66px; font-size: 26px; }
+.scrim { position: absolute; inset: 0; background: rgba(7,12,34,.7); z-index: 20; border: 0; }
+
+.mk svg, .wm svg { width: 100%; height: 100%; display: block; }
+.brand .wm, .brand-in .wm { aspect-ratio: 742 / 220; }
+.d1 { --i: 1; } .d2 { --i: 2; } .d3 { --i: 3; } .d4 { --i: 4; } .d5 { --i: 5; } .d6 { --i: 6; }
+</style>
+</head>
+<body>
+<div id="app" aria-live="off"></div>
+<noscript>Este prototipo necesita JavaScript.</noscript>
+<script>window.SM_ASSETS = {"mark": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 512 512\" aria-hidden=\"true\"><rect width=\"512\" height=\"512\" rx=\"112\" fill=\"#12275F\"/><defs><mask id=\"hueco\" maskUnits=\"userSpaceOnUse\" x=\"0\" y=\"0\" width=\"512\" height=\"512\"><rect width=\"512\" height=\"512\" fill=\"#fff\"/><g transform=\"translate(256 262) rotate(-20)\" fill=\"none\"><path d=\"M-186 0A186 60 0 0 0 186 0\" stroke=\"#000\" stroke-width=\"34\"/><\/g><\/mask><\/defs><g transform=\"translate(256 262) rotate(-20)\" fill=\"none\"><path d=\"M-186 0A186 60 0 0 1 186 0\" stroke=\"#FFE08A\" stroke-width=\"16\"/><\/g><path d=\"M256.00 102.00L297.14 191.37L394.85 202.88L322.57 269.63L341.82 366.12L256.00 318.00L170.18 366.12L189.43 269.63L117.15 202.88L214.86 191.37Z\" fill=\"#FFC933\" stroke=\"#FFC933\" stroke-width=\"24\" stroke-linejoin=\"round\" mask=\"url(#hueco)\"/><g transform=\"translate(256 262) rotate(-20)\" fill=\"none\"><path d=\"M-186 0A186 60 0 0 0 186 0\" stroke=\"#FFE08A\" stroke-width=\"16\"/><\/g><\/svg>", "wordmark": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 742 220\" aria-hidden=\"true\"><path d=\"M12.45 170.0V65.0H38.4L66.6 110.75L95.1 65.0H120.14999999999999V170.0H91.5V141.95Q91.5 128.45 92.25 117.65Q92.25 115.4 92.55 113.30000000000001L70.95 146.6H61.05L40.199999999999996 113.6Q40.35 115.25 40.5 116.75Q41.1 127.4 41.1 141.95V170.0ZM170.24999999999997 171.35Q160.34999999999997 171.35 152.47499999999997 166.02499999999998Q144.6 160.7 140.02499999999998 151.325Q135.45 141.95 135.45 129.95Q135.45 117.65 139.95 108.35Q144.45 99.05 152.39999999999998 93.725Q160.34999999999997 88.4 170.7 88.4Q176.24999999999997 88.4 180.89999999999998 89.9Q185.54999999999998 91.4 188.99999999999997 94.25Q191.54999999999998 96.35000000000001 193.49999999999997 98.75V90.05H220.95V170.0H192.89999999999998V161.6Q190.95 163.7 188.7 165.35Q184.95 168.2 180.375 169.77499999999998Q175.79999999999998 171.35 170.24999999999997 171.35ZM178.2 148.4Q182.99999999999997 148.4 186.45 146.22500000000002Q189.89999999999998 144.05 191.77499999999998 139.85000000000002Q193.64999999999998 135.65 193.64999999999998 129.95Q193.64999999999998 124.1 191.77499999999998 119.9Q189.89999999999998 115.7 186.45 113.525Q182.99999999999997 111.35 178.2 111.35Q173.39999999999998 111.35 170.02499999999998 113.525Q166.64999999999998 115.7 164.84999999999997 119.9Q163.04999999999998 124.1 163.04999999999998 129.95Q163.04999999999998 135.65 164.84999999999997 139.85000000000002Q166.64999999999998 144.05 170.02499999999998 146.22500000000002Q173.39999999999998 148.4 178.2 148.4ZM245.39999999999998 170.0V113.75H232.2V90.05H245.39999999999998V69.8H273.29999999999995V90.05H287.25V113.75H273.29999999999995V170.0ZM299.09999999999997 170.0V59.0H326.4V98.15Q326.4 98.0 326.54999999999995 97.85000000000001Q330.9 93.5 336.9 90.95Q342.9 88.4 349.49999999999994 88.4Q358.49999999999994 88.4 364.7249999999999 92.075Q370.94999999999993 95.75 374.17499999999995 103.025Q377.4 110.30000000000001 377.4 120.80000000000001V170.0H349.49999999999994V123.05000000000001Q349.49999999999994 119.15 348.29999999999995 116.525Q347.09999999999997 113.9 344.69999999999993 112.55000000000001Q342.29999999999995 111.2 338.99999999999994 111.35Q336.45 111.35 334.275 112.1Q332.09999999999997 112.85 330.44999999999993 114.425Q328.79999999999995 116.0 327.97499999999997 117.95Q327.15 119.9 327.15 122.30000000000001V170.0Z\" fill=\"#FFC933\"/><path d=\"M392.25 170.0V155.9L427.05 112.25H392.25V90.05H462.15V105.05L429.45 147.8H463.65V170.0ZM481.34999999999997 170.0V90.05H509.25V170.0ZM495.3 74.9Q487.65 74.9 483.45 71.375Q479.25 67.85000000000001 479.25 61.400000000000006Q479.25 55.400000000000006 483.525 51.575Q487.8 47.75 495.3 47.75Q502.8 47.75 507.075 51.275000000000006Q511.34999999999997 54.80000000000001 511.34999999999997 61.400000000000006Q511.34999999999997 67.4 507.0 71.15Q502.65 74.9 495.3 74.9ZM529.5 170.0V59.0H557.4V170.0ZM615.3 171.5Q602.55 171.5 592.5 166.1Q582.45 160.7 576.75 151.39999999999998Q571.05 142.1 571.05 129.95Q571.05 117.80000000000001 576.75 108.5Q582.45 99.2 592.5 93.80000000000001Q602.55 88.4 615.3 88.4Q628.05 88.4 638.025 93.80000000000001Q648.0 99.2 653.7 108.5Q659.4 117.80000000000001 659.4 129.95Q659.4 142.1 653.7 151.39999999999998Q648.0 160.7 638.025 166.1Q628.05 171.5 615.3 171.5ZM615.3 147.95Q619.8 147.95 623.4749999999999 145.625Q627.15 143.3 629.175 139.175Q631.2 135.05 631.2 129.95Q631.2 124.55000000000001 629.175 120.5Q627.15 116.45 623.4749999999999 114.125Q619.8 111.80000000000001 615.3 111.80000000000001Q610.65 111.80000000000001 607.05 114.125Q603.45 116.45 601.35 120.575Q599.25 124.7 599.25 129.95Q599.25 135.05 601.35 139.175Q603.45 143.3 607.05 145.625Q610.65 147.95 615.3 147.95Z\" fill=\"#F7F7FA\"/><path d=\"M686.2 43.0Q689.84 65.36 712.2 69.0Q689.84 72.64 686.2 95.0Q682.5600000000001 72.64 660.2 69.0Q682.5600000000001 65.36 686.2 43.0Z\" fill=\"#FFC933\"/><\/svg>"};</script>
+<script>
+/* StarMath — generador de mascotas.
+   2 compañeros (zorro, robot) × 4 etapas × 3 emociones = 24 dibujos SVG planos, 200×200.
+   La etapa depende de la mejor racha (nunca retrocede). Sin degradados ni sombras.
+   Uso: StarMascots.svg('zorro', 2, 'animando')  →  cadena <svg>…</svg>            */
+(function (root) {
+  'use strict';
+
+  var C = {
+    gold: '#FFC933', goldDeep: '#E0A200', goldPale: '#FFE08A',
+    cream: '#FFF1DC', ink: '#1B1B2F', white: '#F7F7FA',
+    coral: '#FF8A5B', mint: '#3DDC97', lav: '#9AA8FF', sky: '#5AB6FF', skyDeep: '#3A93E0',
+    violet: '#6C5CE7', violetDeep: '#4B3FB8', blue: '#4C7DFF', navyBand: '#0F1F5C',
+    leather: '#6B3E26', lens: '#9BE1FF',
+    foxO: '#FF8A3D', foxD: '#D9531E', foxEar: '#5A2417',
+    rob: '#C9D3FF', robD: '#9AA8FF', robL: '#E3E8FF', visor: '#0D1B4A'
+  };
+
+  var STAGES = [
+    { id: 'cadete', name: 'Cadete', bestStreak: 0 },
+    { id: 'piloto', name: 'Piloto', bestStreak: 7 },
+    { id: 'capitan', name: 'Capitán', bestStreak: 21 },
+    { id: 'comandante', name: 'Comandante estelar', bestStreak: 50 }
+  ];
+  var EMOTIONS = [
+    { id: 'contenta', key: 'happy', label: 'Contenta' },
+    { id: 'pensando', key: 'thinking', label: 'Pensando' },
+    { id: 'animando', key: 'cheering', label: 'Animando' }
+  ];
+  var KINDS = [
+    { id: 'zorro', name: 'Zorro' },
+    { id: 'robot', name: 'Robot' }
+  ];
+
+  function f(n) { return Math.round(n * 10) / 10; }
+
+  function starPath(cx, cy, R, r) {
+    var pts = [];
+    for (var i = 0; i < 10; i++) {
+      var a = -Math.PI / 2 + i * Math.PI / 5, rad = i % 2 ? r : R;
+      pts.push(f(cx + rad * Math.cos(a)) + ' ' + f(cy + rad * Math.sin(a)));
+    }
+    return 'M' + pts.join('L') + 'Z';
+  }
+  function star(cx, cy, R, fill) {
+    return '<path d="' + starPath(cx, cy, R, R * 0.46) + '" fill="' + (fill || C.gold) + '" stroke="' + (fill || C.gold) + '" stroke-width="2" stroke-linejoin="round"/>';
+  }
+  function sparkle(cx, cy, s, fill) {
+    var k = s * 0.14;
+    return '<path d="M' + cx + ' ' + (cy - s) + 'Q' + (cx + k) + ' ' + (cy - k) + ' ' + (cx + s) + ' ' + cy +
+      'Q' + (cx + k) + ' ' + (cy + k) + ' ' + cx + ' ' + (cy + s) +
+      'Q' + (cx - k) + ' ' + (cy + k) + ' ' + (cx - s) + ' ' + cy +
+      'Q' + (cx - k) + ' ' + (cy - k) + ' ' + cx + ' ' + (cy - s) + 'Z" fill="' + (fill || C.gold) + '"/>';
+  }
+  function line(d, stroke, w) {
+    return '<path d="' + d + '" fill="none" stroke="' + stroke + '" stroke-width="' + w + '" stroke-linecap="round" stroke-linejoin="round"/>';
+  }
+
+  /* ---------- Piezas comunes por etapa ---------- */
+
+  // Órbita de la etapa 4 (las dos mitades: una detrás y otra delante del personaje)
+  function orbitBack() {
+    return '<g transform="rotate(-18 100 112)">' + line('M6 112A94 30 0 0 1 194 112', C.goldPale, 4) + '</g>';
+  }
+  function orbitFront() {
+    return '<g transform="rotate(-18 100 112)">' + line('M194 112A94 30 0 0 1 6 112', C.goldPale, 4) +
+      '<g transform="translate(186 98)">' + sparkle(0, 0, 10, C.gold) + '</g></g>';
+  }
+
+  // Elemento de cuello: pañuelo (1), bufanda (2), cierre de capa (3 y 4)
+  function neckItem(stage) {
+    if (stage === 1) {
+      return '<path d="M74 148L126 148L100 177Z" fill="' + C.coral + '"/><circle cx="100" cy="151" r="4.5" fill="' + C.gold + '"/>';
+    }
+    if (stage === 2) {
+      return '<path d="M68 146Q100 162 132 146L132 159Q100 175 68 159Z" fill="' + C.sky + '"/>' +
+        '<path d="M118 160L136 194L120 198L106 166Z" fill="' + C.skyDeep + '"/>';
+    }
+    return line('M62 152Q100 166 138 152', C.violetDeep, 6) + star(100, 160, 9, C.gold);
+  }
+  function capeBack(stage) {
+    if (stage < 3) return '';
+    var trim = stage === 4 ? line('M53 196L147 196', C.gold, 4) : '';
+    return '<path d="M52 200C50 170 58 150 78 144L122 144C142 150 150 170 148 200Z" fill="' + C.violet + '"/>' + trim;
+  }
+  function epaulettes(stage) {
+    if (stage < 3) return '';
+    var s = '<g transform="rotate(-14 62 156)"><rect x="48" y="150" width="28" height="11" rx="5" fill="' + C.gold + '"/></g>' +
+      '<g transform="rotate(14 138 156)"><rect x="124" y="150" width="28" height="11" rx="5" fill="' + C.gold + '"/></g>';
+    if (stage === 4) {
+      s += '<rect x="51" y="160" width="3" height="11" rx="1.5" fill="' + C.goldDeep + '"/><rect x="57" y="162" width="3" height="11" rx="1.5" fill="' + C.goldDeep + '"/><rect x="63" y="163" width="3" height="11" rx="1.5" fill="' + C.goldDeep + '"/>' +
+        '<rect x="146" y="160" width="3" height="11" rx="1.5" fill="' + C.goldDeep + '"/><rect x="140" y="162" width="3" height="11" rx="1.5" fill="' + C.goldDeep + '"/><rect x="134" y="163" width="3" height="11" rx="1.5" fill="' + C.goldDeep + '"/>';
+    }
+    return s;
+  }
+
+  // Gorra, gafas o gorro de capitán. 'g' ajusta la geometría a cada cabeza.
+  function headgear(stage, g) {
+    var dy = g.dy;
+    if (stage === 1) {
+      return '<g transform="translate(0 ' + dy + ')">' +
+        '<path d="M68 62C68 36 132 36 132 62Z" fill="' + C.blue + '"/>' +
+        '<rect x="58" y="57" width="84" height="10" rx="5" fill="' + C.gold + '"/>' +
+        star(100, 49, 8.5, C.gold) + '</g>';
+    }
+    if (stage === 2) {
+      return '<rect x="' + g.strap[0] + '" y="' + (g.lensY - 4.5) + '" width="' + (g.strap[1] - g.strap[0]) + '" height="9" rx="4" fill="' + C.leather + '"/>' +
+        '<rect x="88" y="' + (g.lensY - 3.5) + '" width="24" height="7" fill="' + C.gold + '"/>' +
+        '<circle cx="78" cy="' + g.lensY + '" r="' + g.lensR + '" fill="' + C.lens + '" stroke="' + C.gold + '" stroke-width="4.5"/>' +
+        '<circle cx="122" cy="' + g.lensY + '" r="' + g.lensR + '" fill="' + C.lens + '" stroke="' + C.gold + '" stroke-width="4.5"/>' +
+        line('M72 ' + (g.lensY - 3) + 'Q75 ' + (g.lensY - 6) + ' 80 ' + (g.lensY - 6), C.white, 2.2) +
+        line('M116 ' + (g.lensY - 3) + 'Q119 ' + (g.lensY - 6) + ' 124 ' + (g.lensY - 6), C.white, 2.2);
+    }
+    var s = '<g transform="translate(0 ' + dy + ')">' +
+      '<path d="M60 62C60 30 140 30 140 62Z" fill="' + C.white + '"/>' +
+      '<rect x="60" y="52" width="80" height="11" fill="' + C.navyBand + '"/>';
+    if (stage === 4) s += '<rect x="60" y="49" width="80" height="3" fill="' + C.gold + '"/><rect x="60" y="63" width="80" height="3" fill="' + C.gold + '"/>';
+    s += '<path d="M68 66Q100 78 132 66L128 61L72 61Z" fill="' + C.goldDeep + '"/>' +
+      star(100, 57.5, 8.5, C.gold);
+    if (stage === 4) s += star(100, 30, 12, C.gold) + sparkle(120, 24, 7, C.goldPale);
+    return s + '</g>';
+  }
+
+  /* ---------- Emociones (comunes: bocadillo de pensar y chispas) ---------- */
+  function thinkDots() {
+    return '<circle cx="168" cy="58" r="3.2" fill="' + C.lav + '"/><circle cx="178" cy="44" r="4.8" fill="' + C.lav + '"/><circle cx="189" cy="26" r="6.8" fill="' + C.lav + '"/>';
+  }
+  function cheerSparks(stage) {
+    var s = sparkle(24, 64, 9) + sparkle(176, 56, 12) + sparkle(16, 150, 7, C.goldPale);
+    return stage === 4 ? sparkle(30, 30, 7, C.goldPale) + s : s;
+  }
+
+  /* ---------- Zorro ---------- */
+  function fox(stage, emo) {
+    var g = { dy: 0, strap: [50, 150], lensY: 64, lensR: 12 };
+    var out = '';
+    if (stage === 4) out += orbitBack();
+    // cola
+    out += '<path d="M126 190C166 198 204 172 192 138C189 128 182 122 175 122C177 140 160 158 130 164Z" fill="' + C.foxO + '"/>' +
+      '<path d="M175 122C182 122 189 128 192 138C193 142 193 147 191 151C182 145 177 135 175 122Z" fill="' + C.cream + '"/>';
+    out += capeBack(stage);
+    // torso
+    out += '<path d="M60 200C60 164 76 148 100 148C124 148 140 164 140 200Z" fill="' + C.foxO + '"/>' +
+      '<ellipse cx="100" cy="177" rx="20" ry="26" fill="' + C.cream + '"/>';
+    out += neckItem(stage) + epaulettes(stage);
+    // brazos al aire (detrás de la cabeza)
+    if (emo === 'cheering') {
+      out += line('M64 172Q30 162 24 126', C.foxO, 16) + line('M136 172Q170 162 176 126', C.foxO, 16) +
+        '<circle cx="24" cy="122" r="9.5" fill="' + C.cream + '"/><circle cx="176" cy="122" r="9.5" fill="' + C.cream + '"/>';
+    }
+    // cabeza
+    var tilt = emo === 'thinking' ? ' transform="rotate(-6 100 110)"' : (emo === 'cheering' ? ' transform="translate(0 -3)"' : '');
+    var h = '<g' + tilt + '>' +
+      '<path d="M44 86L40 28L84 57Z" fill="' + C.foxO + '"/><path d="M50 76L48 43L73 58Z" fill="' + C.foxEar + '"/>' +
+      '<path d="M156 86L160 28L116 57Z" fill="' + C.foxO + '"/><path d="M150 76L152 43L127 58Z" fill="' + C.foxEar + '"/>' +
+      '<path d="M28 106L40 86C44 60 70 48 100 48C130 48 156 60 160 86L172 106L148 122C138 138 118 146 100 148C82 146 62 138 52 122Z" fill="' + C.foxO + '"/>' +
+      '<path d="M100 148C80 146 62 134 56 118C70 111 86 107 100 115C114 107 130 111 144 118C138 134 120 146 100 148Z" fill="' + C.cream + '"/>' +
+      '<ellipse cx="100" cy="119" rx="7.5" ry="5.5" fill="' + C.ink + '"/>';
+    if (emo === 'happy') {
+      h += '<ellipse cx="79" cy="98" rx="5.8" ry="8" fill="' + C.ink + '"/><ellipse cx="121" cy="98" rx="5.8" ry="8" fill="' + C.ink + '"/>' +
+        '<circle cx="81" cy="95" r="2.2" fill="#fff"/><circle cx="123" cy="95" r="2.2" fill="#fff"/>' +
+        line('M100 124L100 129M89 128Q100 139 111 128', C.ink, 3.5) +
+        '<circle cx="62" cy="114" r="6" fill="' + C.coral + '" opacity=".55"/><circle cx="138" cy="114" r="6" fill="' + C.coral + '" opacity=".55"/>';
+    } else if (emo === 'thinking') {
+      h += '<ellipse cx="81" cy="97" rx="5.8" ry="8" fill="' + C.ink + '"/><ellipse cx="123" cy="95" rx="5.8" ry="8" fill="' + C.ink + '"/>' +
+        '<circle cx="84" cy="93" r="2.2" fill="#fff"/><circle cx="126" cy="91" r="2.2" fill="#fff"/>' +
+        line('M68 83L90 86M110 80Q122 71 135 78', C.foxEar, 4) +
+        line('M93 131Q101 127 110 132', C.ink, 3.5);
+    } else {
+      h += line('M69 103Q79 88 89 103M111 103Q121 88 131 103', C.ink, 4.8) +
+        '<path d="M86 126Q100 152 114 126Z" fill="' + C.ink + '"/><path d="M93 138Q100 146 107 138Q100 133 93 138Z" fill="' + C.coral + '"/>' +
+        '<circle cx="62" cy="114" r="6" fill="' + C.coral + '" opacity=".55"/><circle cx="138" cy="114" r="6" fill="' + C.coral + '" opacity=".55"/>';
+    }
+    h += headgear(stage, g) + '</g>';
+    out += h;
+    // mano en la barbilla (delante)
+    if (emo === 'thinking') {
+      out += line('M130 178Q142 160 122 147', C.foxO, 15) + '<circle cx="121" cy="145" r="8.5" fill="' + C.cream + '"/>';
+    }
+    if (emo === 'thinking') out += thinkDots();
+    if (emo === 'cheering') out += cheerSparks(stage);
+    if (stage === 4) out += orbitFront();
+    return out;
+  }
+
+  /* ---------- Robot ---------- */
+  function robot(stage, emo) {
+    var g = { dy: -2, strap: [44, 156], lensY: 65, lensR: 9.5 };
+    var out = '';
+    if (stage === 4) out += orbitBack();
+    out += capeBack(stage);
+    // torso
+    out += '<rect x="66" y="144" width="68" height="62" rx="16" fill="' + C.rob + '"/>' +
+      '<circle cx="100" cy="172" r="12" fill="' + C.visor + '"/>' + star(100, 172, 7, C.gold) +
+      '<rect x="88" y="134" width="24" height="14" rx="4" fill="' + C.robD + '"/>';
+    out += neckItem(stage) + epaulettes(stage);
+    if (emo === 'cheering') {
+      out += line('M70 170Q38 162 32 124', C.robD, 14) + line('M130 170Q162 162 168 124', C.robD, 14) +
+        '<circle cx="32" cy="120" r="9.5" fill="' + C.robL + '"/><circle cx="168" cy="120" r="9.5" fill="' + C.robL + '"/>';
+    }
+    var tilt = emo === 'thinking' ? ' transform="rotate(-5 100 100)"' : (emo === 'cheering' ? ' transform="translate(0 -3)"' : '');
+    var h = '<g' + tilt + '>' +
+      line('M146 56L146 34', C.robD, 5) + star(146, 28, 9, C.gold) +
+      '<circle cx="36" cy="96" r="13" fill="' + C.robD + '"/><circle cx="164" cy="96" r="13" fill="' + C.robD + '"/>' +
+      '<rect x="40" y="52" width="120" height="88" rx="28" fill="' + C.rob + '"/>' +
+      '<rect x="54" y="72" width="92" height="54" rx="22" fill="' + C.visor + '"/>';
+    if (emo === 'happy') {
+      h += '<circle cx="82" cy="94" r="7.5" fill="' + C.gold + '"/><circle cx="118" cy="94" r="7.5" fill="' + C.gold + '"/>' +
+        '<circle cx="84.5" cy="91.5" r="2.4" fill="#fff"/><circle cx="120.5" cy="91.5" r="2.4" fill="#fff"/>' +
+        line('M90 109Q100 118 110 109', C.gold, 5);
+    } else if (emo === 'thinking') {
+      h += '<circle cx="84" cy="94" r="7.5" fill="' + C.gold + '"/><circle cx="120" cy="91" r="7.5" fill="' + C.gold + '"/>' +
+        '<circle cx="86.5" cy="91.5" r="2.4" fill="#fff"/><circle cx="122.5" cy="88.5" r="2.4" fill="#fff"/>' +
+        line('M70 80L94 83M108 77Q120 71 132 77', C.lav, 4.5) +
+        line('M92 112L108 112', C.gold, 5);
+    } else {
+      h += '<path d="' + starPath(82, 94, 11, 5) + '" fill="' + C.gold + '" stroke="' + C.gold + '" stroke-width="2" stroke-linejoin="round"/>' +
+        '<path d="' + starPath(118, 94, 11, 5) + '" fill="' + C.gold + '" stroke="' + C.gold + '" stroke-width="2" stroke-linejoin="round"/>' +
+        '<path d="M88 106Q100 128 112 106Z" fill="' + C.gold + '"/>';
+    }
+    h += headgear(stage, g) + '</g>';
+    out += h;
+    if (emo === 'thinking') {
+      out += line('M128 176Q140 160 122 146', C.robD, 14) + '<circle cx="121" cy="144" r="8.5" fill="' + C.robL + '"/>';
+      out += thinkDots();
+    }
+    if (emo === 'cheering') out += cheerSparks(stage);
+    if (stage === 4) out += orbitFront();
+    return out;
+  }
+
+  /* ---------- API ---------- */
+  function svg(kind, stage, emotion, opts) {
+    opts = opts || {};
+    var emo = emotion;
+    for (var i = 0; i < EMOTIONS.length; i++) if (EMOTIONS[i].id === emotion) emo = EMOTIONS[i].key;
+    var body = kind === 'robot' ? robot(stage, emo) : fox(stage, emo);
+    var title = (opts.title !== undefined) ? opts.title : (kind + ' · ' + STAGES[stage - 1].name + ' · ' + emotion);
+    var size = opts.size ? ' width="' + opts.size + '" height="' + opts.size + '"' : '';
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"' + size + ' role="img" aria-label="' + title + '"><title>' + title + '</title>' + body + '</svg>';
+  }
+  function stageFor(bestStreak) {
+    var s = 1;
+    for (var i = 0; i < STAGES.length; i++) if (bestStreak >= STAGES[i].bestStreak) s = i + 1;
+    return s;
+  }
+
+  var api = { svg: svg, stageFor: stageFor, STAGES: STAGES, EMOTIONS: EMOTIONS, KINDS: KINDS, colors: C };
+  if (typeof module !== 'undefined' && module.exports) module.exports = api;
+  else root.StarMascots = api;
+})(typeof window !== 'undefined' ? window : this);
+
+</script>
+<script>
+/* Mathzilo — motor de preguntas y reglas de estrellas (prototipo, niveles 1 a 3).
+   Cada pregunta nace de un generador que calcula la respuesta con aritmética entera,
+   así que una respuesta marcada como correcta nunca puede ser falsa.
+   Cada distractor lleva la etiqueta del error típico que representa; esa etiqueta
+   activa la explicación exacta (plantillas con huecos, nada de IA en directo).      */
+(function (root) {
+  'use strict';
+
+  /* ---------- Utilidades ---------- */
+  function mulberry32(seed) {
+    var a = seed >>> 0;
+    return function () {
+      a = (a + 0x6D2B79F5) | 0;
+      var t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function ri(r, lo, hi) { return lo + Math.floor(r() * (hi - lo + 1)); }
+  function shuffle(r, arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(r() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+  function swapDigits(n) { return parseInt(String(n).split('').reverse().join(''), 10); }
+
+  var SKILLS = {
+    'sum-20':      { name: 'Sumas hasta 20', level: 1 },
+    'sub-20':      { name: 'Restas hasta 20', level: 1 },
+    'add-carry':   { name: 'Sumas con llevada', level: 2 },
+    'sub-borrow':  { name: 'Restas con llevada', level: 2 },
+    'mult-table':  { name: 'Tablas de multiplicar', level: 3 },
+    'div-exact':   { name: 'Divisiones exactas', level: 3 }
+  };
+  var POOL = { 1: ['sum-20', 'sub-20'], 2: ['add-carry', 'sub-borrow'], 3: ['mult-table', 'div-exact'] };
+  var NUM_SHARE = { 'sum-20': 0, 'sub-20': 0, 'add-carry': 0.25, 'sub-borrow': 0.25, 'mult-table': 0.5, 'div-exact': 0.5 };
+
+  /* Nombres de los errores típicos (para el panel del padre) */
+  var ERROR_NAMES = {
+    'olvido-llevada': 'Olvida la llevada',
+    'llevada-doble': 'Suma la llevada dos veces',
+    'olvido-prestamo': 'Se equivoca al pedir prestada una decena',
+    'resta-al-reves': 'Resta al revés las unidades',
+    'resta-en-vez': 'Resta en lugar de sumar o al contrario',
+    'suma-en-vez': 'Suma en lugar de restar o multiplicar',
+    'tabla-cercana': 'Confunde con una tabla vecina',
+    'cifras-cambiadas': 'Cambia el orden de las cifras',
+    'decena-mal': 'Se equivoca en una decena',
+    'cifra-copiada': 'Copia uno de los números',
+    'cuenta-mal': 'Se equivoca por poco al contar'
+  };
+
+  /* ---------- Generadores ---------- */
+  function build(gen, level, text, answer, data, cands) {
+    return { gen: gen, level: level, skill: SKILLS[gen].name, text: text, answer: answer, data: data, cands: cands };
+  }
+
+  var GENS = {
+    'sum-20': function (r) {
+      var a, b;
+      do { a = ri(r, 6, 9); b = ri(r, 4, 9); } while (a + b < 11);
+      var ans = a + b;
+      return build('sum-20', 1, a + ' + ' + b, ans, { a: a, b: b }, [
+        { v: ans - 1, tag: 'cuenta-mal' }, { v: ans + 1, tag: 'cuenta-mal' },
+        { v: Math.abs(a - b), tag: 'resta-en-vez' },
+        { v: ans - 10, tag: 'decena-mal' }, { v: ans + 10, tag: 'decena-mal' }
+      ]);
+    },
+    'sub-20': function (r) {
+      var a = ri(r, 11, 18);
+      var lo = Math.max(3, a - 9), hi = Math.min(9, a - 2);
+      var b = ri(r, lo, hi), ans = a - b;
+      return build('sub-20', 1, a + ' − ' + b, ans, { a: a, b: b }, [
+        { v: a + b, tag: 'suma-en-vez' },
+        { v: ans - 1, tag: 'cuenta-mal' }, { v: ans + 1, tag: 'cuenta-mal' },
+        { v: Math.abs((a % 10) - b), tag: 'resta-al-reves' },
+        { v: ans + 10, tag: 'decena-mal' }
+      ]);
+    },
+    'add-carry': function (r) {
+      var a, b;
+      do { a = ri(r, 13, 86); b = ri(r, 13, 86); } while ((a % 10) + (b % 10) < 10 || a + b > 99);
+      var ans = a + b;
+      return build('add-carry', 2, a + ' + ' + b, ans, { a: a, b: b }, [
+        { v: ans - 10, tag: 'olvido-llevada' }, { v: ans + 10, tag: 'llevada-doble' },
+        { v: ans - 1, tag: 'cuenta-mal' }, { v: ans + 1, tag: 'cuenta-mal' }
+      ]);
+    },
+    'sub-borrow': function (r) {
+      var a, b, au, bu;
+      do {
+        a = ri(r, 31, 95); b = ri(r, 12, a - 5); au = a % 10; bu = b % 10;
+      } while (au >= bu);
+      var ans = a - b, ad = Math.floor(a / 10), bd = Math.floor(b / 10);
+      var cands = [
+        { v: (ad - bd) * 10 + (bu - au), tag: 'olvido-prestamo' },
+        { v: ans - 1, tag: 'cuenta-mal' }, { v: ans + 1, tag: 'cuenta-mal' },
+        { v: ans + 10, tag: 'decena-mal' }, { v: ans - 10, tag: 'decena-mal' }
+      ];
+      if (a + b <= 99) cands.push({ v: a + b, tag: 'suma-en-vez' });
+      return build('sub-borrow', 2, a + ' − ' + b, ans, { a: a, b: b }, cands);
+    },
+    'mult-table': function (r) {
+      var a = ri(r, 3, 9), b = ri(r, 3, 9), ans = a * b;
+      var cands = [
+        { v: a * (b + 1), tag: 'tabla-cercana' }, { v: a * (b - 1), tag: 'tabla-cercana' },
+        { v: (a + 1) * b, tag: 'tabla-cercana' }, { v: (a - 1) * b, tag: 'tabla-cercana' },
+        { v: a + b, tag: 'suma-en-vez' },
+        { v: ans + 10, tag: 'decena-mal' }, { v: ans - 10, tag: 'decena-mal' }
+      ];
+      if (ans >= 10) cands.push({ v: swapDigits(ans), tag: 'cifras-cambiadas' });
+      return build('mult-table', 3, a + ' × ' + b, ans, { a: a, b: b }, cands);
+    },
+    'div-exact': function (r) {
+      var q = ri(r, 3, 9), b = ri(r, 3, 9), a = q * b;
+      return build('div-exact', 3, a + ' ÷ ' + b, q, { a: a, b: b, q: q }, [
+        { v: q + 1, tag: 'tabla-cercana' }, { v: q - 1, tag: 'tabla-cercana' },
+        { v: b, tag: 'cifra-copiada' }, { v: a - b, tag: 'resta-en-vez' },
+        { v: q + 2, tag: 'cuenta-mal' }
+      ]);
+    }
+  };
+
+  /* Elige 3 distractores distintos y devuelve las 4 opciones mezcladas */
+  function pickOptions(r, answer, cands) {
+    var seen = {}; seen[answer] = 1;
+    var uniq = [];
+    shuffle(r, cands).forEach(function (c) {
+      if (c.v >= 0 && c.v === Math.floor(c.v) && !seen[c.v]) { seen[c.v] = 1; uniq.push(c); }
+    });
+    var chosen = uniq.slice(0, 3);
+    var k = 1;
+    while (chosen.length < 3) {
+      [answer + k, answer - k].forEach(function (v) {
+        if (chosen.length < 3 && v >= 0 && !seen[v]) { seen[v] = 1; chosen.push({ v: v, tag: 'cuenta-mal' }); }
+      });
+      k++;
+    }
+    return shuffle(r, chosen.concat([{ v: answer, tag: 'ok' }]));
+  }
+
+  function makeQuestion(genId, seed) {
+    var r = mulberry32(seed);
+    var q = GENS[genId](r);
+    q.options = pickOptions(r, q.answer, q.cands);
+    q.type = (r() < NUM_SHARE[genId]) ? 'num' : 'mc';
+    q.seed = seed;
+    return q;
+  }
+
+  /* Otra pregunta del mismo tipo (mini-reto tras un fallo) */
+  function similar(q, seed) {
+    var n = makeQuestion(q.gen, seed), tries = 0;
+    while (n.text === q.text && tries < 20) { n = makeQuestion(q.gen, seed + 1000 + tries); tries++; }
+    return n;
+  }
+
+  function makeTest(level, n, seed) {
+    var r = mulberry32(seed), lv = Math.min(Math.max(level, 1), 3);
+    var pool = POOL[lv], lower = lv > 1 ? POOL[lv - 1] : null;
+    var qs = [], seen = {};
+    for (var i = 0; i < n; i++) {
+      var ids = (lower && r() < 0.3) ? lower : pool;
+      var id = ids[ri(r, 0, ids.length - 1)], q, tries = 0;
+      do { q = makeQuestion(id, Math.floor(r() * 1e9)); tries++; } while (seen[q.text] && tries < 40);
+      seen[q.text] = 1;
+      qs.push(q);
+    }
+    return qs;
+  }
+
+  /* Etiqueta del error a partir de lo que el niño respondió (también en teclado numérico) */
+  function tagFor(q, given) {
+    if (given === q.answer) return 'ok';
+    for (var i = 0; i < q.cands.length; i++) if (q.cands[i].v === given) return q.cands[i].tag;
+    return 'cuenta-mal';
+  }
+
+  /* ---------- Explicaciones (tono 6-8 años) ---------- */
+  function nearProduct(q, v) {
+    var a = q.data.a, b = q.data.b;
+    var opts = [[a, b + 1], [a, b - 1], [a + 1, b], [a - 1, b]];
+    for (var i = 0; i < opts.length; i++) if (opts[i][0] * opts[i][1] === v) return opts[i];
+    return null;
+  }
+  function chips(items, hiIdx) { return { type: 'chips', items: items, hi: hiIdx }; }
+
+  function explain(q, tag, given) {
+    var d = q.data, ans = q.answer, prefix = '', steps = [], visual = null;
+    var PRE = {
+      'cuenta-mal': 'Casi. Vamos paso a paso.',
+      'olvido-llevada': 'Casi. Se te olvidó la que te llevabas.',
+      'llevada-doble': 'Casi. La llevada solo se suma una vez.',
+      'olvido-prestamo': 'Casi. Cuando pides una decena prestada, la de al lado baja un número.',
+      'suma-en-vez': 'Casi. Aquí no se suma.',
+      'resta-en-vez': 'Casi. Fíjate en el signo.',
+      'resta-al-reves': 'Casi. Las unidades no se restan al revés.',
+      'decena-mal': 'Casi. Revisa las decenas.',
+      'cifras-cambiadas': 'Casi. Tienes las cifras justo al revés.',
+      'cifra-copiada': 'Casi. Ese número ya estaba en la pregunta.',
+      'tabla-cercana': 'Casi.'
+    };
+    prefix = PRE[tag] || PRE['cuenta-mal'];
+
+    if (q.gen === 'sum-20') {
+      var need = 10 - d.a, rest = d.b - need;
+      if (tag === 'resta-en-vez') prefix = 'Casi. Aquí hay que juntar, no quitar: es una suma.';
+      steps = [
+        'Completa la decena: a ' + d.a + ' le faltan ' + need + ' para llegar a 10.',
+        'Quita esos ' + need + ' de ' + d.b + ': quedan ' + rest + '.',
+        '10 + ' + rest + ' = ' + ans + '. ¡Ese es el resultado!'
+      ];
+      visual = { type: 'frame', a: d.a, b: d.b };
+    } else if (q.gen === 'sub-20') {
+      var u = d.a - 10, left = d.b - u;
+      if (tag === 'suma-en-vez') prefix = 'Casi. Aquí hay que quitar, no juntar: es una resta.';
+      steps = [
+        'Primero quita hasta llegar a 10: ' + d.a + ' − ' + u + ' = 10.',
+        'Todavía te faltan por quitar ' + left + ' (porque ' + d.b + ' − ' + u + ' = ' + left + ').',
+        '10 − ' + left + ' = ' + ans + '. ¡Ese es el resultado!'
+      ];
+      var back = []; for (var s = d.a; s >= ans; s--) back.push(s);
+      visual = chips(back, back.length - 1);
+    } else if (q.gen === 'add-carry') {
+      var au = d.a % 10, bu = d.b % 10, ad = Math.floor(d.a / 10), bd = Math.floor(d.b / 10), us = au + bu;
+      steps = [
+        'Empieza por las unidades: ' + au + ' + ' + bu + ' = ' + us + '.',
+        'Escribe el ' + (us % 10) + ' y súbete 1 a las decenas.',
+        'Ahora las decenas: ' + ad + ' + ' + bd + ' + 1 = ' + (ad + bd + 1) + '.',
+        'Junta todo: ¡' + ans + '!'
+      ];
+      visual = { type: 'columns', op: '+', a: d.a, b: d.b, carry: true, ans: ans };
+    } else if (q.gen === 'sub-borrow') {
+      var au2 = d.a % 10, bu2 = d.b % 10, ad2 = Math.floor(d.a / 10), bd2 = Math.floor(d.b / 10);
+      if (tag === 'olvido-prestamo') prefix = 'Casi. Al pedir una decena prestada, las decenas de ' + d.a + ' bajan a ' + (ad2 - 1) + '.';
+      steps = [
+        'En las unidades no puedes quitar ' + bu2 + ' a ' + au2 + '.',
+        'Pide una decena prestada: ' + au2 + ' se convierte en ' + (au2 + 10) + '.',
+        (au2 + 10) + ' − ' + bu2 + ' = ' + (au2 + 10 - bu2) + '.',
+        'Ahora quedan ' + (ad2 - 1) + ' decenas: ' + (ad2 - 1) + ' − ' + bd2 + ' = ' + (ad2 - 1 - bd2) + '.',
+        'Junta todo: ¡' + ans + '!'
+      ];
+      visual = { type: 'columns', op: '-', a: d.a, b: d.b, borrow: true, ans: ans };
+    } else if (q.gen === 'mult-table') {
+      var np = tag === 'tabla-cercana' ? nearProduct(q, given) : null;
+      if (np) prefix = 'Casi. ' + given + ' es el resultado de ' + np[0] + ' × ' + np[1] + ', no de ' + d.a + ' × ' + d.b + '.';
+      if (tag === 'suma-en-vez') prefix = 'Casi. Aquí se multiplica: ' + d.a + ' × ' + d.b + ' no es ' + d.a + ' + ' + d.b + '.';
+      steps = [
+        'Cuenta de ' + d.b + ' en ' + d.b + ', ' + d.a + ' veces.',
+        'Así llegas a ' + ans + '. ¡' + d.a + ' × ' + d.b + ' = ' + ans + '!'
+      ];
+      var sk = []; for (var m = 1; m <= d.a; m++) sk.push(m * d.b);
+      visual = chips(sk, sk.length - 1);
+    } else if (q.gen === 'div-exact') {
+      if (tag === 'tabla-cercana') prefix = 'Casi. ' + given + ' × ' + d.b + ' = ' + (given * d.b) + ', y necesitamos ' + d.a + '.';
+      steps = [
+        'Piensa: ¿qué número por ' + d.b + ' da ' + d.a + '?',
+        'Cuenta de ' + d.b + ' en ' + d.b + ' hasta llegar a ' + d.a + ': lo consigues en ' + ans + ' saltos.',
+        'Entonces ' + d.a + ' ÷ ' + d.b + ' = ' + ans + '. ¡Lo tienes!'
+      ];
+      var sk2 = []; for (var m2 = 1; m2 <= ans; m2++) sk2.push(m2 * d.b);
+      visual = chips(sk2, sk2.length - 1);
+    }
+    return { lead: 'Casi. ¿Vemos qué pasó?', prefix: prefix, steps: steps, visual: visual };
+  }
+
+  /* ---------- Estrellas y rachas ---------- */
+  var DEFAULT_RULES = {
+    passPct: 70,
+    perCorrect: 1,
+    passBonus: { 10: 2, 15: 3, 20: 4 },
+    perfect: 3,
+    streakBonus: { 3: 3, 7: 7, 14: 15, 30: 40 },
+    maxLen: 20
+  };
+
+  /* st = {doneToday, streakToday, streak}; res = {correct, total, fast} */
+  function scoreTest(rules, st, res) {
+    var pct = res.correct / res.total * 100;
+    var passed = pct >= rules.passPct;
+    var first = !st.doneToday;
+    var items = [];
+    if (first) {
+      items.push({ id: 'aciertos', n: res.correct, stars: res.correct * rules.perCorrect });
+      if (passed && !res.fast) {
+        items.push({ id: 'superado', stars: rules.passBonus[res.total] || 0 });
+        if (res.correct === res.total) items.push({ id: 'perfecto', stars: rules.perfect });
+      }
+    }
+    var newStreak = st.streak, extended = false;
+    if (passed && !st.streakToday) {
+      newStreak = st.streak + 1; extended = true;
+      var sb = rules.streakBonus[newStreak];
+      if (sb && !res.fast) items.push({ id: 'racha', stars: sb, days: newStreak });
+    }
+    var total = 0;
+    items.forEach(function (it) { total += it.stars; });
+    return { passed: passed, pct: pct, first: first, practice: !first, items: items, total: total,
+             newStreak: newStreak, streakExtended: extended, fast: !!res.fast };
+  }
+
+  var api = {
+    mulberry32: mulberry32, SKILLS: SKILLS, POOL: POOL, ERROR_NAMES: ERROR_NAMES, GENS: GENS,
+    makeQuestion: makeQuestion, makeTest: makeTest, similar: similar, tagFor: tagFor, explain: explain,
+    DEFAULT_RULES: DEFAULT_RULES, scoreTest: scoreTest
+  };
+  if (typeof module !== 'undefined' && module.exports) module.exports = api;
+  else root.StarEngine = api;
+})(typeof window !== 'undefined' ? window : this);
+
+</script>
+<script>
+/* Mathzilo — prototipo clicable de la fase 1.
+   6 pantallas del niño (tablet 1024×680) y 4 del padre (móvil 390×800), todo en memoria.
+   render() reconstruye #app a partir del estado S; los clics llegan por delegación (data-act)
+   y fit() escala el dispositivo con transform para que quepa en cualquier pantalla.            */
+(function () {
+  'use strict';
+  var M = window.StarMascots, E = window.StarEngine, A = window.SM_ASSETS || {};
+  var DEV = { tablet: { w: 1024, h: 680 }, phone: { w: 390, h: 800 } };
+  var KID_SCREENS = [['perfiles', 'Perfiles'], ['inicio', 'Inicio'], ['longitud', 'Elegir test'], ['pregunta', 'Pregunta'],
+                     ['explicacion', 'Explicación'], ['resultado', 'Resultado'], ['mascota', 'Mascota']];
+  var PARENT_SCREENS = [['pin', 'PIN'], ['panel', 'Panel'], ['canje', 'Canjear'], ['ajustes', 'Ajustes']];
+  var DEMO_PIN = '1234';
+  var PRAISE = ['¡Bien pensado!', '¡Eso es!', '¡Buen trabajo!', '¡Lo has calculado genial!', '¡Muy bien!', '¡Sigue así!'];
+
+  /* ---------- Utilidades ---------- */
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
+  function today(off) { var d = new Date(); d.setHours(12, 0, 0, 0); d.setDate(d.getDate() + (off || 0)); return d; }
+  function fmtDay(d) { return d.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' }); }
+  function dayLetter(d) { return 'DLMXJVS'.charAt(d.getDay()); }
+  function plural(n, one, many) { return n + ' ' + (n === 1 ? one : many); }
+  var uid = 100;
+  function nextId() { return 'e' + (uid++); }
+
+  var ICONS = {
+    star: '<path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z" fill="currentColor"/>',
+    shield: '<path d="M12 2.5l8 3v6c0 5-3.4 8.8-8 10.5-4.6-1.7-8-5.5-8-10.5v-6z" fill="currentColor"/>',
+    flame: '<path d="M12 2.5c.6 3.6 5.5 5.6 5.5 11a5.5 5.5 0 0 1-11 0c0-2.8 1.6-4.4 2.6-6.6.9 1.2 1.4 2.6 1.4 4 1.4-2 2-5 1.5-8.4z" fill="currentColor"/>',
+    back: '<path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>',
+    users: '<circle cx="9" cy="8" r="3.5" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M2.5 20c.6-3.6 3.2-5.5 6.5-5.5s5.9 1.9 6.5 5.5M16 4.8a3.4 3.4 0 0 1 0 6.4M18.2 14.8c1.8.7 3 2.4 3.3 5.2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>',
+    lock: '<rect x="4.5" y="10.5" width="15" height="10.5" rx="3" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" fill="none" stroke="currentColor" stroke-width="2.2"/>',
+    check: '<path d="M5 12.5l4.5 4.5L19 7" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>',
+    del: '<path d="M9 5.5h11v13H9l-6-6.5z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><path d="M12.5 9.5l5 5M17.5 9.5l-5 5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>',
+    grid: '<rect x="3.5" y="3.5" width="7" height="7" rx="2" fill="none" stroke="currentColor" stroke-width="2.2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2" fill="none" stroke="currentColor" stroke-width="2.2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2" fill="none" stroke="currentColor" stroke-width="2.2"/><rect x="13.5" y="13.5" width="7" height="7" rx="2" fill="none" stroke="currentColor" stroke-width="2.2"/>',
+    gift: '<rect x="3.5" y="8.5" width="17" height="5" rx="1.5" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M5.5 13.5v7h13v-7M12 8.5v12M12 8.5c-1.5-4-6-4.5-6-1.8 0 1.6 3 1.8 6 1.8zm0 0c1.5-4 6-4.5 6-1.8 0 1.6-3 1.8-6 1.8z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/>',
+    gear: '<circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M12 2.8v2.6M12 18.6v2.6M21.2 12h-2.6M5.4 12H2.8M18.5 5.5l-1.8 1.8M7.3 16.7l-1.8 1.8M18.5 18.5l-1.8-1.8M7.3 7.3L5.5 5.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>',
+    play: '<path d="M8 5.5v13l10.5-6.5z" fill="currentColor"/>',
+    x: '<path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>',
+    arrow: '<path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>'
+  };
+  function ic(name, size, cls) {
+    return '<svg viewBox="0 0 24 24" width="' + (size || 24) + '" height="' + (size || 24) + '" aria-hidden="true"' + (cls ? ' class="' + cls + '"' : '') + '>' + ICONS[name] + '</svg>';
+  }
+  function mascot(kid, emo, opts) {
+    opts = opts || {};
+    var stage = opts.stage || M.stageFor(kid.best);
+    return '<div class="mascot' + (opts.cls ? ' ' + opts.cls : '') + '">' +
+      M.svg(kid.kind, stage, emo || 'contenta', { title: kid.petName + ' · ' + M.STAGES[stage - 1].name }) + '</div>';
+  }
+  function logo() { return '<span class="mk">' + (A.mark || '') + '</span><span class="wm">' + (A.wordmark || '<b>Mathzilo</b>') + '</span>'; }
+
+  /* ---------- Estado de demostración ---------- */
+  function seedLedger(kid, list) { list.forEach(function (e) { S.ledger.push({ id: nextId(), kid: kid, day: e[0], type: e[1], amount: e[2], note: e[3] }); }); }
+  var S = {
+    device: 'tablet', screen: 'perfiles', kidId: 'k1', fresh: true,
+    rules: clone(E.DEFAULT_RULES),
+    kids: [
+      { id: 'k1', name: 'Lucía', kind: 'zorro', petName: 'Chispa', level: 1, maxLen: 15, streak: 6, best: 6, shields: 0,
+        doneToday: false, streakToday: false, rested: 0, week: ['done', 'done', 'done', 'done', 'done', 'done'],
+        recent: [80, 90, 70, 100, 90], avgSec: 7.8, mastery: { 'sum-20': 82, 'sub-20': 61 }, errors: { 'cuenta-mal': 4, 'resta-en-vez': 2 } },
+      { id: 'k2', name: 'Mateo', kind: 'robot', petName: 'Bip', level: 2, maxLen: 20, streak: 22, best: 30, shields: 2,
+        doneToday: false, streakToday: false, rested: 0, week: ['done', 'shield', 'done', 'done', 'done', 'done'],
+        recent: [92, 95, 100, 90, 94], avgSec: 6.1, mastery: { 'add-carry': 93, 'sub-borrow': 88, 'sum-20': 98, 'sub-20': 96 }, errors: { 'olvido-prestamo': 3, 'cuenta-mal': 1 } },
+      { id: 'k3', name: 'Sara', kind: 'zorro', petName: 'Nova', level: 3, maxLen: 20, streak: 0, best: 12, shields: 0,
+        doneToday: false, streakToday: false, rested: 12, week: ['done', 'done', 'miss', 'miss', 'miss', 'miss'],
+        recent: [60, 75, 45, 40, 48], avgSec: 9.4, mastery: { 'mult-table': 58, 'div-exact': 41, 'add-carry': 85, 'sub-borrow': 72 }, errors: { 'tabla-cercana': 7, 'cifra-copiada': 2, 'olvido-llevada': 1 } }
+    ],
+    rewards: [
+      { id: 'r1', name: 'Helado', cost: 40, note: 'El sábado después del parque' },
+      { id: 'r2', name: 'Elegir la peli del viernes', cost: 60, note: '' },
+      { id: 'r3', name: 'Libro nuevo', cost: 120, note: 'De la librería del barrio' },
+      { id: 'r4', name: 'Excursión al planetario', cost: 250, note: '' }
+    ],
+    equivalence: '',
+    ledger: [],
+    test: null, result: null,
+    toast: null, sheet: null, preview: null, emo: 'contenta',
+    pin: { entry: '', err: '', tries: 0, lockedUntil: 0, shake: false }, authed: false, lastParent: 0,
+    openKid: 'k3', redeem: { kid: 'k1', reward: null, custom: '', reason: '' }, confirm: null,
+    dayStart: 4, shieldsOn: true, lang: 'es'
+  };
+  seedLedger('k1', [[-6, 'test', 9, 'Test de 10 · 8/10'], [-5, 'test', 7, 'Test de 10 · 7/10'], [-4, 'racha', 3, 'Racha de 3 días'],
+                    [-4, 'test', 5, 'Test de 10 · 5/10 (práctica: no aprobado)'], [-3, 'test', 10, 'Test de 10 · 8/10'], [-1, 'test', 0, 'Práctica libre']]);
+  seedLedger('k2', [[-30, 'test', 120, 'Estrellas de septiembre'], [-9, 'canje', -40, 'Helado'], [-7, 'racha', 15, 'Racha de 14 días'],
+                    [-3, 'test', 19, 'Test de 15 · 15/15'], [-2, 'test', 22, 'Test de 20 · 18/20'], [-1, 'test', 14, 'Test de 10 · 10/10'], [-1, 'ajuste', 10, 'Corrección: canje duplicado']]);
+  seedLedger('k3', [[-20, 'test', 70, 'Estrellas de septiembre'], [-6, 'test', 12, 'Test de 15 · 11/15'], [-5, 'test', 13, 'Test de 15 · 12/15']]);
+  S.ledger = S.ledger.filter(function (e) { return e.amount !== 0; });
+
+  function kid(id) { id = id || S.kidId; for (var i = 0; i < S.kids.length; i++) if (S.kids[i].id === id) return S.kids[i]; return S.kids[0]; }
+  function balance(id) { var b = 0; S.ledger.forEach(function (e) { if (e.kid === id) b += e.amount; }); return b; }
+  function nextGoal(k) {
+    var bal = balance(k.id), best = null;
+    S.rewards.forEach(function (r) { if (r.cost > bal && (!best || r.cost < best.cost)) best = r; });
+    return best || S.rewards.slice().sort(function (a, b) { return b.cost - a.cost; })[0];
+  }
+  function suggestion(k) {
+    var r = k.recent;
+    if (r.length >= 5 && r.slice(-5).every(function (p) { return p >= 90; }) && k.level < 6) return { dir: 'up', text: k.name + ' lleva 5 tests seguidos con un 90 % o más. ¿Subir a nivel ' + (k.level + 1) + '?' };
+    if (r.length >= 3 && r.slice(-3).every(function (p) { return p < 50; }) && k.level > 1) return { dir: 'down', text: k.name + ' lleva 3 tests por debajo del 50 %. ¿Bajar a nivel ' + (k.level - 1) + ' unos días?' };
+    return null;
+  }
+  function go(screen) {
+    if (screen !== S.screen) S.fresh = true;
+    S.screen = screen; S.sheet = null; S.preview = null;
+  }
+  function toast(msg) {
+    S.toast = msg; var t = msg;
+    setTimeout(function () { if (S.toast === t) { S.toast = null; render(); } }, 2600);
+  }
+
+  /* ---------- Test ---------- */
+  function startTest(n) {
+    var k = kid();
+    S.test = { n: n, qs: E.makeTest(k.level, n, Date.now() % 1e9), i: 0, phase: 'ask', sel: null, entry: '',
+               correct: 0, answers: [], shownAt: Date.now(), quick: 0, fast: false, mini: null, warned: false,
+               practice: k.doneToday };
+    S.result = null;
+    go('pregunta');
+  }
+  function curQ() { var t = S.test; return t.phase.indexOf('mini') === 0 ? t.mini : t.qs[t.i]; }
+  function givenValue() {
+    var t = S.test, q = curQ();
+    if (q.type === 'num') return t.entry === '' ? null : parseInt(t.entry, 10);
+    return t.sel === null ? null : q.options[t.sel].v;
+  }
+  function check() {
+    var t = S.test, q = curQ(), v = givenValue();
+    if (v === null) return;
+    t.given = v;
+    var ok = v === q.answer;
+    if (t.phase === 'mini') { t.phase = ok ? 'miniok' : 'minifail'; return; }
+    var ms = Date.now() - t.shownAt;
+    t.quick = ms < 2000 ? t.quick + 1 : 0;
+    if (t.quick >= 3 && !t.fast) { t.fast = true; toast(kid().petName + ': ¡Lee con calma! Hoy este test no da bonus.'); }
+    var tag = E.tagFor(q, v);
+    t.answers.push({ gen: q.gen, ok: ok, tag: tag, ms: ms });
+    if (ok) { t.correct++; t.phase = 'ok'; t.praise = PRAISE[(t.i + t.correct) % PRAISE.length]; }
+    else { t.phase = 'fail'; t.tag = tag; t.expl = E.explain(q, tag, v); }
+  }
+  function nextQ() {
+    var t = S.test;
+    t.sel = null; t.entry = ''; t.given = null;
+    if (t.i + 1 >= t.qs.length) { finishTest(); return; }
+    t.i++; t.phase = 'ask'; t.shownAt = Date.now();
+  }
+  function finishTest() {
+    var t = S.test, k = kid();
+    var r = E.scoreTest(S.rules, { doneToday: k.doneToday, streakToday: k.streakToday, streak: k.streak },
+                        { correct: t.correct, total: t.n, fast: t.fast });
+    var stageBefore = M.stageFor(k.best);
+    var label = 'Test de ' + t.n + ' · ' + t.correct + '/' + t.n;
+    r.items.forEach(function (it) {
+      if (!it.stars) return;
+      var note = it.id === 'racha' ? 'Racha de ' + it.days + ' días' : it.id === 'perfecto' ? label + ' · perfecto' : it.id === 'superado' ? label + ' · aprobado' : label;
+      S.ledger.push({ id: nextId(), kid: k.id, day: 0, type: it.id === 'racha' ? 'racha' : 'test', amount: it.stars, note: note });
+    });
+    k.doneToday = true;
+    var gotShield = false;
+    if (r.streakExtended) {
+      k.streak = r.newStreak; k.streakToday = true; k.rested = 0;
+      k.best = Math.max(k.best, k.streak);
+      if (S.shieldsOn && k.streak % 7 === 0 && k.shields < 2) { k.shields++; gotShield = true; }
+    }
+    k.recent.push(Math.round(r.pct)); if (k.recent.length > 10) k.recent.shift();
+    t.answers.forEach(function (a) {
+      var m = k.mastery[a.gen] == null ? 50 : k.mastery[a.gen];
+      k.mastery[a.gen] = Math.max(0, Math.min(100, m + (a.ok ? 4 : -6)));
+      if (!a.ok) k.errors[a.tag] = (k.errors[a.tag] || 0) + 1;
+    });
+    k.lastTest = { n: t.n, correct: t.correct };
+    r.stageBefore = stageBefore; r.stageAfter = M.stageFor(k.best); r.gotShield = gotShield;
+    r.correct = t.correct; r.n = t.n;
+    S.result = r;
+    go('resultado');
+  }
+  /* Para saltar directamente a una pantalla desde la barra de demostración */
+  function ensureTest(phase) {
+    if (!S.test || S.test.done) startTest(10);
+    var t = S.test, q = t.qs[t.i];
+    if (phase === 'fail') {
+      var wrong = q.options.filter(function (o) { return o.tag !== 'ok'; })[0];
+      t.phase = 'fail'; t.given = wrong.v; t.tag = wrong.tag; t.expl = E.explain(q, wrong.tag, wrong.v);
+    } else if (t.phase !== 'ask') { t.phase = 'ask'; t.sel = null; t.entry = ''; }
+  }
+  function fakeResult() {
+    var k = kid();
+    startTest(10);
+    S.test.correct = 9; S.test.i = 9;
+    S.test.answers = S.test.qs.map(function (q, i) { return { gen: q.gen, ok: i !== 3, tag: i === 3 ? 'cuenta-mal' : 'ok', ms: 6000 }; });
+    finishTest();
+    return k;
+  }
+
+  /* ---------- Pantallas del niño ---------- */
+  function topKid(left, showRight) {
+    var k = kid();
+    var right = showRight === false ? '' :
+      '<button class="pill gold" data-act="sheet" data-v="stars" aria-label="Mis estrellas">' + ic('star', 22) + balance(k.id) + '</button>' +
+      '<button class="icon-btn" data-act="go" data-v="perfiles" aria-label="Cambiar de perfil">' + ic('users', 26) + '</button>';
+    return '<div class="top"><div class="l">' + (left || '<div class="brand-in">' + logo() + '</div>') + '</div><div class="r">' + right + '</div></div>';
+  }
+  function backBtn(to, label) { return '<button class="icon-btn" data-act="go" data-v="' + to + '" aria-label="' + (label || 'Volver') + '">' + ic('back', 26) + '</button>'; }
+  function anim(cls, i) { return S.fresh ? ' ' + cls + ' d' + (i || 0) : ''; }
+
+  function scrPerfiles() {
+    var cards = S.kids.map(function (k, i) {
+      var st = k.streak > 0 ? '<span class="chip">' + ic('flame', 16, 'gold') + plural(k.streak, 'día', 'días') + '</span>' : '<span class="chip">' + ic('flame', 16) + 'Racha nueva</span>';
+      return '<button class="pcard' + anim('pop', i) + '" data-act="pick" data-v="' + k.id + '" aria-label="Jugar como ' + esc(k.name) + '">' +
+        mascot(k, 'contenta', { cls: 'pm' }).replace('class="mascot pm"', 'class="mascot pm" style="width:190px;height:190px"') +
+        '<span class="nm">' + esc(k.name) + '</span>' +
+        '<span class="row"><span class="chip">Nivel ' + k.level + '</span>' + st + '<span class="chip gold">' + ic('star', 16) + balance(k.id) + '</span></span></button>';
+    }).join('');
+    return '<div class="tscr">' + topKid(null, false) +
+      '<h1 class="ttl">¿Quién va a jugar?</h1><p class="sub">Toca tu tarjeta para empezar.</p>' +
+      '<div class="pcards">' + cards + '</div></div>';
+  }
+
+  function weekDots(k) {
+    var html = '';
+    for (var i = 0; i < 7; i++) {
+      var d = today(i - 6), st = i < 6 ? k.week[i] : (k.doneToday && k.streakToday ? 'done' : 'today');
+      var inner = st === 'done' ? ic('check', 22) : st === 'shield' ? ic('shield', 20) : '';
+      var lbl = st === 'done' ? 'hecho' : st === 'shield' ? 'escudo usado' : st === 'today' ? 'hoy, pendiente' : 'sin test';
+      html += '<div class="day"><span class="dot ' + st + '" aria-label="' + fmtDay(d) + ': ' + lbl + '">' + inner + '</span>' + (i === 6 ? 'Hoy' : dayLetter(d)) + '</div>';
+    }
+    return html;
+  }
+  function scrInicio() {
+    var k = kid(), stage = M.stageFor(k.best), bal = balance(k.id), goal = nextGoal(k);
+    var msg;
+    if (k.doneToday) msg = '¡Reto de hoy hecho, ' + esc(k.name) + '! Si quieres, practicamos más.';
+    else if (k.rested) msg = 'Tu racha de ' + k.rested + ' días descansa. ¡Empieza otra hoy!';
+    else if (k.streak === 6) msg = '¡Hola, ' + esc(k.name) + '! Hoy puedes llegar a 7 días de racha.';
+    else msg = '¡Hola, ' + esc(k.name) + '! Soy ' + esc(k.petName) + '. ¿Hacemos el reto de hoy?';
+    var shields = '';
+    for (var s = 0; s < 2; s++) shields += ic('shield', 22, 'sh' + (s < k.shields ? '' : ' off'));
+    var pct = goal ? Math.min(100, Math.round(bal / goal.cost * 100)) : 0;
+    var goalTxt = !goal ? 'Pide a tu familia que publique un premio.' :
+      bal >= goal.cost ? '¡Ya tienes estrellas para «' + esc(goal.name) + '»! Pídeselo a tu familia.' :
+      'Meta: ' + esc(goal.name) + ' · te faltan ' + (goal.cost - bal) + ' ★';
+    return '<div class="tscr">' + topKid() +
+      '<div class="home">' +
+        '<div class="stagepane">' +
+          '<div class="bubble' + anim('rise') + '">' + msg + '</div>' +
+          '<div class="planet"></div>' + mascot(k, k.doneToday ? 'animando' : 'contenta') +
+          '<button class="pill nametag" data-act="go" data-v="mascota" aria-label="Ver a ' + esc(k.petName) + '">' + esc(k.petName) + ' · <span class="gold">' + M.STAGES[stage - 1].name + '</span></button>' +
+        '</div>' +
+        '<div class="rcol">' +
+          '<section class="card streak' + anim('rise', 1) + '" aria-label="Racha">' +
+            '<div class="hd">' + ic('flame', 44, 'gold') + '<span class="big">' + k.streak + '</span><div><b style="font-size:20px">' + (k.streak === 1 ? 'día de racha' : 'días de racha') + '</b><div class="muted">Récord: ' + plural(k.best, 'día', 'días') + '</div></div></div>' +
+            '<div class="week">' + weekDots(k) + '</div>' +
+            '<div class="shields">' + shields + '<span>' + (k.shields ? 'Escudos: ' + k.shields + ' de 2. Protegen un día sin test.' : 'Consigue un escudo con 7 días seguidos.') + '</span></div>' +
+          '</section>' +
+          '<button class="card starscard' + anim('rise', 2) + '" data-act="sheet" data-v="stars" style="border:0;text-align:left;cursor:pointer;font:inherit;color:inherit">' +
+            '<div class="hd"><span class="num">' + bal + '</span><b style="font-size:22px">estrellas</b></div>' +
+            '<div class="bar" role="progressbar" aria-valuenow="' + pct + '" aria-valuemin="0" aria-valuemax="100"><i style="width:' + pct + '%"></i></div>' +
+            '<span class="muted">' + goalTxt + '</span>' +
+          '</button>' +
+          '<div class="cta">' + (k.doneToday
+            ? '<button class="btn btn-line" data-act="go" data-v="longitud">Practicar (sin estrellas)</button>'
+            : '<button class="btn btn-gold" data-act="go" data-v="longitud">' + ic('play', 30) + 'Empezar</button>') + '</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function scrLongitud() {
+    var k = kid(), practice = k.doneToday;
+    var cards = [10, 15, 20].map(function (n, i) {
+      var dis = n > k.maxLen;
+      return '<button class="lencard' + anim('pop', i) + '" data-act="start" data-v="' + n + '"' + (dis ? ' disabled aria-disabled="true"' : '') + '>' +
+        '<span class="n">' + n + '</span><span class="u">preguntas</span>' +
+        '<span class="muted">' + (dis ? 'Tu familia lo ha limitado' : 'Unos ' + Math.round(n * 0.5) + ' minutos') + '</span>' +
+        (practice || dis ? '' : '<span class="chip gold">' + ic('star', 16) + '+' + S.rules.passBonus[n] + ' si apruebas</span>') +
+        '</button>';
+    }).join('');
+    return '<div class="tscr">' + topKid('<div class="brand-in">' + backBtn('inicio') + '</div>') +
+      '<h1 class="ttl">¿Cuántas preguntas hoy?</h1>' +
+      '<div class="lens">' + cards + '</div>' +
+      '<p class="note">' + (practice ? 'Hoy ya ganaste tus estrellas. Esto es práctica libre.' : 'Apruebas con un ' + S.rules.passPct + ' % de aciertos. Cada acierto es una estrella.') + '</p></div>';
+  }
+
+  function visual(v) {
+    if (!v) return '';
+    if (v.type === 'chips') {
+      return '<div class="chips">' + v.items.map(function (n, i) { return '<span class="chipn' + (i === v.hi ? ' hi' : '') + '">' + n + '</span>'; }).join('') + '</div>';
+    }
+    if (v.type === 'frame') {
+      var need = 10 - v.a, f1 = '', f2 = '';
+      for (var i = 0; i < 10; i++) f1 += '<i class="fd ' + (i < v.a ? 'a' : 'b') + '"></i>';
+      for (var j = 0; j < 10; j++) f2 += '<i class="fd' + (j < v.b - need ? ' b' : '') + '"></i>';
+      return '<div class="frames" aria-hidden="true"><div class="frame">' + f1 + '</div><div class="frame">' + f2 + '</div></div>';
+    }
+    if (v.type === 'columns') {
+      var at = Math.floor(v.a / 10), au = v.a % 10, bt = Math.floor(v.b / 10), bu = v.b % 10;
+      var rt = Math.floor(v.ans / 10), ru = v.ans % 10;
+      var row0 = v.carry ? '<span></span><span class="cy">1</span><span></span>' : '<span></span><span class="cy">' + (at - 1) + '</span><span class="cy">+10</span>';
+      var row1 = '<span></span>' + (v.borrow ? '<s>' + at + '</s>' : '<span>' + at + '</span>') + '<span>' + (v.borrow ? '<small>1</small>' : '') + au + '</span>';
+      return '<div class="cols" aria-hidden="true">' + row0 + row1 +
+        '<span>' + (v.op === '+' ? '+' : '−') + '</span><span>' + bt + '</span><span>' + bu + '</span>' +
+        '<i class="rule"></i><span></span><span class="rs">' + (rt || '') + '</span><span class="rs">' + ru + '</span></div>';
+    }
+    return '';
+  }
+  function scrPregunta() {
+    var t = S.test, k = kid(), q = curQ(), isMini = t.phase.indexOf('mini') === 0;
+    var feedback = t.phase === 'ok' || t.phase === 'fail' || t.phase === 'miniok' || t.phase === 'minifail';
+    var prog = '';
+    for (var i = 0; i < t.n; i++) prog += '<i class="' + (i < t.i || (i === t.i && feedback && !isMini) ? 'done' : i === t.i ? 'cur' : '') + '"></i>';
+    var head = '<div class="top"><div class="l">' + '<button class="icon-btn" data-act="pause" aria-label="Pausar y salir">' + ic('x', 24) + '</button></div>' +
+      '<div class="prog" aria-hidden="true">' + prog + '</div><div class="count">Pregunta ' + (t.i + 1) + ' de ' + t.n + '</div></div>';
+    var banner = isMini ? '<div class="minibanner">Mini-reto: una parecida para comprobarlo. No da estrellas, es para ti.</div>'
+      : (t.practice ? '<div class="minibanner">Práctica libre: hoy ya ganaste tus estrellas.</div>' : '');
+    var emo = t.phase === 'ok' || t.phase === 'miniok' ? 'animando' : feedback ? 'pensando' : 'contenta';
+    var qtext = feedback ? esc(q.text) + ' = <span class="ans">' + q.answer + '</span>' : esc(q.text) + ' = ?';
+    var gave = (t.phase === 'fail' || t.phase === 'minifail') ? '<div class="gave cmp"><span class="chip bad">Tu respuesta: ' + t.given + '</span><span class="chip good">Correcta: ' + q.answer + '</span></div>' : '';
+    var left = '<div class="qcard"><span class="chip skill">' + esc(q.skill) + '</span>' +
+      '<div class="qtext" aria-live="polite">' + qtext + '</div>' + gave + mascot(k, emo) + '</div>';
+    var right;
+    if (t.phase === 'ok') {
+      right = '<div class="fbcard ok"><div class="big">' + ic('check', 44) + ' ' + t.praise + '</div>' +
+        (t.practice ? '<p class="muted">Práctica: suma para tu dominio, no estrellas.</p>' : '<div class="stars-plus">+' + S.rules.perCorrect + ' ★</div>') +
+        '<p>' + esc(k.petName) + ': «Has hecho bien el cálculo.»</p>' +
+        '<button class="btn btn-gold" data-act="next">' + (t.i + 1 >= t.n ? 'Ver resultado' : 'Siguiente') + ic('arrow', 26) + '</button></div>';
+    } else if (t.phase === 'fail') {
+      var x = t.expl;
+      right = '<div class="fbcard"><h3>' + esc(x.lead) + '</h3><p>' + esc(x.prefix) + '</p>' +
+        '<div class="vis">' + visual(x.visual) + '</div>' +
+        '<ol class="steps">' + x.steps.map(function (s) { return '<li>' + esc(s) + '</li>'; }).join('') + '</ol>' +
+        '<button class="btn btn-ok" data-act="understood">¡Entendido!</button></div>';
+    } else if (t.phase === 'miniok') {
+      right = '<div class="fbcard ok"><div class="big">' + ic('check', 44) + ' ¡Lo has pillado!</div><p>Ya sabes hacer este tipo de cuenta.</p>' +
+        '<button class="btn btn-gold" data-act="next">' + (t.i + 1 >= t.n ? 'Ver resultado' : 'Seguimos') + ic('arrow', 26) + '</button></div>';
+    } else if (t.phase === 'minifail') {
+      right = '<div class="fbcard ok"><h3>Vamos a seguir practicando</h3><p>Era ' + q.answer + '. Lo verás otra vez en otro test, ¡y saldrá mejor!</p>' +
+        '<button class="btn btn-gold" data-act="next">' + (t.i + 1 >= t.n ? 'Ver resultado' : 'Seguimos') + ic('arrow', 26) + '</button></div>';
+    } else if (q.type === 'num') {
+      var keys = [1, 2, 3, 4, 5, 6, 7, 8, 9].map(function (n) { return '<button class="nk" data-act="key" data-v="' + n + '">' + n + '</button>'; }).join('') +
+        '<button class="nk del" data-act="key" data-v="del" aria-label="Borrar">' + ic('del', 30) + '</button><button class="nk" data-act="key" data-v="0">0</button><span></span>';
+      right = '<div class="answers"><div class="numdisplay' + (t.entry ? '' : ' empty') + '" aria-live="polite">' + (t.entry || 'Escribe') + '</div>' +
+        '<div class="numpad">' + keys + '</div>' +
+        '<button class="btn btn-gold" data-act="check"' + (t.entry ? '' : ' disabled') + '>Comprobar</button></div>';
+    } else {
+      right = '<div class="answers"><div class="opts">' + q.options.map(function (o, i) {
+        return '<button class="opt" data-act="opt" data-v="' + i + '" aria-pressed="' + (t.sel === i) + '">' + o.v + '</button>';
+      }).join('') + '</div><button class="btn btn-gold" data-act="check"' + (t.sel === null ? ' disabled' : '') + '>Comprobar</button></div>';
+    }
+    return '<div class="tscr">' + head + banner + '<div class="qgrid">' + left + right + '</div></div>';
+  }
+
+  function donut(pct, passed) {
+    var r = 44, c = 2 * Math.PI * r, len = c * pct / 100;
+    return '<svg class="donut" width="112" height="112" viewBox="0 0 112 112" role="img" aria-label="' + Math.round(pct) + ' % de aciertos">' +
+      '<circle cx="56" cy="56" r="' + r + '" fill="none" stroke="#22397c" stroke-width="12"/>' +
+      '<circle cx="56" cy="56" r="' + r + '" fill="none" stroke="' + (passed ? '#3DDC97' : '#FF8A5B') + '" stroke-width="12" stroke-linecap="round" stroke-dasharray="' + len.toFixed(1) + ' ' + c.toFixed(1) + '" transform="rotate(-90 56 56)"/>' +
+      '<text x="56" y="63" text-anchor="middle" font-size="24" font-weight="800" fill="#F7F7FA" font-family="Lexend, system-ui, sans-serif">' + Math.round(pct) + '%</text></svg>';
+  }
+  function scrResultado() {
+    var r = S.result, k = kid();
+    if (!r) { fakeResult(); r = S.result; }
+    var title = r.passed ? (r.correct === r.n ? '¡Test perfecto!' : '¡Test superado!') : '¡Buen esfuerzo!';
+    var sub = r.passed ? r.correct + ' de ' + r.n + ' aciertos' : r.correct + ' de ' + r.n + '. Mañana lo vuelves a intentar.';
+    var NAMES = { aciertos: function (it) { return 'Aciertos (' + it.n + ' × ' + S.rules.perCorrect + ' ★)'; },
+                  superado: function () { return 'Test superado'; }, perfecto: function () { return 'Test perfecto'; },
+                  racha: function (it) { return 'Bonus de racha · ' + it.days + ' días'; } };
+    var rows = r.items.map(function (it, i) {
+      return '<div class="rw' + (it.id === 'racha' ? ' hl' : '') + anim('rise', i + 1) + '"><span>' + NAMES[it.id](it) + '</span><b>+' + it.stars + ' ★</b></div>';
+    }).join('');
+    if (r.practice) rows = '<div class="rw"><span>Práctica libre: hoy ya ganaste tus estrellas</span><b>0 ★</b></div>';
+    if (r.fast) rows += '<div class="rw"><span class="muted">Respondiste muy rápido: este test no da bonus</span><b class="muted">—</b></div>';
+    var streakLine = r.streakExtended ? '<span class="chip gold">' + ic('flame', 16) + 'Racha: ' + plural(r.newStreak, 'día', 'días') + '</span>' :
+      (k.streakToday ? '<span class="chip">' + ic('flame', 16) + 'Racha de hoy ya contada</span>' : '<span class="chip">' + ic('flame', 16) + 'Aprueba para sumar racha</span>');
+    var evo = '';
+    if (r.stageAfter > r.stageBefore) {
+      evo = '<div class="evo' + anim('pop', 5) + '">' + mascot(k, 'animando', { stage: r.stageAfter }) + '<div><b style="font-size:20px">¡' + esc(k.petName) + ' ya es ' + M.STAGES[r.stageAfter - 1].name + '!</b><div class="muted">Mira su nuevo traje en «Mi mascota».</div></div></div>';
+    } else if (r.stageAfter < 4) {
+      var nxt = M.STAGES[r.stageAfter], left = nxt.bestStreak - k.best;
+      evo = '<div class="evo">' + mascot(k, 'contenta', { stage: r.stageAfter + 1, cls: 'sil' }) +
+        '<div><b style="font-size:18px">Siguiente etapa: ' + nxt.name + '</b><div class="muted">Te faltan ' + plural(Math.max(1, left), 'día', 'días') + ' de racha para conseguirla.</div></div></div>';
+    }
+    if (r.gotShield) evo += '<div class="evo">' + ic('shield', 40, 'sh') + '<div><b>¡Has ganado un escudo!</b><div class="muted">Protege tu racha un día sin test.</div></div></div>';
+    return '<div class="tscr">' + topKid() +
+      '<div class="res">' +
+        '<div class="resl">' + donut(r.pct, r.passed) + mascot(k, r.passed ? 'animando' : 'contenta') +
+          '<h2>' + title + '</h2><p class="sub">' + sub + '</p><div style="margin-top:8px">' + streakLine + '</div></div>' +
+        '<div class="resr"><div class="caps">Tus estrellas de hoy</div>' + rows +
+          '<div class="tot"><span>Total</span><b>+' + r.total + ' ★</b></div>' + evo +
+          '<div class="resbtns"><button class="btn btn-line" data-act="go" data-v="mascota">Ver a ' + esc(k.petName) + '</button>' +
+          '<button class="btn btn-gold" data-act="go" data-v="inicio">Volver al inicio</button></div></div>' +
+      '</div></div>';
+  }
+
+  function scrMascota() {
+    var k = kid(), cur = M.stageFor(k.best), view = S.preview || cur;
+    var ladder = M.STAGES.map(function (st, i) {
+      var n = i + 1, lock = n > cur;
+      var status = n === cur ? '<span class="chip gold">Ahora</span>' : n < cur ? '<span class="chip good">' + ic('check', 16) + 'Conseguida</span>' :
+        '<span class="chip">Faltan ' + plural(st.bestStreak - k.best, 'día', 'días') + '</span>';
+      return '<button class="step' + (n === cur ? ' now' : '') + (lock ? ' lock' : '') + '" data-act="preview" data-v="' + n + '" aria-pressed="' + (view === n && n !== cur) + '">' +
+        mascot(k, 'contenta', { stage: n }) + '<span><span class="nm">' + st.name + '</span><br><span class="rq">' + (st.bestStreak ? 'Mejor racha de ' + st.bestStreak + ' días' : 'Al empezar') + '</span></span>' +
+        '<span class="st">' + status + '</span></button>';
+    }).join('');
+    var emos = M.EMOTIONS.map(function (e) { return '<button data-act="emo" data-v="' + e.id + '" aria-pressed="' + (S.emo === e.id) + '">' + e.label + '</button>'; }).join('');
+    var locked = view > cur;
+    return '<div class="tscr">' + topKid('<div class="brand-in">' + backBtn('inicio') + '<b style="font-size:26px">Mi mascota</b></div>') +
+      '<div class="mas">' +
+        '<div class="masl"><div class="planet"></div>' +
+          mascot(k, S.emo, { stage: view, cls: locked ? 'sil' : '' }) +
+          '<label class="nameedit"><span class="sr-only">Nombre de tu mascota</span><input data-input="petName" data-key="petName" maxlength="12" value="' + esc(k.petName) + '" aria-label="Nombre de tu mascota">' + ic('check', 24, 'gold') + '</label>' +
+          '<div class="emos" role="group" aria-label="Emoción">' + emos + '</div></div>' +
+        '<div class="masr"><div class="caps">Etapas: dependen de tu mejor racha y nunca bajan</div><div class="ladder">' + ladder + '</div>' +
+          '<div class="kindsel">Compañero: <span class="segs">' + M.KINDS.map(function (kd) {
+            return '<button data-act="kind" data-v="' + kd.id + '" aria-pressed="' + (k.kind === kd.id) + '">' + kd.name + '</button>'; }).join('') + '</span></div></div>' +
+      '</div></div>';
+  }
+
+  function sheetStars() {
+    var k = kid(), bal = balance(k.id);
+    var rows = S.ledger.filter(function (e) { return e.kid === k.id; }).slice().reverse().map(function (e) {
+      return '<div class="led"><span>' + esc(e.note) + '<br><span class="muted" style="font-size:14px">' + fmtDay(today(e.day)) + '</span></span><b class="' + (e.amount >= 0 ? 'pos' : 'neg') + '">' + (e.amount > 0 ? '+' : '−') + Math.abs(e.amount) + ' ★</b></div>';
+    }).join('');
+    var goals = S.rewards.map(function (r) {
+      var p = Math.min(100, Math.round(bal / r.cost * 100));
+      return '<div class="led" style="flex-direction:column;gap:6px"><span style="display:flex;justify-content:space-between"><span>' + esc(r.name) + '</span><b class="gold">' + r.cost + ' ★</b></span><div class="bar"><i style="width:' + p + '%"></i></div></div>';
+    }).join('');
+    return '<div class="overlay" data-act="closesheet"><div class="sheetbox" role="dialog" aria-label="Mis estrellas" data-stop="1">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center"><h3>Mis estrellas</h3><button class="icon-btn" data-act="closesheet" aria-label="Cerrar">' + ic('x', 24) + '</button></div>' +
+      '<div class="starscard"><div class="hd"><span class="num">' + bal + '</span><b>estrellas</b></div></div>' +
+      '<div class="caps">Metas que ha publicado tu familia</div>' + goals +
+      '<p class="muted" style="margin:0;font-size:15px">Para canjear un premio, pídeselo a tu familia.</p>' +
+      '<div class="caps">Historial</div>' + rows + '</div></div>';
+  }
+
+  /* ---------- Pantallas del padre ---------- */
+  function pinPad(prefix) {
+    var keys = '';
+    [1, 2, 3, 4, 5, 6, 7, 8, 9].forEach(function (n) { keys += '<button data-act="' + prefix + '" data-v="' + n + '">' + n + '</button>'; });
+    return keys + '<span></span><button data-act="' + prefix + '" data-v="0">0</button><button class="ghost" data-act="' + prefix + '" data-v="del" aria-label="Borrar">' + ic('del', 28) + '</button>';
+  }
+  function pinDots(entry, shake) {
+    var d = ''; for (var i = 0; i < 4; i++) d += '<i class="' + (i < entry.length ? 'on' : '') + '"></i>';
+    return '<div class="dots' + (shake ? ' shake' : '') + '" aria-label="' + entry.length + ' de 4 dígitos">' + d + '</div>';
+  }
+  function scrPin() {
+    var p = S.pin, locked = p.lockedUntil > Date.now();
+    return '<div class="pscr"><div class="pbody pin">' +
+      '<div class="brand-in" style="justify-content:center"><span class="mk" style="width:64px;height:64px">' + (A.mark || '') + '</span></div>' +
+      '<h2>Modo padre</h2><p class="lead" style="margin:0">' + (locked ? 'Demasiados intentos. Vuelve a probar en 15 minutos.' : 'Introduce tu PIN') + '</p>' +
+      pinDots(p.entry, p.shake) + '<p class="err" role="alert">' + esc(p.err) + '</p>' +
+      '<div class="keys">' + pinPad(locked ? 'noop' : 'pin') + '</div>' +
+      (locked ? '<button class="link" data-act="unlock">Demo: desbloquear</button>' : '<button class="link" data-act="forgot">¿Has olvidado el PIN?</button>') +
+    '</div></div>';
+  }
+  function tabbar() {
+    var tabs = [['panel', 'Panel', 'grid'], ['canje', 'Canjear', 'gift'], ['ajustes', 'Ajustes', 'gear']];
+    return '<nav class="tabbar">' + tabs.map(function (t) {
+      return '<button data-act="go" data-v="' + t[0] + '" aria-current="' + (S.screen === t[0]) + '">' + ic(t[2], 26) + t[1] + '</button>';
+    }).join('') + '</nav>';
+  }
+  function scrPanel() {
+    var cards = S.kids.map(function (k) {
+      var open = S.openKid === k.id, bal = balance(k.id);
+      var last = k.lastTest ? '<span class="chip ' + (k.lastTest.correct / k.lastTest.n >= 0.7 ? 'good' : 'bad') + '">Hoy: ' + k.lastTest.correct + '/' + k.lastTest.n + '</span>' :
+        '<span class="chip">Hoy: sin test</span>';
+      var body = '';
+      if (open) {
+        var skills = Object.keys(k.mastery).sort(function (a, b) { return k.mastery[a] - k.mastery[b]; }).map(function (g) {
+          var v = k.mastery[g];
+          return '<div class="mr"><span>' + esc(E.SKILLS[g].name) + '</span><b>' + v + '%</b><div class="bar"><i class="' + (v < 60 ? 'low' : v >= 85 ? 'hi' : '') + '" style="width:' + v + '%"></i></div></div>';
+        }).join('');
+        var errs = Object.keys(k.errors).sort(function (a, b) { return k.errors[b] - k.errors[a]; }).slice(0, 3).map(function (t) {
+          return '<span class="chip bad">' + esc(E.ERROR_NAMES[t] || t) + ' · ' + k.errors[t] + '</span>';
+        }).join('');
+        var sug = suggestion(k);
+        body = '<div class="caps">Dominio por habilidad</div><div class="mast">' + skills + '</div>' +
+          '<div class="caps">Errores más frecuentes</div><div class="chips2">' + (errs || '<span class="muted">Ninguno esta semana</span>') + '</div>' +
+          '<div class="caps">Últimos 7 días</div><div class="week" style="margin-top:0">' + weekDots(k).replace(/class="dot /g, 'style="width:32px;height:32px" class="dot ') + '</div>' +
+          (sug ? '<div class="sug" data-stop="1"><span>' + esc(sug.text) + '</span><div class="acts"><button class="pbtn" data-act="level" data-v="' + k.id + '" data-d="' + (sug.dir === 'up' ? 1 : -1) + '">' + (sug.dir === 'up' ? 'Subir' : 'Bajar') + ' a nivel ' + (k.level + (sug.dir === 'up' ? 1 : -1)) + '</button><button class="pbtn line" data-act="dismiss" data-v="' + k.id + '">Ahora no</button></div></div>' : '');
+      }
+      return '<div class="kidcard" role="button" tabindex="0" data-act="openkid" data-v="' + k.id + '" aria-expanded="' + open + '">' +
+        '<div class="hd">' + mascot(k, 'contenta') + '<div><div class="nm">' + esc(k.name) + '</div><div class="muted" style="font-size:14px">Nivel ' + k.level + ' · ' + (k.streak ? 'racha de ' + k.streak : 'racha en pausa') + '</div></div>' +
+        '<div class="bal">' + bal + ' ★</div></div>' +
+        '<div class="chips2">' + last + '<span class="chip">' + ic('shield', 14) + k.shields + ' escudos</span><span class="chip">Récord ' + k.best + ' días</span><span class="chip">' + k.avgSec.toFixed(1).replace('.', ',') + ' s por pregunta</span></div>' + body + '</div>';
+    }).join('');
+    var d = today();
+    return '<div class="pscr"><div class="pbody"><h2>Hola</h2><p class="lead">' + d.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }) + '. Toca una tarjeta para ver el detalle.</p>' + cards + '</div>' + tabbar() + '</div>';
+  }
+  function redeemAmount() {
+    var R = S.redeem;
+    if (R.reward) { for (var i = 0; i < S.rewards.length; i++) if (S.rewards[i].id === R.reward) return { n: S.rewards[i].cost, what: S.rewards[i].name }; }
+    var n = parseInt(R.custom, 10);
+    return { n: isNaN(n) ? 0 : n, what: R.reason.trim() || 'Canje' };
+  }
+  function scrCanje() {
+    var R = S.redeem, k = kid(R.kid), bal = balance(k.id), amt = redeemAmount();
+    var sel = S.kids.map(function (c) {
+      return '<button data-act="rkid" data-v="' + c.id + '" aria-pressed="' + (R.kid === c.id) + '">' + mascot(c, 'contenta') + esc(c.name) + '<b class="gold">' + balance(c.id) + ' ★</b></button>';
+    }).join('');
+    var rows = S.rewards.map(function (r) {
+      var dis = r.cost > bal;
+      return '<button class="rrow" data-act="rrew" data-v="' + r.id + '" aria-pressed="' + (R.reward === r.id) + '"' + (dis ? ' disabled' : '') + '><span>' + esc(r.name) + (r.note ? '<small>' + esc(r.note) + '</small>' : '') + (dis ? '<small>Le faltan ' + (r.cost - bal) + ' ★</small>' : '') + '</span><b>' + r.cost + ' ★</b></button>';
+    }).join('');
+    var after = bal - amt.n, valid = amt.n > 0 && after >= 0;
+    var hist = S.ledger.filter(function (e) { return e.kid === k.id && (e.type === 'canje' || e.type === 'ajuste'); }).slice().reverse().map(function (e) {
+      return '<div class="led"><span>' + esc(e.note) + '<br><span class="muted">' + fmtDay(today(e.day)) + '</span></span><span style="display:flex;gap:8px;align-items:center"><b class="' + (e.amount >= 0 ? 'pos' : 'neg') + '">' + (e.amount > 0 ? '+' : '−') + Math.abs(e.amount) + ' ★</b>' +
+        (e.type === 'canje' && !e.fixed ? '<button class="link" style="padding:4px;min-height:0" data-act="compensate" data-v="' + e.id + '">Corregir</button>' : '') + '</span></div>';
+    }).join('') || '<p class="muted" style="margin:0">Todavía no hay canjes.</p>';
+    var sheet = '';
+    if (S.confirm) {
+      sheet = '<button class="scrim" data-act="cancelconfirm" aria-label="Cancelar"></button><div class="sheet-p" role="dialog" aria-label="Confirmar con PIN">' +
+        '<b style="font-size:20px">Descontar ' + amt.n + ' ★ a ' + esc(k.name) + '</b><span class="muted">' + esc(amt.what) + ' · introduce tu PIN</span>' +
+        pinDots(S.confirm.entry, S.confirm.shake) + '<p class="err" role="alert">' + esc(S.confirm.err) + '</p><div class="keys">' + pinPad('cpin') + '</div></div>';
+    }
+    return '<div class="pscr"><div class="pbody"><h2>Canjear estrellas</h2><p class="lead">Solo tú puedes descontar estrellas. El saldo nunca baja de cero.</p>' +
+      '<div class="kidsel" role="group" aria-label="Hijo">' + sel + '</div>' +
+      '<div class="balbig">Saldo de ' + esc(k.name) + '<b>' + bal + ' ★</b></div>' +
+      '<div class="caps">Premios</div>' + rows +
+      '<div class="caps">U otra cantidad</div>' +
+      '<label class="field">Estrellas a descontar<input type="text" inputmode="numeric" data-input="custom" data-key="custom" value="' + esc(R.custom) + '" placeholder="Por ejemplo, 15"></label>' +
+      '<label class="field">Motivo<input type="text" data-input="reason" data-key="reason" value="' + esc(R.reason) + '" placeholder="Por ejemplo, cromos"></label>' +
+      '<div class="sumbar"><div style="display:flex;justify-content:space-between"><span>' + esc(amt.what) + '</span><b class="gold">' + (amt.n ? '−' + amt.n + ' ★' : '—') + '</b></div>' +
+        '<div style="display:flex;justify-content:space-between"><span class="muted">Saldo después</span><b>' + (amt.n ? after + ' ★' : '—') + '</b></div>' +
+        (amt.n && after < 0 ? '<span style="color:var(--soft-fail)">No hay estrellas suficientes.</span>' : '') +
+        '<button class="pbtn full" data-act="askconfirm"' + (valid ? '' : ' disabled') + '>' + ic('lock', 20) + ' Confirmar con PIN</button></div>' +
+      '<div class="caps">Historial de canjes</div><div class="hist">' + hist + '</div>' +
+      '<p class="muted" style="font-size:13px;margin:0">Los apuntes no se borran: un error se corrige con un apunte de compensación.</p>' +
+      '</div>' + tabbar() + sheet + '</div>';
+  }
+  function stepper(key, val, label, small) {
+    return '<div class="srow"><span class="lb">' + label + (small ? '<small>' + small + '</small>' : '') + '</span><span class="stepper">' +
+      '<button data-act="step" data-v="' + key + '" data-d="-1" aria-label="Menos">−</button><b>' + val + '</b><button data-act="step" data-v="' + key + '" data-d="1" aria-label="Más">+</button></span></div>';
+  }
+  function scrAjustes() {
+    var kids = S.kids.map(function (k) {
+      return stepper('level:' + k.id, k.level, esc(k.name) + ' · nivel', k.level > 3 ? 'El prototipo genera preguntas hasta el nivel 3' : null) +
+        '<div class="srow"><span class="lb">Longitud máxima<small>' + esc(k.name) + ' no verá tests más largos</small></span><span class="segs">' + [10, 15, 20].map(function (n) {
+          return '<button data-act="maxlen" data-v="' + k.id + '" data-n="' + n + '" aria-pressed="' + (k.maxLen === n) + '">' + n + '</button>'; }).join('') + '</span></div>';
+    }).join('');
+    var R = S.rules;
+    var rewards = S.rewards.map(function (r) {
+      return '<div class="rw-edit"><input data-input="rname" data-id="' + r.id + '" data-key="rname' + r.id + '" value="' + esc(r.name) + '" aria-label="Nombre del premio">' +
+        '<input data-input="rcost" data-id="' + r.id + '" data-key="rcost' + r.id + '" value="' + r.cost + '" inputmode="numeric" style="flex:0 0 72px" aria-label="Coste en estrellas">' +
+        '<button class="x" data-act="delrew" data-v="' + r.id + '" aria-label="Quitar premio">' + ic('x', 20) + '</button></div>';
+    }).join('');
+    return '<div class="pscr"><div class="pbody"><h2>Ajustes</h2>' +
+      '<section class="sect"><h3>Hijos</h3>' + kids + '</section>' +
+      '<section class="sect"><h3>Estrellas</h3>' +
+        stepper('perCorrect', R.perCorrect, 'Por acierto') + stepper('passPct', R.passPct + ' %', 'Para aprobar', 'Porcentaje mínimo de aciertos') +
+        stepper('pb10', R.passBonus[10], 'Bonus al aprobar 10') + stepper('pb15', R.passBonus[15], 'Bonus al aprobar 15') + stepper('pb20', R.passBonus[20], 'Bonus al aprobar 20') +
+        stepper('perfect', R.perfect, 'Test perfecto') +
+        stepper('sb3', R.streakBonus[3], 'Racha de 3 días') + stepper('sb7', R.streakBonus[7], 'Racha de 7 días') + stepper('sb14', R.streakBonus[14], 'Racha de 14 días') + stepper('sb30', R.streakBonus[30], 'Racha de 30 días') +
+      '</section>' +
+      '<section class="sect"><h3>Premios</h3>' + rewards + '<button class="pbtn line" data-act="addrew" style="margin-top:8px">+ Añadir premio</button></section>' +
+      '<section class="sect"><h3>Equivalencia</h3><label class="field">Solo la ves tú. La app no calcula dinero.<input type="text" data-input="equivalence" data-key="equivalence" value="' + esc(S.equivalence) + '" placeholder="Por ejemplo, 10 ★ = un cromo"></label></section>' +
+      '<section class="sect"><h3>Rachas</h3>' +
+        '<div class="srow"><span class="lb">Escudos<small>Se ganan cada 7 días, máximo 2</small></span><span class="segs"><button data-act="shields" data-v="1" aria-pressed="' + S.shieldsOn + '">Sí</button><button data-act="shields" data-v="0" aria-pressed="' + !S.shieldsOn + '">No</button></span></div>' +
+        stepper('dayStart', S.dayStart + ':00', 'El día empieza a las', 'Un test a las 2:00 cuenta para el día anterior') +
+      '</section>' +
+      '<section class="sect"><h3>Idioma</h3><div class="srow"><span class="lb">Idioma de la app<small>El prototipo solo está en español</small></span><span class="segs">' +
+        ['es', 'en', 'fr', 'de'].map(function (l) { return '<button data-act="lang" data-v="' + l + '" aria-pressed="' + (S.lang === l) + '">' + l.toUpperCase() + '</button>'; }).join('') + '</span></div></section>' +
+      '<section class="sect"><h3>Datos</h3><div style="display:flex;flex-direction:column;gap:8px;padding:6px 0">' +
+        '<button class="pbtn line" data-act="demo" data-v="Exportación preparada (en la app real se descarga un archivo).">Exportar datos</button>' +
+        '<button class="pbtn line" data-act="demo" data-v="En la app real se pide el PIN y una confirmación.">Borrar un hijo</button>' +
+        '<button class="pbtn line" data-act="demo" data-v="En la app real se pide el PIN y una confirmación.">Borrar la cuenta</button></div></section>' +
+      '<button class="pbtn line" data-act="logout">Salir del modo padre</button>' +
+      '</div>' + tabbar() + '</div>';
+  }
+
+  /* ---------- Página y render ---------- */
+  function screenHtml() {
+    if (S.device === 'phone') {
+      if (!S.authed) return scrPin();
+      return { panel: scrPanel, canje: scrCanje, ajustes: scrAjustes }[S.screen]();
+    }
+    if (S.screen === 'pregunta' && !S.test) startTest(10);
+    var html = { perfiles: scrPerfiles, inicio: scrInicio, longitud: scrLongitud, pregunta: scrPregunta, resultado: scrResultado, mascota: scrMascota }[S.screen]();
+    if (S.sheet === 'stars') html += sheetStars();
+    return html;
+  }
+  function page() {
+    var d = DEV[S.device], list = S.device === 'tablet' ? KID_SCREENS : PARENT_SCREENS;
+    var cur = S.device === 'phone' && !S.authed ? 'pin' :
+      (S.screen === 'pregunta' && S.test && S.test.phase === 'fail' ? 'explicacion' : S.screen);
+    var jump = list.map(function (s) { return '<button data-act="jump" data-v="' + s[0] + '" aria-current="' + (cur === s[0]) + '">' + s[1] + '</button>'; }).join('');
+    return '<div class="wrap">' +
+      '<header class="head"><div class="brand">' + logo() + '</div><p>Prototipo clicable de la fase 1. Todo es de demostración y se guarda solo en memoria.</p></header>' +
+      '<div class="toolbar"><div class="seg" role="group" aria-label="Dispositivo">' +
+        '<button data-act="device" data-v="tablet" aria-pressed="' + (S.device === 'tablet') + '">Tablet del niño</button>' +
+        '<button data-act="device" data-v="phone" aria-pressed="' + (S.device === 'phone') + '">Móvil del padre</button></div>' +
+        (S.device === 'phone' ? '<span class="tag-demo">PIN de prueba: ' + DEMO_PIN + '</span>' : '<span class="tag-demo">Niño activo: ' + esc(kid().name) + '</span>') +
+      '</div>' +
+      '<nav class="jump" aria-label="Ir a pantalla">' + jump + '</nav>' +
+      '<div class="stagebox"><div class="scaler" id="scaler"><div class="device" id="device" style="width:' + d.w + 'px;height:' + d.h + 'px">' +
+        screenHtml() + (S.toast ? '<div class="toast" role="status">' + esc(S.toast) + '</div>' : '') +
+      '</div></div></div>' +
+      '<div class="notes">' +
+        '<section><h2>Cómo probarlo</h2><ol><li>Elige a Lucía: si aprueba hoy llega a 7 días, gana un escudo y su mascota pasa a Piloto.</li><li>Falla a propósito para ver la explicación y el mini-reto.</li><li>Cambia a «Móvil del padre», entra con el PIN y canjea un premio.</li></ol></section>' +
+        '<section><h2>Reglas de estrellas</h2><ul><li>Aprobado con ' + S.rules.passPct + ' % · ' + S.rules.perCorrect + ' ★ por acierto.</li><li>Bonus de aprobado +' + S.rules.passBonus[10] + '/+' + S.rules.passBonus[15] + '/+' + S.rules.passBonus[20] + ' y perfecto +' + S.rules.perfect + '.</li><li>Rachas: día 3 +' + S.rules.streakBonus[3] + ', 7 +' + S.rules.streakBonus[7] + ', 14 +' + S.rules.streakBonus[14] + ', 30 +' + S.rules.streakBonus[30] + '.</li><li>Solo el primer test del día da estrellas. Tres respuestas en menos de 2 s quitan el bonus.</li></ul></section>' +
+        '<section><h2>Fuera del prototipo</h2><ul><li>Guardado real, sin conexión e instalación (fase 2 y 4).</li><li>Niveles 4 a 6 e idiomas (fase 8).</li><li>Foto del cuaderno: aplazada.</li></ul></section>' +
+      '</div></div>';
+  }
+
+  var app;
+  function render() {
+    var a = document.activeElement, key = a && a.getAttribute && a.getAttribute('data-key'), pos = null;
+    if (key && a.selectionStart != null) pos = a.selectionStart;
+    var scroll = document.querySelector('.pbody'), st = scroll ? scroll.scrollTop : 0, sameScreen = !S.fresh;
+    app.innerHTML = page();
+    if (key) {
+      var el = app.querySelector('[data-key="' + key + '"]');
+      if (el) { el.focus(); if (pos != null) try { el.setSelectionRange(pos, pos); } catch (e) { /* no aplica */ } }
+    }
+    var sc2 = app.querySelector('.pbody');
+    if (sc2 && sameScreen) sc2.scrollTop = st;
+    S.fresh = false;
+    if (S.pin.shake) S.pin.shake = false;
+    if (S.confirm && S.confirm.shake) S.confirm.shake = false;
+    fit();
+  }
+  function fit() {
+    var d = DEV[S.device], box = app.querySelector('.stagebox'), sc = document.getElementById('scaler'), dev = document.getElementById('device');
+    if (!box || !sc) return;
+    var s = Math.min(1, box.clientWidth / d.w);
+    dev.style.transform = 'scale(' + s + ')';
+    sc.style.width = Math.round(d.w * s) + 'px';
+    sc.style.height = Math.round(d.h * s) + 'px';
+  }
+
+  /* ---------- Acciones ---------- */
+  function pinKey(state, v, onOk) {
+    if (v === 'del') { state.entry = state.entry.slice(0, -1); state.err = ''; return; }
+    if (state.entry.length >= 4) return;
+    state.entry += v;
+    if (state.entry.length === 4) {
+      if (state.entry === DEMO_PIN) { state.entry = ''; state.err = ''; state.tries = 0; onOk(); }
+      else {
+        state.tries = (state.tries || 0) + 1; state.entry = ''; state.shake = true;
+        state.err = state.tries >= 5 ? 'PIN incorrecto. Bloqueado 15 minutos.' : 'PIN incorrecto. Te quedan ' + (5 - state.tries) + ' intentos.';
+        if (state.tries >= 5 && state === S.pin) state.lockedUntil = Date.now() + 15 * 60 * 1000;
+      }
+    }
+  }
+  var STEP = {
+    perCorrect: [function () { return S.rules.perCorrect; }, function (v) { S.rules.perCorrect = v; }, 1, 5, 1],
+    passPct: [function () { return S.rules.passPct; }, function (v) { S.rules.passPct = v; }, 50, 100, 5],
+    pb10: [function () { return S.rules.passBonus[10]; }, function (v) { S.rules.passBonus[10] = v; }, 0, 20, 1],
+    pb15: [function () { return S.rules.passBonus[15]; }, function (v) { S.rules.passBonus[15] = v; }, 0, 20, 1],
+    pb20: [function () { return S.rules.passBonus[20]; }, function (v) { S.rules.passBonus[20] = v; }, 0, 20, 1],
+    perfect: [function () { return S.rules.perfect; }, function (v) { S.rules.perfect = v; }, 0, 20, 1],
+    sb3: [function () { return S.rules.streakBonus[3]; }, function (v) { S.rules.streakBonus[3] = v; }, 0, 50, 1],
+    sb7: [function () { return S.rules.streakBonus[7]; }, function (v) { S.rules.streakBonus[7] = v; }, 0, 50, 1],
+    sb14: [function () { return S.rules.streakBonus[14]; }, function (v) { S.rules.streakBonus[14] = v; }, 0, 100, 1],
+    sb30: [function () { return S.rules.streakBonus[30]; }, function (v) { S.rules.streakBonus[30] = v; }, 0, 200, 5],
+    dayStart: [function () { return S.dayStart; }, function (v) { S.dayStart = v; }, 0, 8, 1]
+  };
+  var ACT = {
+    device: function (v) { S.device = v; S.fresh = true; S.sheet = null; S.screen = v === 'phone' ? 'panel' : (S.screen === 'pin' ? 'perfiles' : 'perfiles'); },
+    jump: function (v) {
+      if (S.device === 'phone') { if (v === 'pin') { S.authed = false; } else { S.authed = true; go(v); } S.fresh = true; return; }
+      if (v === 'pregunta') { ensureTest('ask'); go('pregunta'); return; }
+      if (v === 'explicacion') { ensureTest('fail'); go('pregunta'); S.fresh = true; return; }
+      if (v === 'resultado') { if (!S.result) fakeResult(); go('resultado'); return; }
+      go(v);
+    },
+    go: function (v) { go(v); },
+    pick: function (v) { S.kidId = v; S.emo = 'contenta'; go('inicio'); },
+    start: function (v) { startTest(parseInt(v, 10)); },
+    opt: function (v) { S.test.sel = parseInt(v, 10); },
+    key: function (v) {
+      var t = S.test;
+      if (v === 'del') t.entry = t.entry.slice(0, -1);
+      else if (t.entry.length < 4) t.entry = (t.entry === '0' ? '' : t.entry) + v;
+    },
+    check: check,
+    next: nextQ,
+    understood: function () {
+      var t = S.test;
+      t.mini = E.similar(t.qs[t.i], Math.floor(Math.random() * 1e9));
+      t.phase = 'mini'; t.sel = null; t.entry = '';
+    },
+    pause: function () { toast('Test en pausa. Lo retomas desde «Empezar».'); go('inicio'); },
+    sheet: function (v) { S.sheet = v; },
+    closesheet: function () { S.sheet = null; },
+    preview: function (v) { var n = parseInt(v, 10); S.preview = S.preview === n ? null : n; },
+    emo: function (v) { S.emo = v; },
+    kind: function (v) { kid().kind = v; },
+    pin: function (v) { pinKey(S.pin, v, function () { S.authed = true; S.lastParent = Date.now(); go('panel'); }); },
+    noop: function () {},
+    unlock: function () { S.pin.lockedUntil = 0; S.pin.tries = 0; S.pin.err = ''; },
+    forgot: function () { toast('En la app real se restablece desde el email de la cuenta.'); },
+    openkid: function (v) { S.openKid = S.openKid === v ? null : v; },
+    level: function (v, el) { var k = kid(v); k.level = Math.max(1, Math.min(6, k.level + parseInt(el.getAttribute('data-d'), 10))); k.recent = []; toast(k.name + ' pasa a nivel ' + k.level + '.'); },
+    dismiss: function (v) { kid(v).recent = []; toast('De acuerdo. Te avisaremos si sigue igual.'); },
+    rkid: function (v) { S.redeem.kid = v; S.redeem.reward = null; },
+    rrew: function (v) { S.redeem.reward = S.redeem.reward === v ? null : v; if (S.redeem.reward) S.redeem.custom = ''; },
+    askconfirm: function () { S.confirm = { entry: '', err: '', tries: 0 }; },
+    cancelconfirm: function () { S.confirm = null; },
+    cpin: function (v) {
+      pinKey(S.confirm, v, function () {
+        var R = S.redeem, amt = redeemAmount(), k = kid(R.kid);
+        if (amt.n <= 0 || balance(k.id) - amt.n < 0) { S.confirm = null; return; }
+        S.ledger.push({ id: nextId(), kid: k.id, day: 0, type: 'canje', amount: -amt.n, note: amt.what });
+        S.confirm = null; R.reward = null; R.custom = ''; R.reason = '';
+        toast('Hecho: −' + amt.n + ' ★ a ' + k.name + '. Ya lo ve en su historial.');
+      });
+      if (S.confirm && S.confirm.tries >= 5) { S.confirm = null; S.authed = false; S.pin.lockedUntil = Date.now() + 15 * 60 * 1000; }
+    },
+    compensate: function (v) {
+      var e = S.ledger.filter(function (x) { return x.id === v; })[0];
+      if (!e) return;
+      e.fixed = true;
+      S.ledger.push({ id: nextId(), kid: e.kid, day: 0, type: 'ajuste', amount: -e.amount, note: 'Corrección: ' + e.note });
+      toast('Apunte de compensación añadido: +' + (-e.amount) + ' ★');
+    },
+    step: function (v, el) {
+      var d = parseInt(el.getAttribute('data-d'), 10);
+      if (v.indexOf('level:') === 0) { var k = kid(v.slice(6)); k.level = Math.max(1, Math.min(6, k.level + d)); return; }
+      var s = STEP[v]; s[1](Math.max(s[2], Math.min(s[3], s[0]() + d * s[4])));
+    },
+    maxlen: function (v, el) { kid(v).maxLen = parseInt(el.getAttribute('data-n'), 10); },
+    delrew: function (v) { S.rewards = S.rewards.filter(function (r) { return r.id !== v; }); },
+    addrew: function () { S.rewards.push({ id: 'r' + nextId(), name: 'Nuevo premio', cost: 50, note: '' }); },
+    shields: function (v) { S.shieldsOn = v === '1'; },
+    lang: function (v) { if (v !== 'es') toast('Inglés, francés y alemán llegan en la fase 8.'); },
+    demo: function (v) { toast(v); },
+    logout: function () { S.authed = false; S.pin.entry = ''; S.fresh = true; }
+  };
+  var INPUT = {
+    petName: function (v) { kid().petName = v.trim() || kid().petName; return false; },
+    custom: function (v) { S.redeem.custom = v.replace(/\D/g, '').slice(0, 4); if (S.redeem.custom) S.redeem.reward = null; return true; },
+    reason: function (v) { S.redeem.reason = v.slice(0, 40); return true; },
+    rname: function (v, el) { S.rewards.forEach(function (r) { if (r.id === el.getAttribute('data-id')) r.name = v; }); return false; },
+    rcost: function (v, el) { var n = parseInt(v.replace(/\D/g, ''), 10); S.rewards.forEach(function (r) { if (r.id === el.getAttribute('data-id') && n > 0) r.cost = n; }); return false; },
+    equivalence: function (v) { S.equivalence = v; return false; }
+  };
+
+  function boot() {
+    app = document.getElementById('app');
+    app.addEventListener('click', function (ev) {
+      var el = ev.target.closest('[data-act]');
+      if (!el || el.disabled) return;
+      if (el.getAttribute('data-act') === 'closesheet' && ev.target.closest('[data-stop]') && el.classList.contains('overlay')) return;
+      if (el.getAttribute('data-act') === 'openkid' && ev.target.closest('[data-stop]')) return;
+      if (S.device === 'phone' && S.authed && Date.now() - S.lastParent > 5 * 60 * 1000) { S.authed = false; S.fresh = true; render(); return; }
+      if (S.device === 'phone') S.lastParent = Date.now();
+      ACT[el.getAttribute('data-act')](el.getAttribute('data-v'), el);
+      render();
+    });
+    app.addEventListener('keydown', function (ev) {
+      var el = ev.target;
+      if ((ev.key === 'Enter' || ev.key === ' ') && el.getAttribute && el.getAttribute('role') === 'button') { ev.preventDefault(); el.click(); }
+    });
+    app.addEventListener('input', function (ev) {
+      var el = ev.target, k = el.getAttribute('data-input');
+      if (k && INPUT[k](el.value, el)) render();
+    });
+    app.addEventListener('change', function (ev) { if (ev.target.getAttribute('data-input')) render(); });
+    document.addEventListener('keydown', function (ev) {
+      if (S.device !== 'tablet' || S.screen !== 'pregunta' || !S.test || /INPUT|TEXTAREA/.test(ev.target.tagName)) return;
+      var t = S.test, q = curQ(), asking = t.phase === 'ask' || t.phase === 'mini';
+      if (asking && q.type === 'num' && /^[0-9]$/.test(ev.key)) ACT.key(ev.key);
+      else if (asking && q.type === 'num' && ev.key === 'Backspace') ACT.key('del');
+      else if (asking && q.type === 'mc' && /^[1-4]$/.test(ev.key)) ACT.opt(String(parseInt(ev.key, 10) - 1));
+      else if (ev.key === 'Enter' && asking) check();
+      else return;
+      ev.preventDefault(); render();
+    });
+    window.addEventListener('resize', fit);
+    render();
+    // La barra de scroll aparece después del primer render y estrecha la página: volver a ajustar
+    if (window.ResizeObserver) new ResizeObserver(fit).observe(app);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
+})();
+
+</script>
+</body>
+</html>

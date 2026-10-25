@@ -1,0 +1,14 @@
+tools/
+build/
+app/node_modules/
+app/dist/
+app/server/data/
+app/test-results/
+app/playwright-report/
+app/*.tsbuildinfo
+deploy/.env
+deploy/backups/
+lighthouse.json
+e2e-result.txt
+# documento del plan con datos personales: no se publica
+*.pdf

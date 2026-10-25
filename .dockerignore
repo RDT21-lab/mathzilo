@@ -1,0 +1,13 @@
+tools
+build
+dist
+kit
+src
+*.pdf
+app/node_modules
+app/dist
+app/server/data
+app/test-results
+app/playwright-report
+app/*.tsbuildinfo
+deploy

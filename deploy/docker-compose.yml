@@ -1,0 +1,36 @@
+# Mathzilo en producción: la app + sincronización detrás de Caddy, que pide y renueva solo el
+# certificado HTTPS (necesario para instalar la PWA). Copia esta carpeta al servidor como ~/mathzilo,
+# crea un archivo .env con DOMAIN=tu-dominio y IMAGE=ghcr.io/usuario/mathzilo:latest y ejecuta:
+#   docker compose up -d
+services:
+  app:
+    image: ${IMAGE:-ghcr.io/OWNER/mathzilo:latest}
+    restart: unless-stopped
+    environment:
+      DATA_DIR: /data
+    volumes:
+      - data:/data
+  backup:
+    image: ${IMAGE:-ghcr.io/OWNER/mathzilo:latest}
+    restart: unless-stopped
+    user: root                     # para poder escribir en ./backups del servidor
+    environment:
+      DATA_DIR: /data
+      BACKUP_DIR: /backups
+      BACKUP_KEEP: "30"
+    volumes:
+      - data:/data:ro
+      - ./backups:/backups
+    command: ["node", "server/backup.mjs", "--every", "24h"]
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports: ["80:80", "443:443"]
+    environment:
+      DOMAIN: ${DOMAIN}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy:/data
+volumes:
+  data:
+  caddy:

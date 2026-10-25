@@ -1,0 +1,53 @@
+/* StarMath — design tokens v1 (fase 1)
+   Aplicación dark-first: el niño usa la tablet de noche y de día con el mismo aspecto.
+   Todos los valores salen del documento de diseño, sección 9. */
+:root {
+  /* Color: marca */
+  --sm-navy: #0A1230;          /* fondo */
+  --sm-card: #12275F;          /* superficies y tarjetas */
+  --sm-card-raised: #1B3680;   /* tarjeta elevada o seleccionada */
+  --sm-gold: #FFC933;          /* estrellas y acento principal */
+  --sm-gold-deep: #E0A200;     /* sombra del dorado, bordes sobre dorado */
+  --sm-gold-ink: #3A2A00;      /* texto sobre dorado */
+  --sm-bone: #F7F7FA;          /* texto principal */
+  --sm-muted: #A9B6E0;         /* texto secundario (gris azulado) */
+  --sm-line: #2A4390;          /* bordes finos */
+
+  /* Color: estado */
+  --sm-ok: #3DDC97;            /* acierto */
+  --sm-soft-fail: #FF8A5B;     /* fallo suave: nunca rojo */
+  --sm-shield: #9AA8FF;        /* escudo */
+
+  /* Tipografía */
+  --sm-font: "Lexend", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --sm-fs-display: 56px;
+  --sm-fs-h1: 40px;
+  --sm-fs-h2: 28px;
+  --sm-fs-question: 44px;      /* enunciado de la pregunta (mínimo exigido: 20 px) */
+  --sm-fs-body: 20px;
+  --sm-fs-small: 16px;
+  --sm-fs-caption: 14px;
+  --sm-fw-regular: 400;
+  --sm-fw-medium: 500;
+  --sm-fw-bold: 700;
+  --sm-fw-black: 800;
+
+  /* Espaciado (rejilla de 4) */
+  --sm-sp-1: 4px;  --sm-sp-2: 8px;  --sm-sp-3: 12px; --sm-sp-4: 16px;
+  --sm-sp-5: 24px; --sm-sp-6: 32px; --sm-sp-7: 48px; --sm-sp-8: 64px;
+
+  /* Forma */
+  --sm-radius-sm: 12px;
+  --sm-radius: 16px;
+  --sm-radius-lg: 24px;
+  --sm-touch-min: 56px;        /* tamaño mínimo de botón */
+
+  /* Movimiento (menos de 1 s, desactivable) */
+  --sm-dur-fast: 150ms;
+  --sm-dur: 280ms;
+  --sm-dur-slow: 700ms;
+  --sm-ease: cubic-bezier(.2, .8, .2, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  :root { --sm-dur-fast: 0ms; --sm-dur: 0ms; --sm-dur-slow: 0ms; }
+}

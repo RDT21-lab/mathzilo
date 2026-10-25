@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0A1230">
+<title>Mathzilo · prototipo</title>
+<link rel="icon" type="image/svg+xml" href="{{FAVICON}}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+/* Fondo de estrellas del dispositivo: puntos planos, sin degradados de color */
+:root { --stars: url("{{STARS}}"); }
+{{CSS}}
+.mk svg, .wm svg { width: 100%; height: 100%; display: block; }
+.brand .wm, .brand-in .wm { aspect-ratio: 742 / 220; }
+.d1 { --i: 1; } .d2 { --i: 2; } .d3 { --i: 3; } .d4 { --i: 4; } .d5 { --i: 5; } .d6 { --i: 6; }
+</style>
+</head>
+<body>
+<div id="app" aria-live="off"></div>
+<noscript>Este prototipo necesita JavaScript.</noscript>
+<script>window.SM_ASSETS = {{ASSETS}};</script>
+<script>
+{{MASCOTS}}
+</script>
+<script>
+{{ENGINE}}
+</script>
+<script>
+{{APP}}
+</script>
+</body>
+</html>
