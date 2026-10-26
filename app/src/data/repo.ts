@@ -220,6 +220,40 @@ export async function exportAll() {
   return { app: 'Mathzilo', version: 1, exportedAt: new Date().toISOString(),
            family: family.map(f => ({ ...f, pinHash: undefined, pinSalt: undefined })), children, sessions, answers, events, rewards, mastery, flags };
 }
+/* ---------------- Restaurar una copia exportada ---------------- */
+export type Backup = Awaited<ReturnType<typeof exportAll>> & { pilotNotes?: string };
+export class BackupError extends Error {}
+/** Lee y valida un archivo exportado (sin tocar nada todavía) */
+export function readBackup(text: string): Backup {
+  let d: Backup;
+  try { d = JSON.parse(text); } catch { throw new BackupError('json'); }
+  const okApp = d && typeof d === 'object' && ['Mathzilo', 'StarMath'].includes((d as { app?: string }).app ?? '') && d.version === 1;
+  if (!okApp || !Array.isArray(d.family) || d.family.length !== 1 || !Array.isArray(d.children) || !Array.isArray(d.events)) throw new BackupError('formato');
+  for (const k of ['sessions', 'answers', 'rewards', 'mastery'] as const) if (!Array.isArray(d[k])) throw new BackupError('formato');
+  return d;
+}
+/** Sustituye todo lo de este dispositivo por la copia. El PIN no viaja en la copia: se elige uno nuevo */
+export async function restoreBackup(d: Backup, pin: string) {
+  const salt = newSalt(), now = Date.now();
+  const fam: Family = { ...(d.family[0] as unknown as Family), id: FAMILY_ID, pinSalt: salt, pinHash: await hashPin(pin, salt), pinLength: pin.length, updatedAt: now };
+  const device = await getMeta<string>('device', '');
+  await db.transaction('rw', db.tables, async () => {
+    await Promise.all(db.tables.map(t => t.clear()));
+    await db.family.put(fam);
+    await db.children.bulkPut(d.children);
+    await db.sessions.bulkPut(d.sessions);
+    await db.answers.bulkPut(d.answers);
+    await db.events.bulkPut(d.events);
+    await db.rewards.bulkPut(d.rewards);
+    await db.mastery.bulkPut(d.mastery);
+    if (Array.isArray(d.flags)) await db.flags.bulkPut(d.flags);
+    if (device) await db.meta.put({ key: 'device', value: device });
+    if (d.pilotNotes) await db.meta.put({ key: 'pilotNotes', value: d.pilotNotes });
+    await db.meta.put({ key: 'lastExport', value: now });
+  });
+  notify();
+}
+
 export async function wipeAll() {
   await Promise.all(db.tables.map(t => t.clear()));
   notify();

@@ -406,6 +406,16 @@
     "noFlags": "None yet.",
     "notes": "Pilot notes",
     "notesPh": "What they liked, what was hard, confusing texts…",
-    "notesHint": "Notes are included when you export the data."
+    "notesHint": "Notes are included when you export the data.",
+    "restoreTitle": "Restore a backup",
+    "restoreLead": "Recover the data from an exported file (for example, on a new tablet).",
+    "restoreFile": "Choose backup file",
+    "restoreBad": "That file isn't a Mathzilo backup.",
+    "restoreSummary": "Backup from {{date}}: {{kids}} · {{tests}} tests.",
+    "restoreWarn": "Everything on this device will be replaced.",
+    "restorePin": "New parent PIN (4 to 6 digits)",
+    "restoreBtn": "Restore",
+    "restoreDone": "Backup restored.",
+    "restoreOnb": "Have an exported backup? Restore it"
   }
 }

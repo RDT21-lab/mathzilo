@@ -406,6 +406,16 @@
     "noFlags": "Aucune pour le moment.",
     "notes": "Notes du pilote",
     "notesPh": "Ce qui a plu, ce qui a coûté, textes confus…",
-    "notesHint": "Les notes sont incluses dans l'export des données."
+    "notesHint": "Les notes sont incluses dans l'export des données.",
+    "restoreTitle": "Restaurer une copie",
+    "restoreLead": "Récupère les données depuis un fichier exporté (par exemple, sur une nouvelle tablette).",
+    "restoreFile": "Choisir le fichier de copie",
+    "restoreBad": "Ce fichier n'est pas une copie de Mathzilo.",
+    "restoreSummary": "Copie du {{date}} : {{kids}} · {{tests}} tests.",
+    "restoreWarn": "Tout ce qui se trouve sur cet appareil sera remplacé.",
+    "restorePin": "Nouveau code parent (4 à 6 chiffres)",
+    "restoreBtn": "Restaurer",
+    "restoreDone": "Copie restaurée.",
+    "restoreOnb": "Tu as une copie exportée ? La restaurer"
   }
 }

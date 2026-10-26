@@ -9,12 +9,13 @@ import * as sync from '../../sync/client';
 import { useT, setLang } from '../../i18n';
 import { Mascot, ParentStage } from '../common';
 import { NewKidForm, PrivacySheet } from './ParentApp';
+import { RestoreBackup } from './Extras';
 import markUrl from '../../assets/mark.svg';
 import wordUrl from '../../assets/wordmark.svg';
 
 export function Onboarding({ onDone }: { onDone: () => void }) {
   const t = useT();
-  const [step, setStep] = useState<'start' | 'pin' | 'kids' | 'link'>('start');
+  const [step, setStep] = useState<'start' | 'pin' | 'kids' | 'link' | 'restore'>('start');
   const [lang, setL] = useState<Lang>(() => (LANGS.find(l => navigator.language.startsWith(l)) ?? 'es'));
   const [ok, setOk] = useState(false);
   const [privacy, setPrivacy] = useState(false);
@@ -37,6 +38,7 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
       <button className="link" onClick={() => setPrivacy(true)}>{t('parent.privacy')}</button>
       <button className="pbtn full" disabled={!ok} onClick={() => setStep('pin')}>{t('onb.next')}</button>
       <button className="link" onClick={() => setStep('link')}>{t('onb.haveAccount')}</button>
+      <button className="link" onClick={() => setStep('restore')}>{t('extra.restoreOnb')}</button>
     </>
   );
   else if (step === 'pin') body = (
@@ -66,6 +68,13 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
         await repo.createFamily({ lang, pin, children: kids });
         onDone();
       }}>{t('onb.finish')}</button>
+    </>
+  );
+  else if (step === 'restore') body = (
+    <>
+      <h2>{t('extra.restoreTitle')}</h2>
+      <RestoreBackup compact onDone={onDone} />
+      <button className="pbtn line" onClick={() => setStep('start')}>{t('common.back')}</button>
     </>
   );
   else body = <LinkDevice onBack={() => setStep('start')} onDone={onDone} />;

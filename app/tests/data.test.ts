@@ -91,6 +91,31 @@ describe('saldo: tests y canjes en local', () => {
     expect(await db.outbox.count()).toBeGreaterThan(5);
   });
 
+  it('exportar → borrar todo → restaurar deja los datos exactamente igual', async () => {
+    await repo.createFamily({ lang: 'es', pin: '1234', children: [{ name: 'Lucía', kind: 'zorro', petName: 'Chispa', level: 2, lang: 'es' }] });
+    const [lucia] = await db.children.toArray();
+    await playTest(lucia.id, 10, 9);
+    await repo.redeemLocal(lucia.id, 3, 'Cromos');
+    await repo.addFlag(lucia, 'add-carry', 'olvido-llevada');
+    const balanceBefore = await repo.balance(lucia.id);
+    const exported = JSON.stringify(await repo.exportAll());
+    expect(exported).not.toContain('pinHash');                    // el PIN nunca viaja en la copia
+
+    await repo.wipeAll();                                          // tablet nueva o datos perdidos
+    expect(await db.children.count()).toBe(0);
+
+    const backup = repo.readBackup(exported);
+    await repo.restoreBackup(backup, '9876');
+    expect((await db.children.toArray()).map(c => c.name)).toEqual(['Lucía']);
+    expect(await repo.balance(lucia.id)).toBe(balanceBefore);
+    expect(await db.sessions.count()).toBe(1);
+    expect(await db.flags.count()).toBe(1);
+    expect((await repo.checkPin('9876')).ok).toBe(true);          // PIN nuevo elegido al restaurar
+    expect((await repo.checkPin('1234')).ok).toBe(false);
+    expect(() => repo.readBackup('{"app":"otra"}')).toThrow();
+    expect(() => repo.readBackup('no es json')).toThrow();
+  });
+
   it('PIN: 5 intentos fallidos bloquean', async () => {
     await repo.createFamily({ lang: 'es', pin: '2468', children: [] });
     expect((await repo.checkPin('2468')).ok).toBe(true);

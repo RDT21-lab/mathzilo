@@ -406,6 +406,16 @@
     "noFlags": "Noch keine.",
     "notes": "Notizen zum Pilot",
     "notesPh": "Was gefallen hat, was schwer war, unklare Texte …",
-    "notesHint": "Die Notizen sind im Datenexport enthalten."
+    "notesHint": "Die Notizen sind im Datenexport enthalten.",
+    "restoreTitle": "Sicherung wiederherstellen",
+    "restoreLead": "Stelle die Daten aus einer exportierten Datei wieder her (zum Beispiel auf einem neuen Tablet).",
+    "restoreFile": "Sicherungsdatei wählen",
+    "restoreBad": "Diese Datei ist keine Mathzilo-Sicherung.",
+    "restoreSummary": "Sicherung vom {{date}}: {{kids}} · {{tests}} Tests.",
+    "restoreWarn": "Alles auf diesem Gerät wird ersetzt.",
+    "restorePin": "Neue Eltern-PIN (4 bis 6 Ziffern)",
+    "restoreBtn": "Wiederherstellen",
+    "restoreDone": "Sicherung wiederhergestellt.",
+    "restoreOnb": "Exportierte Sicherung vorhanden? Wiederherstellen"
   }
 }

@@ -22,6 +22,47 @@ export async function downloadExport() {
   await setMeta('lastExport', Date.now());
 }
 
+/** Restaurar una copia exportada (tablet nueva, app borrada o datos perdidos) */
+export function RestoreBackup({ onDone, compact }: { onDone: () => void; compact?: boolean }) {
+  const t = useT();
+  const [backup, setBackup] = useState<repo.Backup | null>(null);
+  const [err, setErr] = useState('');
+  const [pin, setPin] = useState('');
+  const [busy, setBusy] = useState(false);
+  const pick = async (f: File | undefined) => {
+    setErr(''); setBackup(null);
+    if (!f) return;
+    try { setBackup(repo.readBackup(await f.text())); } catch { setErr(t('extra.restoreBad')); }
+  };
+  return (
+    <div className={compact ? 'restore' : 'restore sect'}>
+      {!compact && <h3>{t('extra.restoreTitle')}</h3>}
+      <p className="muted small" style={{ margin: 0 }}>{t('extra.restoreLead')}</p>
+      <label className="pbtn line filebtn">{t('extra.restoreFile')}
+        <input type="file" accept="application/json,.json" onChange={e => pick(e.target.files?.[0])} />
+      </label>
+      {err && <p className="err">{err}</p>}
+      {backup && (
+        <>
+          <div className="sumbar">
+            <span>{t('extra.restoreSummary', { kids: backup.children.map(c => c.name).join(', '), date: new Date(backup.exportedAt).toLocaleDateString(), tests: backup.sessions.length })}</span>
+            <span className="small" style={{ color: 'var(--soft-fail)' }}>{t('extra.restoreWarn')}</span>
+          </div>
+          <label className="field">{t('extra.restorePin')}
+            <input type="password" inputMode="numeric" autoComplete="new-password" value={pin} onChange={e => setPin(e.target.value.replace(/\D/g, '').slice(0, 6))} />
+          </label>
+          <button className="pbtn full" disabled={busy || !/^\d{4,6}$/.test(pin)} onClick={async () => {
+            setBusy(true);
+            await repo.restoreBackup(backup, pin);
+            setBusy(false);
+            onDone();
+          }}>{t('extra.restoreBtn')}</button>
+        </>
+      )}
+    </div>
+  );
+}
+
 /** Aviso en el panel si hace más de una semana de la última copia exportada */
 export function ExportReminder() {
   const t = useT();

@@ -142,3 +142,8 @@
 .device.kid.big .step .chip { font-size: 15px; }
 .step .st .chip { white-space: normal; text-align: center; }
 .kindsel { flex-wrap: wrap; }
+
+/* Restaurar copia */
+.restore { display: flex; flex-direction: column; gap: 10px; }
+.filebtn { position: relative; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+.filebtn input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }

@@ -79,6 +79,24 @@ La app queda en `https://TU_USUARIO.github.io/mathzilo/`, con HTTPS gratis. Func
 
 ---
 
+## Servidor gratuito (sin pagar servidor ni dominio)
+
+Hay dos formas, las dos con HTTPS gratis:
+
+**Opción 1 · Oracle Cloud «Always Free» + DuckDNS (siempre encendido, en la UE).**
+1. Crea una cuenta en Oracle Cloud y elige una región de la UE (Fráncfort, Ámsterdam, Madrid…). Piden tarjeta para verificar la identidad, pero los recursos «Always Free» no se cobran.
+2. Crea una instancia **Ampere A1 (Arm) con Ubuntu 24.04** dentro del límite gratuito (con 1 OCPU y 6 GB sobra). En la red, abre los puertos 80 y 443.
+3. En https://www.duckdns.org inicia sesión y crea un subdominio, por ejemplo `mathzilo-tufamilia.duckdns.org`, apuntando a la IP pública de la instancia.
+4. Sigue los pasos 4 (desde «Entra al servidor e instala Docker») y 5 con `DOMAIN=mathzilo-tufamilia.duckdns.org`. La imagen Docker de GitHub está preparada para Arm y x86.
+5. Avisos: Oracle puede recuperar instancias gratuitas que pasen una semana casi sin uso, y en 2026 se ha publicado que redujo el límite de la capa gratuita. Revisa su página de «Always Free» antes de empezar y mantén la copia semanal.
+
+**Opción 2 · Un ordenador de casa (Raspberry Pi o PC viejo) + Tailscale Funnel.**
+1. Instala Docker en ese equipo y arranca la app con el `docker-compose` de `deploy/`, quitando el servicio `caddy`. Expón el puerto 8787 del servicio `app`.
+2. Instala Tailscale (plan personal gratuito) y publica el servicio con `tailscale funnel 8787`. Te da una dirección fija con HTTPS del tipo `https://equipo.tu-red.ts.net`.
+3. Inconveniente: ese equipo tiene que estar siempre encendido. Si se apaga, la tablet sigue funcionando sin conexión y sincroniza cuando vuelva.
+
+En los dos casos, la app publicada en GitHub Pages se conecta a ese servidor escribiendo su dirección en **Ajustes → Nube y otros dispositivos**.
+
 ## Paso 4 · Servidor en la UE (30 minutos)
 
 1. Contrata un servidor virtual pequeño en un centro de datos de la UE. Por ejemplo, Hetzner Cloud en Alemania o Finlandia, OVHcloud en Francia o Scaleway en Francia.

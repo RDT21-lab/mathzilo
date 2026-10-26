@@ -53,6 +53,29 @@ describe('servidor', () => {
     expect(r.json.pull.some((p: { table: string }) => p.table === 'flags')).toBe(true);
   });
 
+  it('cada familia solo ve lo suyo: otra familia no puede leer ni escribir sus datos', async () => {
+    const a = (await post('/api/register', { email: 'familia-a@example.test', password: 'clave-larga-a' })).json;
+    const b = (await post('/api/register', { email: 'familia-b@example.test', password: 'clave-larga-b' })).json;
+    expect(a.familyId).not.toBe(b.familyId);
+    const kid = { id: 'kid-a', name: 'Hijo de A', kind: 'zorro', petName: 'Nova', level: 2, lang: 'es', tone: 'young', maxLen: 20, bestStreak: 0, sound: true, createdAt: 1, updatedAt: 1 };
+    await post('/api/sync', { since: 0, push: [{ table: 'children', op: 'put', row: kid }] }, a.token);
+    // B pide todo desde el principio: no recibe nada de A
+    const pullB = (await post('/api/sync', { since: 0, push: [] }, b.token)).json.pull;
+    expect(pullB.some((p: { row?: { id: string } }) => p.row?.id === 'kid-a')).toBe(false);
+    // B intenta canjear estrellas del hijo de A: el hijo no existe en su familia
+    const redeem = await post('/api/redeem', { pin: '1234', event: { id: 'x', childId: 'kid-a', type: 'canje', amount: 1 } }, b.token);
+    expect(redeem.status).toBeGreaterThanOrEqual(400);
+    // un código de vinculación de A une la tablet a A, nunca a B
+    const code = (await post('/api/pair/create', {}, a.token)).json.code;
+    const tablet = (await post('/api/pair/claim', { code })).json;
+    expect(tablet.familyId).toBe(a.familyId);
+    const pullTablet = (await post('/api/sync', { since: 0, push: [] }, tablet.token)).json.pull;
+    expect(pullTablet.some((p: { row?: { id: string } }) => p.row?.id === 'kid-a')).toBe(true);
+    // sin token o con uno inventado, nada
+    expect((await post('/api/sync', { since: 0 })).status).toBe(401);
+    expect((await post('/api/sync', { since: 0 }, 'f'.repeat(64))).status).toBe(401);
+  });
+
   it('copia de seguridad y restauración', () => {
     const data = path.join(dir, 'data'), dest = path.join(dir, 'backups');
     const a = backupOnce(data, dest, 2);

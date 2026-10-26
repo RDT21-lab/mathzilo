@@ -11,7 +11,7 @@ import * as sync from '../../sync/client';
 import { useT, setLang, noteText, fmtNum, rawRes } from '../../i18n';
 import { Icon, Mascot, ParentStage, useLive, useToast, Toast } from '../common';
 import markUrl from '../../assets/mark.svg';
-import { downloadExport, ExportReminder, InstallSection, PilotSummary } from './Extras';
+import { downloadExport, ExportReminder, InstallSection, PilotSummary, RestoreBackup } from './Extras';
 
 type Screen = 'panel' | 'redeem' | 'settings';
 
@@ -435,6 +435,7 @@ function SettingsScreen({ family, toast, onExit }: { family: Family; toast: (m: 
             : <button className="pbtn line danger" onClick={() => setConfirmDel('*')}>{t('parent.deleteAll')}</button>}
         </div>
       </section>
+      <RestoreBackup onDone={() => toast(t('extra.restoreDone'))} />
       <button className="pbtn line" onClick={onExit}>{t('parent.logout')}</button>
       {privacy && <PrivacySheet onClose={() => setPrivacy(false)} />}
     </div>

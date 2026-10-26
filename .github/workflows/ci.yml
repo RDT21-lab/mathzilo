@@ -46,10 +46,14 @@ jobs:
       - name: Nombre de la imagen en minúsculas (GHCR no admite mayúsculas)
         id: name
         run: echo "image=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
+      # Imagen para x86 y Arm (Oracle Cloud Ampere gratuito, Raspberry Pi)
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
       - uses: docker/build-push-action@v6
         with:
           context: .
           push: true
+          platforms: linux/amd64,linux/arm64
           tags: ${{ steps.name.outputs.image }}:latest
 
   deploy:
