@@ -23,7 +23,7 @@ Coste: un servidor pequeño en la UE (unos pocos euros al mes) y un dominio (uno
 
 En PowerShell:
 ```powershell
-cd "C:\Users\M800354\OneDrive - Roland Berger Holding GmbH\Desktop\Internal contribution\Star math\starmath-fase1\app"
+cd "C:\ruta\a\mathzilo\app"
 $env:PATH = "$PWD\..\tools\node-v24.22.0-win-x64;$env:PATH"
 npm run dev
 ```
@@ -42,7 +42,7 @@ Abre http://localhost:5173 y:
 2. Crea un repositorio nuevo: **New repository** → nombre `mathzilo` (en minúsculas) → **Private** → sin README → **Create**.
 3. En PowerShell, en la carpeta del proyecto:
    ```powershell
-   cd "C:\Users\M800354\OneDrive - Roland Berger Holding GmbH\Desktop\Internal contribution\Star math\starmath-fase1"
+   cd "C:\ruta\a\mathzilo"
    git init -b main
    git config user.name "Tu nombre"
    git config user.email "tu-email-de-github@ejemplo.com"
@@ -121,7 +121,7 @@ En los dos casos, la app publicada en GitHub Pages se conecta a ese servidor esc
 
 1. Desde tu PC, copia la carpeta `deploy` al servidor:
    ```powershell
-   scp -r "C:\Users\M800354\OneDrive - Roland Berger Holding GmbH\Desktop\Internal contribution\Star math\starmath-fase1\deploy" mathzilo@IP_DEL_SERVIDOR:~/mathzilo
+   scp -r "C:\ruta\a\mathzilo\deploy" mathzilo@IP_DEL_SERVIDOR:~/mathzilo
    ```
 2. En GitHub, crea un token para descargar la imagen privada: foto de perfil → **Settings → Developer settings → Personal access tokens → Tokens (classic) → Generate new token**. Marca solo **read:packages** y copia el token.
 3. En el servidor:
