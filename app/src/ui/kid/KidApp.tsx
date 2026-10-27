@@ -3,9 +3,9 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { db } from '../../data/db';
 import * as repo from '../../data/repo';
-import type { ActiveTest, Child, Family, Lang } from '../../data/types';
+import type { ActiveTest, Child, Family, Lang, Session } from '../../data/types';
 import { LANGS } from '../../data/types';
-import { balanceOf, computeStreak, dayOf, addDays, FAST_MS, FAST_RUN } from '../../data/domain';
+import { balanceOf, computeStreak, dayOf, addDays, roundStars, FAST_MS, FAST_RUN } from '../../data/domain';
 import { explain, inputToVal, isCorrect, makeQuestion, similar, tagFor, valKey, type Explanation, type Question, type Val } from '../../engine';
 import i18n, { useT, setLang, renderTpl, tplText, ValView, valText, noteText, fmtNum } from '../../i18n';
 import markUrl from '../../assets/mark.svg';
@@ -14,7 +14,7 @@ import { Icon, KidStage, Mascot, useLive, useToast, Toast, stageFor, STAGE_STREA
 import { VisualView } from '../visuals';
 import { playOk, playWin } from '../../sound';
 
-type Screen = 'profiles' | 'home' | 'length' | 'question' | 'result' | 'mascot';
+type Screen = 'profiles' | 'home' | 'length' | 'question' | 'result' | 'mascot' | 'tasks';
 
 export function KidApp({ family, onParent, needRefresh, onRefresh }: { family: Family; onParent: () => void; needRefresh: boolean; onRefresh: () => void }) {
   const [screen, setScreen] = useState<Screen>('profiles');
@@ -41,6 +41,7 @@ export function KidApp({ family, onParent, needRefresh, onRefresh }: { family: F
                                    onDone={r => { setResult(r); if (child.sound && r.score.passed) playWin(); go('result'); }} />;
   else if (screen === 'result' && result) body = <Result child={child} family={family} r={result} onGo={go} onSheet={setSheet} />;
   else if (screen === 'mascot') body = <MascotScreen child={child} onBack={() => go('home')} onSheet={setSheet} />;
+  else if (screen === 'tasks') body = <TasksScreen child={child} family={family} onBack={() => go('home')} onSheet={setSheet} toast={setToast} />;
   else body = <Home child={child} family={family} onStart={go} onSheet={setSheet} onResume={a => { setActive(a); go('question'); }} />;
 
   return (
@@ -54,14 +55,23 @@ export function KidApp({ family, onParent, needRefresh, onRefresh }: { family: F
 }
 
 /* ---------- Cabecera ---------- */
-function Top({ child, left, onSheet, onProfiles }: { child?: Child; left?: React.ReactNode; onSheet?: (s: 'stars' | 'settings') => void; onProfiles?: () => void }) {
+function Top({ child, left, onSheet, onProfiles, onTasks, family }: { child?: Child; left?: React.ReactNode; onSheet?: (s: 'stars' | 'settings') => void; onProfiles?: () => void;
+                                                     onTasks?: () => void; family?: Family }) {
   const t = useT();
   const bal = useLive(async () => child ? balanceOf(await db.events.where('childId').equals(child.id).toArray()) : 0, [child?.id], 0);
+  const board = useLive(async () => child && family && onTasks ? repo.taskBoard(child, dayOf(Date.now(), family.settings.dayStartHour)) : null,
+                        [child?.id, child?.taskDays, family?.settings.dayStartHour, !!onTasks], null);
   return (
     <div className="top">
       <div className="l">{left ?? <Brand />}</div>
       {child && onSheet && (
         <div className="r">
+          {board && board.items.length > 0 && (
+            <button className={'pill tpill' + (board.approved === board.items.length ? ' ok' : '')} onClick={onTasks}
+                    aria-label={t('kid.tasksTitle') + ': ' + t('kid.tasksDone', { a: board.approved, n: board.items.length })}>
+              <Icon name="list" size={22} />{t('kid.tasksPill')} {board.approved}/{board.items.length}
+            </button>
+          )}
           <button className="pill gold" onClick={() => onSheet('stars')} aria-label={t('kid.myStars')}><Icon name="star" size={22} />{fmtNum(bal)}</button>
           <button className="icon-btn" onClick={() => onSheet('settings')} aria-label={t('kid.settingsTitle')}><Icon name="gear" size={26} /></button>
           {onProfiles && <button className="icon-btn" onClick={onProfiles} aria-label={t('kid.switch')}><Icon name="users" size={26} /></button>}
@@ -82,11 +92,16 @@ function BackBtn({ onClick }: { onClick: () => void }) {
 function Profiles({ children, family, onPick, onParent, needRefresh, onRefresh }: { children: Child[]; family: Family; onPick: (c: Child) => void; onParent: () => void; needRefresh: boolean; onRefresh: () => void }) {
   const t = useT();
   const info = useLive(async () => {
-    const out: Record<string, { bal: number; streak: number }> = {};
+    const out: Record<string, ProfileInfo> = {};
     const today = dayOf(Date.now(), family.settings.dayStartHour);
     for (const c of children) {
-      const s = computeStreak(await db.sessions.where('childId').equals(c.id).toArray(), today, family.settings.shieldsOn, c.bestStreak);
-      out[c.id] = { bal: balanceOf(await db.events.where('childId').equals(c.id).toArray()), streak: s.streak };
+      const sessions = await db.sessions.where('childId').equals(c.id).toArray();
+      const s = computeStreak(sessions, today, family.settings.shieldsOn, c.bestStreak);
+      const last = [...sessions].sort((a, b) => b.endedAt - a.endedAt)[0];
+      const week = sessions.filter(x => x.endedAt > Date.now() - 7 * 86400_000);
+      const qs = week.reduce((n, x) => n + x.length, 0);
+      out[c.id] = { bal: balanceOf(await db.events.where('childId').equals(c.id).toArray()), streak: s.streak, last,
+                    weekPct: qs ? Math.round(week.reduce((n, x) => n + x.correct, 0) / qs * 100) : null, board: await repo.taskBoard(c, today) };
     }
     return out;
   }, [children, family], {});
@@ -98,13 +113,14 @@ function Profiles({ children, family, onPick, onParent, needRefresh, onRefresh }
       <div className="pcards">
         {children.map((c, i) => (
           <button key={c.id} className="pcard pop" style={{ ['--i' as string]: i }} onClick={() => onPick(c)} aria-label={t('kid.play', { name: c.name })}>
-            <Mascot child={c} style={{ width: 190, height: 190 }} />
+            <Mascot child={c} style={{ width: 120, height: 120 }} />
             <span className="nm">{c.name}</span>
             <span className="row">
               <span className="chip">{t('kid.level', { n: c.level })}</span>
               <span className="chip"><Icon name="flame" size={16} className="gold" />{info[c.id]?.streak ? t('kid.days', { count: info[c.id].streak }) : t('kid.newStreak')}</span>
-              <span className="chip gold"><Icon name="star" size={16} />{fmtNum(info[c.id]?.bal ?? 0)}</span>
             </span>
+            <span className="pstar"><Icon name="star" size={28} />{fmtNum(info[c.id]?.bal ?? 0)}<small>{t('kid.available')}</small></span>
+            <ProfileStats info={info[c.id]} />
           </button>
         ))}
       </div>
@@ -113,6 +129,24 @@ function Profiles({ children, family, onPick, onParent, needRefresh, onRefresh }
         <button className="pill" onClick={onParent}><Icon name="lock" size={20} />{t('kid.parentMode')}</button>
       </div>
     </div>
+  );
+}
+
+interface ProfileInfo { bal: number; streak: number; last?: Session; weekPct: number | null; board: repo.TaskBoard }
+function ProfileStats({ info }: { info?: ProfileInfo }) {
+  const t = useT();
+  if (!info) return <span className="pinfo" />;
+  const b = info.board, n = b.items.length;
+  return (
+    <span className="pinfo">
+      <span className="pl"><span>{t('kid.lastTestL')}</span><b className={info.last ? (info.last.passed ? 'ok' : '') : 'muted'}>{info.last ? info.last.correct + '/' + info.last.length : '—'}</b></span>
+      <span className="pl"><span>{t('kid.weekL')}</span><b className={info.weekPct === null ? 'muted' : ''}>{info.weekPct === null ? '—' : fmtNum(info.weekPct) + ' %'}</b></span>
+      {n > 0 && (
+        <span className="pl"><span>{t('kid.tasksL')}</span>
+          <b className={b.approved === n ? 'ok' : ''}>{b.approved}/{n}{b.claimed > 0 && <span className="wait"> · <Icon name="clock" size={15} />{b.claimed}</span>}</b>
+        </span>
+      )}
+    </span>
   );
 }
 
@@ -168,7 +202,7 @@ function Home({ child, family, onStart, onSheet, onResume }: { child: Child; fam
   const pct = goal ? Math.min(100, Math.round((bal / goal.cost) * 100)) : 0;
   return (
     <div className="tscr">
-      <Top child={child} onSheet={onSheet} onProfiles={() => onStart('profiles')} />
+      <Top child={child} family={family} onSheet={onSheet} onProfiles={() => onStart('profiles')} onTasks={() => onStart('tasks')} />
       <div className="home">
         <div className="stagepane">
           <div className="bubble rise">{msg}</div>
@@ -194,7 +228,7 @@ function Home({ child, family, onStart, onSheet, onResume }: { child: Child; fam
           <button className="card starscard rise d2 plain" onClick={() => onSheet('stars')}>
             <div className="hd"><span className="num">{fmtNum(bal)}</span><b style={{ fontSize: 22 }}>{t('kid.stars')}</b></div>
             <div className="bar" role="progressbar" aria-label={goal ? goal.name : t('kid.stars')} aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}><i style={{ width: pct + '%' }} /></div>
-            <span className="muted">{!goal ? t('kid.noGoal') : bal >= goal.cost ? t('kid.goalReady', { name: goal.name }) : t('kid.goal', { name: goal.name, n: goal.cost - bal })}</span>
+            <span className="muted">{!goal ? t('kid.noGoal') : bal >= goal.cost ? t('kid.goalReady', { name: goal.name }) : t('kid.goal', { name: goal.name, n: fmtNum(roundStars(goal.cost - bal)) })}</span>
           </button>
           <div className="cta">
             {active ? (
@@ -465,7 +499,7 @@ function Result({ child, family, r, onGo, onSheet }: { child: Child; family: Fam
   const best = r.after.best;
   return (
     <div className="tscr">
-      <Top child={child} onSheet={onSheet} />
+      <Top child={child} family={family} onSheet={onSheet} onTasks={() => onGo('tasks')} />
       <div className="res">
         <div className="resl">
           <Donut pct={s.pct} passed={s.passed} />
@@ -554,6 +588,50 @@ function MascotScreen({ child, onBack, onSheet }: { child: Child; onBack: () => 
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+/* ---------- Mis tareas ---------- */
+function TasksScreen({ child, family, onBack, onSheet, toast }: { child: Child; family: Family; onBack: () => void; onSheet: (s: 'stars' | 'settings') => void; toast: (m: string) => void }) {
+  const t = useT();
+  const day = dayOf(Date.now(), family.settings.dayStartHour);
+  const board = useLive(() => repo.taskBoard(child, day), [child.id, child.taskDays, day], null);
+  if (!board) return <div className="tscr" />;
+  return (
+    <div className="tscr">
+      <Top child={child} onSheet={onSheet} left={<div className="brand-in"><BackBtn onClick={onBack} /><b style={{ fontSize: 26 }}>{t('kid.tasksTitle')}</b></div>} />
+      {board.items.length === 0 ? <p className="sub" style={{ marginTop: 40 }}>{t('kid.noTasks')}</p> : (
+        <div className="tasklist">
+          {board.items.map(({ task, check }, i) => {
+            const st = check?.state;
+            return (
+              <div key={task.id} className={'tcard pop' + (st ? ' ' + st : '')} style={{ ['--i' as string]: i }}>
+                <div className="tt">{task.title}</div>
+                {task.stars > 0 && <span className="chip gold"><Icon name="star" size={16} />+{fmtNum(task.stars)}</span>}
+                {st === 'approved' ? <span className="tstate ok"><Icon name="check" size={26} />{t('kid.taskOk')}</span>
+                  : st === 'claimed' ? <span className="tstate wait"><Icon name="clock" size={24} />{t('kid.taskWait')}</span>
+                  : (
+                    <>
+                      {st === 'rejected' && <span className="muted">{t('kid.taskAgain')}</span>}
+                      <button className="btn btn-gold" onClick={async () => { await repo.claimTask(task.id, day); if (child.sound) playOk(); toast(t('kid.taskSent')); }}>
+                        <Icon name="check" size={24} />{t('kid.taskDone')}</button>
+                    </>
+                  )}
+              </div>
+            );
+          })}
+          {board.bonuses.map(b => (
+            <div key={b.bonus.id} className={'tcard bonus' + (b.complete ? ' approved' : '')}>
+              <div className="tt">{b.bonus.title}</div>
+              {b.bonus.stars > 0 && <span className="chip gold"><Icon name="star" size={16} />+{fmtNum(b.bonus.stars)}</span>}
+              <span className={'tstate' + (b.complete ? ' ok' : '')}>{b.complete ? <><Icon name="check" size={26} />{t('kid.bonusOk')}</> : t('kid.bonusInfo', { a: b.done, n: b.tasks.length })}</span>
+              <div className="bar" role="progressbar" aria-label={b.bonus.title} aria-valuenow={b.done} aria-valuemin={0} aria-valuemax={b.tasks.length}>
+                <i style={{ width: Math.round(b.done / b.tasks.length * 100) + '%' }} /></div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

@@ -40,6 +40,17 @@ Pruebas (21-10-2026, todas en verde):
 - `npm test`: **88** unitarias (motor con 10.000 semillas por generador, datos, sincronización, idiomas, servidor, actualización de esquema sin pérdida de datos).
 - `npm run e2e`: **21** de punta a punta con Chrome (flujo del niño sin conexión, retomar test, dos dispositivos con canje, axe en ES y DE, maquetación en 4 idiomas × niveles 2 y 5 × letra normal y grande). Necesita `npm run build` antes.
 
+## Estado (27-10-2026): tareas, perfiles con resultados, dificultad y avisos (v0.9.0)
+Pedido por la familia piloto:
+- **Perfiles del niño** (tablet): cada tarjeta muestra estrellas para gastar, último test, % de aciertos de la semana y tareas de hoy (aprobadas / por revisar).
+- **Tareas** (pestaña nueva del modo padre, `ui/parent/Tasks.tsx`): por hijo; de un día concreto o de varios días de la semana; en pausa o borradas; **días con tareas** por hijo (p. ej. fines de semana desconectados); estrellas con **un decimal**; **premios por conjunto** (todas las del día o un grupo elegido).
+- **Flujo**: el niño pulsa «¡Ya la he hecho!» (estado `claimed`); el padre ve «Tareas por revisar» en el panel (y un número en la pestaña) y decide «Sí, está hecha» (paga la tarea y, si completa un conjunto, el premio) o «Aún no». Los apuntes de tareas tienen id fijo `tarea:<tarea>:<día>`: aprobar dos veces o desde dos móviles no paga dos veces.
+- **Avisos al móvil del padre** (Web Push propio, sin dependencias, `server/webpush.mjs`: cifrado RFC 8291 + VAPID RFC 8292; claves VAPID en `index.json` del servidor). Se activan en Ajustes → Nube → «Avisos en este móvil». En iPhone/iPad hace falta tener la app instalada en la pantalla de inicio (iOS 16.4+). Solo se envía a servicios de avisos conocidos (Google, Mozilla, Apple, Windows).
+- **Dificultad**: en el panel, al abrir la tarjeta del hijo, «Dificultad» con los últimos tests del nivel y botones para subir o bajar (decide el padre; la sugerencia automática sigue).
+- Servidor: tablas `tasks` y `checks` (última modificación gana); la tablet solo puede marcar `claimed` y nunca deshacer una aprobada; solo el padre crea apuntes `tarea` (validados contra la tarea y con un decimal como mucho). Base local Dexie v3.
+- Pruebas: `tests/tasks.test.ts` (reglas, decimales, flujo local, dos dispositivos, aviso cifrado descifrado y firma VAPID comprobada) y `e2e/tasks.spec.ts` (móvil + tablet reales). Accesibilidad y maquetación cubren las pantallas nuevas.
+- Pendiente: probar los avisos en un móvil real (Android Chrome e iPhone con la app instalada).
+
 ## Cómo arrancar
 Desde `starmath-fase1/app` (en PowerShell o Git Bash):
 ```

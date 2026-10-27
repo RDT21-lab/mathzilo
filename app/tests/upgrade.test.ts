@@ -1,10 +1,10 @@
-/* Actualizar la app no puede borrar datos: una base creada con el esquema v1 se abre con el v2 intacta. */
+/* Actualizar la app no puede borrar datos: una base creada con el esquema v1 se abre con el v3 intacta. */
 import 'fake-indexeddb/auto';
 import { expect, it } from 'vitest';
 import Dexie from 'dexie';
 import { StarDB } from '../src/data/db';
 
-it('el esquema v2 conserva los datos de la v1', async () => {
+it('el esquema v3 conserva los datos de la v1', async () => {
   const old = new Dexie('upgrade-check');
   old.version(1).stores({
     family: 'id', children: 'id', sessions: 'id, childId, day, endedAt', answers: 'id, sessionId, childId, skill',
@@ -18,6 +18,8 @@ it('el esquema v2 conserva los datos de la v1', async () => {
   expect((await db.children.get('c1'))?.name).toBe('Lucía');
   expect((await db.events.get('e1'))?.amount).toBe(12);
   expect(await db.flags.count()).toBe(0);
-  expect(db.verno).toBe(2);
+  expect(await db.tasks.count()).toBe(0);
+  expect(await db.checks.count()).toBe(0);
+  expect(db.verno).toBe(3);
   db.close();
 });

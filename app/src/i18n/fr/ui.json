@@ -50,7 +50,9 @@
     "superado": "Test de {{t}} réussi",
     "perfecto": "Test parfait",
     "racha": "Série de {{d}} jours",
-    "fix": "Correction"
+    "fix": "Correction",
+    "task": "Tâche : {{n}}",
+    "bonus": "Prix des tâches : {{n}}"
   },
   "kid": {
     "who": "Qui va jouer ?",
@@ -166,7 +168,22 @@
     "sound": "Sons",
     "bigText": "Grands caractères",
     "dontGet": "Je ne comprends pas",
-    "flagThanks": "Merci. On le dira à ta famille pour l'améliorer."
+    "flagThanks": "Merci. On le dira à ta famille pour l'améliorer.",
+    "tasksPill": "Tâches",
+    "tasksTitle": "Mes tâches d'aujourd'hui",
+    "tasksDone": "{{a}} sur {{n}} faites",
+    "available": "à dépenser",
+    "lastTestL": "Dernier test",
+    "weekL": "Cette semaine",
+    "tasksL": "Tâches du jour",
+    "noTasks": "Pas de tâches aujourd'hui. Profite !",
+    "taskOk": "Confirmée !",
+    "taskWait": "Ta famille regarde",
+    "taskAgain": "Ta famille dit que ce n'est pas encore fait. Tu peux le faire !",
+    "taskDone": "Je l'ai fait !",
+    "taskSent": "Super ! On l'a dit à ta famille.",
+    "bonusInfo": "{{a}} sur {{n}} tâches pour le prix",
+    "bonusOk": "Prix gagné !"
   },
   "parent": {
     "title": "Mode parent",
@@ -183,7 +200,8 @@
     "tab": {
       "panel": "Tableau",
       "redeem": "Échanger",
-      "settings": "Réglages"
+      "settings": "Réglages",
+      "tasks": "Tâches"
     },
     "hello": "Bonjour",
     "panelLead": "{{date}}. Touche une carte pour voir le détail.",
@@ -312,7 +330,85 @@
     "deleteAll": "Supprimer le compte et les données",
     "deleteAllConfirm": "Tout sera supprimé sur cet appareil{{cloud}}. C'est irréversible. Saisis le code pour confirmer.",
     "andCloud": " et dans le cloud",
-    "logout": "Quitter le mode parent"
+    "logout": "Quitter le mode parent",
+    "t": {
+      "title": "Tâches",
+      "lead": "Ajoutez des tâches pour chaque jour et choisissez combien d'étoiles elles valent.",
+      "today": "Aujourd'hui, {{date}}",
+      "noneToday": "Pas de tâches aujourd'hui.",
+      "dayOff": "Aujourd'hui est un jour sans tâches.",
+      "noStars": "Sans étoiles",
+      "done": "Faite",
+      "yes": "Oui, c'est fait",
+      "markDone": "Marquer faite",
+      "notYet": "Pas encore",
+      "approved": "+{{n}} ★ pour {{name}}",
+      "bonusProgress": "{{a}} sur {{n}} faites",
+      "listTitle": "Tâches de {{name}}",
+      "empty": "Pas encore de tâches.",
+      "add": "+ Ajouter une tâche",
+      "added": "Enregistré",
+      "bonusTitle": "Prix pour les tâches accomplies",
+      "bonusLead": "Des étoiles en plus quand toutes les tâches du jour, ou un groupe, sont faites.",
+      "someTasks": "Tâches choisies : {{n}}",
+      "allTasks": "Toutes les tâches du jour",
+      "addBonus": "+ Ajouter un prix",
+      "daysTitle": "Jours avec tâches",
+      "daysLead": "Les jours désactivés, {{name}} n'a pas de tâches (par exemple, le week-end).",
+      "everyDay": "Tous les jours",
+      "workdays": "Du lundi au vendredi",
+      "weekend": "Week-end",
+      "paused": "en pause",
+      "pause": "Pause",
+      "resume": "Activer",
+      "edit": "Modifier",
+      "name": "Tâche",
+      "namePh": "Faire son lit",
+      "bonusName": "Nom du prix",
+      "bonusDefault": "Toutes les tâches du jour",
+      "stars": "Étoiles (une décimale possible : 1,5)",
+      "starsBad": "Écrivez un nombre, par exemple 2 ou 1,5",
+      "when": "Quand",
+      "repeat": "Plusieurs jours",
+      "once": "Un jour",
+      "date": "Jour",
+      "daysHelp": "Jours de la semaine concernés :",
+      "which": "Quelles tâches",
+      "whichAll": "Toutes",
+      "whichSome": "Certaines",
+      "review_one": "{{count}} tâche à vérifier",
+      "review_other": "{{count}} tâches à vérifier",
+      "chip": "Tâches {{a}}/{{n}}"
+    },
+    "lv": {
+      "title": "Difficulté",
+      "summary": "Tests à ce niveau : {{n}} · moyenne récente : {{avg}} %",
+      "none": "Pas encore de test à ce niveau.",
+      "help": "C'est vous qui décidez. Mathzilo propose de monter avec 90 % ou plus sur 5 tests d'affilée, et de descendre sous 50 % sur 3.",
+      "up": "Passer au niveau {{n}}",
+      "down": "Revenir au niveau {{n}}"
+    },
+    "push": {
+      "title": "Notifications sur ce téléphone",
+      "enable": "Activer les notifications",
+      "enabled": "Notifications activées",
+      "disable": "Désactiver",
+      "test": "Tester",
+      "testSent": "Notification de test envoyée",
+      "state": {
+        "off": "Recevez une notification quand un enfant marque une tâche comme faite.",
+        "on": "Activées : vous serez prévenu quand un enfant marque une tâche comme faite.",
+        "denied": "Le navigateur bloque les notifications de Mathzilo. Autorisez-les dans les réglages du navigateur.",
+        "need-install": "Sur iPhone et iPad, ajoutez d'abord l'app à l'écran d'accueil (voir « Installer l'app ») et ouvrez-la depuis là.",
+        "unsupported": "Ce navigateur ne gère pas les notifications."
+      },
+      "err": {
+        "push-permiso": "L'autorisation pour les notifications n'a pas été donnée.",
+        "push-no": "Cet appareil ne gère pas les notifications.",
+        "push-fallo": "La notification de test n'a pas pu être envoyée.",
+        "offline": "Pas de connexion au serveur."
+      }
+    }
   },
   "onb": {
     "welcome": "Bienvenue",
@@ -356,6 +452,7 @@
       "Sans compte, tout reste sur cet appareil. Avec un compte, les données sont copiées sur le serveur de synchronisation que tu choisis, chiffrées pendant le transfert (HTTPS). Chaque famille ne voit que ses propres données.",
       "Pas de publicité, pas de statistiques de tiers, pas d'achats intégrés. L'appli ne manipule jamais d'argent : une étoile vaut ce que la famille décide.",
       "Tu peux exporter ou supprimer toutes les données dans Réglages > Données et confidentialité. Supprimer le compte supprime aussi la copie du serveur.",
+      "Si vous activez les notifications, le serveur envoie au téléphone de l'adulte le prénom de l'enfant et la tâche, chiffrés de bout en bout via le service de notifications du navigateur (Google, Apple ou Mozilla), qui ne peut pas les lire.",
       "Responsable du traitement : la personne qui gère le serveur de la famille. Ce texte est un brouillon à faire relire par un professionnel avant d'utiliser l'appli avec d'autres familles."
     ]
   },

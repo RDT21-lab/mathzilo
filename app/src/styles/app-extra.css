@@ -147,3 +147,72 @@
 .restore { display: flex; flex-direction: column; gap: 10px; }
 .filebtn { position: relative; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
 .filebtn input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+
+/* Tareas y tarjetas de perfil con resultados */
+.pcards { padding-bottom: 56px; }
+.pcard { height: 392px; gap: 6px; padding: 14px 10px; justify-content: flex-start; }
+.pcard .pinfo { padding: 0 6px; }
+.pcard .mascot { flex: none; }
+.pstar { display: inline-flex; align-items: center; gap: 6px; color: var(--gold); font-size: 30px; font-weight: 800; line-height: 1.1; }
+.pstar small { font-size: 14px; font-weight: 500; color: var(--muted); margin-left: 2px; }
+.pinfo { display: flex; flex-direction: column; gap: 2px; width: 100%; margin-top: 2px; }
+.pinfo .pl { display: flex; justify-content: space-between; gap: 8px; font-size: 15px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 3px; }
+.pinfo .pl b { color: var(--bone); white-space: nowrap; display: inline-flex; align-items: center; gap: 3px; }
+.pinfo .pl b.ok { color: var(--ok); }
+.pinfo .pl b.muted { color: var(--muted); }
+.pinfo .wait { color: var(--gold); display: inline-flex; align-items: center; gap: 3px; }
+.device.kid.big .pinfo .pl { font-size: 16px; }
+.tpill.ok { color: var(--ok); }
+.tasklist { flex: 1; min-height: 0; overflow-y: auto; display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; align-content: start; padding: 18px 2px 8px; }
+.tcard { background: var(--card); border-radius: 24px; padding: 18px 20px; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; border: 3px solid transparent; }
+.tcard .tt { font-size: 24px; font-weight: 800; line-height: 1.2; overflow-wrap: anywhere; }
+.tcard .btn { width: 100%; min-height: 60px; }
+.tcard.approved { border-color: rgba(61,220,151,.5); }
+.tcard.claimed { border-color: rgba(255,201,51,.45); }
+.tcard.bonus { background: var(--card-raised); }
+.tcard .bar { width: 100%; }
+.tstate { display: inline-flex; align-items: center; gap: 8px; font-size: 19px; font-weight: 700; }
+.tstate.ok { color: var(--ok); }
+.tstate.wait { color: var(--gold); }
+.device.kid.big .tstate { font-size: 21px; }
+
+/* Padre: tareas, revisión y dificultad */
+.tabbar.four { grid-template-columns: repeat(4, 1fr); }
+.tabbar button { position: relative; }
+.tabbar .badge { position: absolute; top: 8px; left: calc(50% + 6px); min-width: 20px; height: 20px; padding: 0 5px; border-radius: 10px; background: var(--soft-fail); color: var(--navy); font-size: 12px; font-weight: 800; display: grid; place-items: center; }
+.review-box { background: var(--card); border: 2px solid rgba(255,201,51,.55); border-radius: 20px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+.review-box h3 { margin: 0; font-size: 17px; display: flex; align-items: center; gap: 8px; }
+.rvrow { display: flex; flex-direction: column; gap: 6px; padding: 8px 0; border-top: 1px solid var(--line); font-size: 15px; }
+.rvrow .who { display: flex; justify-content: space-between; gap: 8px; }
+.rvrow .who b.gold { color: var(--gold); white-space: nowrap; }
+.taskrow { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 15px; }
+.taskrow:last-child { border-bottom: 0; }
+.taskrow .tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.taskrow .tx b { overflow-wrap: anywhere; }
+.taskrow .tx small { color: var(--muted); font-size: 12.5px; }
+.taskrow .st { flex: none; display: flex; gap: 6px; align-items: center; }
+.taskrow .st .pbtn { min-height: 40px; padding: 0 12px; font-size: 14px; }
+.taskrow.off { opacity: .55; }
+.ok-t { color: var(--ok); font-weight: 700; }
+.wait-t { color: var(--gold); font-weight: 700; }
+.daypick { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.daypick button { min-height: 40px; border-radius: 10px; border: 2px solid var(--line); background: transparent; color: var(--muted); font-size: 14px; font-weight: 700; cursor: pointer; padding: 0; }
+.daypick button[aria-pressed="true"] { background: var(--gold); border-color: var(--gold); color: var(--gold-ink); }
+.taskform { display: flex; flex-direction: column; gap: 10px; background: var(--card-raised); border-radius: 16px; padding: 12px; }
+.field input[type="date"] { background: var(--navy); border: 2px solid var(--line); border-radius: 12px; color: var(--bone); font: inherit; font-size: 16px; padding: 10px 12px; min-height: 48px; width: 100%; color-scheme: dark; }
+.pickrow { display: flex; align-items: center; gap: 10px; font-size: 15px; min-height: 40px; }
+.pickrow input { width: 22px; height: 22px; accent-color: var(--gold); flex: none; }
+.levelbox { background: var(--navy); border-radius: 16px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; font-size: 14px; }
+.levelbox .lv { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.levelbox .lv b { font-size: 20px; }
+.levelbox .lvbars { display: flex; gap: 4px; align-items: flex-end; height: 44px; }
+.levelbox .lvbars i { flex: 0 0 22px; border-radius: 4px 4px 0 0; background: var(--gold); min-height: 3px; }
+.levelbox .lvbars i.low { background: var(--soft-fail); }
+.levelbox .lvbars i.hi { background: var(--ok); }
+.pbtn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+.levelbox .acts { flex-wrap: nowrap; }
+.levelbox .acts .pbtn { flex: 1 1 0; padding: 0 10px; }
+.ok-t, .wait-t { display: inline-flex; align-items: center; gap: 4px; }
+.taskrow { flex-wrap: wrap; }
+.taskrow .tx { flex: 1 1 150px; }
+.taskrow .st { margin-left: auto; }

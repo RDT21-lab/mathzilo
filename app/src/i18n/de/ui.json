@@ -50,7 +50,9 @@
     "superado": "Test mit {{t}} bestanden",
     "perfecto": "Perfekter Test",
     "racha": "Serie von {{d}} Tagen",
-    "fix": "Korrektur"
+    "fix": "Korrektur",
+    "task": "Aufgabe: {{n}}",
+    "bonus": "Aufgabenpreis: {{n}}"
   },
   "kid": {
     "who": "Wer spielt?",
@@ -166,7 +168,22 @@
     "sound": "Töne",
     "bigText": "Große Schrift",
     "dontGet": "Verstehe ich nicht",
-    "flagThanks": "Danke. Wir sagen es deiner Familie, damit es besser wird."
+    "flagThanks": "Danke. Wir sagen es deiner Familie, damit es besser wird.",
+    "tasksPill": "Aufgaben",
+    "tasksTitle": "Meine Aufgaben heute",
+    "tasksDone": "{{a}} von {{n}} erledigt",
+    "available": "zum Ausgeben",
+    "lastTestL": "Letzter Test",
+    "weekL": "Diese Woche",
+    "tasksL": "Aufgaben heute",
+    "noTasks": "Heute keine Aufgaben. Viel Spaß!",
+    "taskOk": "Bestätigt!",
+    "taskWait": "Deine Familie schaut nach",
+    "taskAgain": "Deine Familie sagt: noch nicht ganz. Du schaffst das!",
+    "taskDone": "Hab ich gemacht!",
+    "taskSent": "Super! Wir haben es deiner Familie gesagt.",
+    "bonusInfo": "{{a}} von {{n}} Aufgaben für den Preis",
+    "bonusOk": "Preis geschafft!"
   },
   "parent": {
     "title": "Elternbereich",
@@ -183,7 +200,8 @@
     "tab": {
       "panel": "Übersicht",
       "redeem": "Einlösen",
-      "settings": "Einstellungen"
+      "settings": "Einstellungen",
+      "tasks": "Aufgaben"
     },
     "hello": "Hallo",
     "panelLead": "{{date}}. Tipp auf eine Karte für Details.",
@@ -312,7 +330,85 @@
     "deleteAll": "Konto und Daten löschen",
     "deleteAllConfirm": "Alles auf diesem Gerät{{cloud}} wird gelöscht. Das lässt sich nicht rückgängig machen. Gib zur Bestätigung die PIN ein.",
     "andCloud": " und in der Cloud",
-    "logout": "Elternbereich verlassen"
+    "logout": "Elternbereich verlassen",
+    "t": {
+      "title": "Aufgaben",
+      "lead": "Lege Aufgaben für jeden Tag fest und bestimme, wie viele Sterne sie wert sind.",
+      "today": "Heute, {{date}}",
+      "noneToday": "Heute keine Aufgaben.",
+      "dayOff": "Heute ist ein Tag ohne Aufgaben.",
+      "noStars": "Ohne Sterne",
+      "done": "Erledigt",
+      "yes": "Ja, erledigt",
+      "markDone": "Als erledigt",
+      "notYet": "Noch nicht",
+      "approved": "+{{n}} ★ für {{name}}",
+      "bonusProgress": "{{a}} von {{n}} erledigt",
+      "listTitle": "Aufgaben von {{name}}",
+      "empty": "Noch keine Aufgaben.",
+      "add": "+ Aufgabe hinzufügen",
+      "added": "Gespeichert",
+      "bonusTitle": "Preise für erledigte Aufgaben",
+      "bonusLead": "Extra-Sterne, wenn alle Aufgaben des Tages oder eine Gruppe davon erledigt sind.",
+      "someTasks": "Ausgewählte Aufgaben: {{n}}",
+      "allTasks": "Alle Aufgaben des Tages",
+      "addBonus": "+ Preis hinzufügen",
+      "daysTitle": "Tage mit Aufgaben",
+      "daysLead": "An ausgeschalteten Tagen hat {{name}} keine Aufgaben (zum Beispiel am Wochenende).",
+      "everyDay": "Jeden Tag",
+      "workdays": "Montag bis Freitag",
+      "weekend": "Wochenende",
+      "paused": "pausiert",
+      "pause": "Pause",
+      "resume": "Aktivieren",
+      "edit": "Ändern",
+      "name": "Aufgabe",
+      "namePh": "Bett machen",
+      "bonusName": "Name des Preises",
+      "bonusDefault": "Alle Aufgaben des Tages",
+      "stars": "Sterne (eine Nachkommastelle möglich: 1,5)",
+      "starsBad": "Gib eine Zahl ein, zum Beispiel 2 oder 1,5",
+      "when": "Wann",
+      "repeat": "Mehrere Tage",
+      "once": "Ein Tag",
+      "date": "Tag",
+      "daysHelp": "Wochentage, an denen sie gilt:",
+      "which": "Welche Aufgaben",
+      "whichAll": "Alle",
+      "whichSome": "Einige",
+      "review_one": "{{count}} Aufgabe zu prüfen",
+      "review_other": "{{count}} Aufgaben zu prüfen",
+      "chip": "Aufgaben {{a}}/{{n}}"
+    },
+    "lv": {
+      "title": "Schwierigkeit",
+      "summary": "Tests auf diesem Level: {{n}} · Schnitt zuletzt: {{avg}} %",
+      "none": "Noch keine Tests auf diesem Level.",
+      "help": "Du entscheidest. Mathzilo schlägt vor, mit 90 % oder mehr in 5 Tests hintereinander aufzusteigen und mit unter 50 % in 3 zurückzugehen.",
+      "up": "Auf Level {{n}} erhöhen",
+      "down": "Auf Level {{n}} senken"
+    },
+    "push": {
+      "title": "Benachrichtigungen auf diesem Handy",
+      "enable": "Benachrichtigungen einschalten",
+      "enabled": "Benachrichtigungen an",
+      "disable": "Ausschalten",
+      "test": "Testen",
+      "testSent": "Testbenachrichtigung gesendet",
+      "state": {
+        "off": "Erhalte eine Benachrichtigung, wenn ein Kind eine Aufgabe als erledigt markiert.",
+        "on": "An: Wir melden uns, wenn ein Kind eine Aufgabe als erledigt markiert.",
+        "denied": "Der Browser blockiert Benachrichtigungen von Mathzilo. Erlaube sie in den Browser-Einstellungen.",
+        "need-install": "Auf iPhone und iPad zuerst die App zum Home-Bildschirm hinzufügen (siehe „App installieren“) und von dort öffnen.",
+        "unsupported": "Dieser Browser unterstützt keine Benachrichtigungen."
+      },
+      "err": {
+        "push-permiso": "Die Erlaubnis für Benachrichtigungen wurde nicht erteilt.",
+        "push-no": "Dieses Gerät unterstützt keine Benachrichtigungen.",
+        "push-fallo": "Die Testbenachrichtigung konnte nicht gesendet werden.",
+        "offline": "Keine Verbindung zum Server."
+      }
+    }
   },
   "onb": {
     "welcome": "Willkommen",
@@ -356,6 +452,7 @@
       "Ohne Konto bleibt alles auf diesem Gerät. Mit Konto werden die Daten auf den gewählten Synchronisierungsserver kopiert, bei der Übertragung verschlüsselt (HTTPS). Jede Familie sieht nur ihre eigenen Daten.",
       "Keine Werbung, keine Analyse durch Dritte, keine In-App-Käufe. Die App hat nie mit Geld zu tun: Ein Stern ist so viel wert, wie die Familie entscheidet.",
       "Unter Einstellungen > Daten und Datenschutz kannst du alle Daten exportieren oder löschen. Wird das Konto gelöscht, wird auch die Kopie auf dem Server gelöscht.",
+      "Wenn du Benachrichtigungen einschaltest, schickt der Server den Namen des Kindes und die Aufgabe an das Handy des Erwachsenen, Ende-zu-Ende-verschlüsselt über den Benachrichtigungsdienst des Browsers (Google, Apple oder Mozilla), der sie nicht lesen kann.",
       "Verantwortlich ist die Person, die den Server der Familie betreibt. Dieser Text ist ein Entwurf und sollte vor der Nutzung mit anderen Familien fachlich geprüft werden."
     ]
   },

@@ -2,7 +2,7 @@
    y en alemán; además, botones de 56 px o más en el modo niño y respeto a «reducir movimiento». */
 import { test, expect, type Page } from '@playwright/test';
 import { createRequire } from 'node:module';
-import { onboard, prepare, unlockParent } from './helpers';
+import { addTasks, onboard, prepare, unlockParent } from './helpers';
 
 const axePath = createRequire(import.meta.url).resolve('axe-core/axe.min.js');
 type Violation = { id: string; impact: string; help: string; nodes: { target: string[] }[] };
@@ -37,6 +37,7 @@ for (const lang of ['es', 'de'] as const) {
     await page.goto('/');
     await audit(page, 'bienvenida', found);
     await onboard(page, [{ name: 'Lucía', level: 3 }]);
+    await addTasks(page);
     if (lang === 'de') await page.evaluate(async () => {
       const sm = (window as unknown as { __sm: any }).__sm;
       for (const c of await sm.db.children.toArray()) await sm.repo.updateChild(c.id, { lang: 'de' });
@@ -48,6 +49,9 @@ for (const lang of ['es', 'de'] as const) {
     await audit(page, 'perfiles', found); await smallTargets(page, 'perfiles', found);
     await page.getByRole('button', { name: L.play }).click();
     await audit(page, 'inicio', found); await smallTargets(page, 'inicio', found);
+    await page.locator('.tpill').click();
+    await audit(page, 'mis tareas', found); await smallTargets(page, 'mis tareas', found);
+    await page.locator('.top .l .icon-btn').click();
     await page.getByRole('button', { name: L.stars }).click();
     await audit(page, 'mis estrellas', found);
     await page.keyboard.press('Escape'); await page.locator('.overlay').click({ position: { x: 5, y: 5 } });
@@ -64,8 +68,9 @@ for (const lang of ['es', 'de'] as const) {
     await page.setViewportSize({ width: 390, height: 800 });
     await unlockParentLang(page, lang);
     await audit(page, 'panel', found);
-    await page.locator('.tabbar button').nth(1).click(); await audit(page, 'canjear', found);
-    await page.locator('.tabbar button').nth(2).click(); await audit(page, 'ajustes', found);
+    await page.locator('.tabbar button').nth(1).click(); await audit(page, 'tareas', found);
+    await page.locator('.tabbar button').nth(2).click(); await audit(page, 'canjear', found);
+    await page.locator('.tabbar button').nth(3).click(); await audit(page, 'ajustes', found);
     await ctx.close();
     expect(found, found.join('\n')).toEqual([]);
   });

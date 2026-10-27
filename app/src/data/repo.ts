@@ -1,15 +1,15 @@
 /* Acciones sobre los datos. Cada escritura sincronizable deja un aviso en la cola `outbox`:
    la app escribe primero en el dispositivo y la sincronización envía después.              */
 import { db, deviceId, getMeta, setMeta } from './db';
-import { balanceOf, computeStreak, dayOf, nextMastery, type StreakInfo } from './domain';
+import { balanceOf, bonusesForDay, checkId, computeStreak, dayOf, nextMastery, roundStars, taskEventId, tasksForDay, type BonusState, type StreakInfo } from './domain';
 import { hashPin, newSalt, LOCK_MS, MAX_TRIES } from './pin';
 import { DEFAULT_RULES, makeTest, scoreTest, LEVEL_SKILLS, type ScoreResult } from '../engine';
 import M from '../mascots/mascots.js';
-import type { ActiveTest, Answer, Child, Family, Flag, Kind, Lang, Reward, Session, Settings, StarEvent, SyncTable, Tone } from './types';
+import type { ActiveTest, Answer, Child, Family, Flag, Kind, Lang, Reward, Session, Settings, StarEvent, SyncTable, Task, TaskCheck, Tone } from './types';
 
 const uid = () => crypto.randomUUID();
 const FAMILY_ID = 'family';
-type Row = Family | Child | Session | Answer | StarEvent | Reward | Flag;
+type Row = Family | Child | Session | Answer | StarEvent | Reward | Flag | Task | TaskCheck;
 
 /** Escribe filas y las encola para sincronizar, todo en una transacción */
 async function put(table: SyncTable, rows: Row[]) {
@@ -82,8 +82,10 @@ export async function updateChild(id: string, patch: Partial<Child>) {
 }
 /** Borra un hijo y todo lo suyo (también en la nube en la próxima sincronización) */
 export async function deleteChild(id: string) {
-  await db.transaction('rw', [db.children, db.sessions, db.answers, db.events, db.mastery, db.meta, db.outbox, db.flags], async () => {
+  await db.transaction('rw', [db.children, db.sessions, db.answers, db.events, db.mastery, db.meta, db.outbox, db.flags, db.tasks, db.checks], async () => {
     await db.flags.where('childId').equals(id).delete();
+    await db.tasks.where('childId').equals(id).delete();
+    await db.checks.where('childId').equals(id).delete();
     await db.children.delete(id);
     await db.sessions.where('childId').equals(id).delete();
     await db.answers.where('childId').equals(id).delete();
@@ -188,7 +190,7 @@ export class RedeemError extends Error {}
 export async function redeemLocal(childId: string, amount: number, note: string): Promise<StarEvent> {
   if (!Number.isInteger(amount) || amount <= 0) throw new RedeemError('amount');
   const bal = await balance(childId);
-  if (bal - amount < 0) throw new RedeemError('balance');
+  if (roundStars(bal - amount) < 0) throw new RedeemError('balance');
   const now = Date.now(), fam = await getFamily();
   const ev: StarEvent = { id: uid(), childId, ts: now, day: dayOf(now, fam?.settings.dayStartHour ?? 4), type: 'canje', amount: -amount,
     note, by: 'parent', device: await deviceId() };
@@ -208,6 +210,78 @@ export async function compensate(eventId: string): Promise<StarEvent | null> {
   return ev;
 }
 
+/* ---------------- Tareas ---------------- */
+export interface NewTask { childId: string; kind: 'task' | 'bonus'; title: string; stars: number; days: number[]; date?: string; taskIds?: string[] }
+export async function addTask(o: NewTask): Promise<Task> {
+  const now = Date.now();
+  const task: Task = { id: uid(), childId: o.childId, kind: o.kind, title: o.title.trim().slice(0, 60), stars: Math.max(0, roundStars(o.stars)),
+    days: o.days, ...(o.date ? { date: o.date } : {}), ...(o.taskIds ? { taskIds: o.taskIds } : {}), active: true, createdAt: now, updatedAt: now };
+  await put('tasks', [task]);
+  return task;
+}
+export async function updateTask(id: string, patch: Partial<Task>) {
+  const t = await db.tasks.get(id); if (!t) return;
+  const next = { ...t, ...patch, updatedAt: Date.now() };
+  next.stars = Math.max(0, roundStars(next.stars));
+  await put('tasks', [next]);
+}
+/** Se marca como borrada (no se elimina) para que el historial de estrellas conserve su nombre */
+export const deleteTask = (id: string) => updateTask(id, { deleted: true, active: false });
+
+export interface TaskBoard {
+  day: string;
+  items: { task: Task; check?: TaskCheck }[];
+  bonuses: BonusState[];
+  approved: number;
+  claimed: number;
+}
+/** Las tareas de un niño en un día, con su estado y los premios por conjunto */
+export async function taskBoard(child: Pick<Child, 'id' | 'taskDays'>, day: string): Promise<TaskBoard> {
+  const tasks = await db.tasks.where('childId').equals(child.id).toArray();
+  const checks = new Map((await db.checks.where('childId').equals(child.id).filter(c => c.day === day).toArray()).map(c => [c.taskId, c]));
+  const todays = tasksForDay(tasks, day, child.taskDays).sort((a, b) => a.createdAt - b.createdAt);
+  const approved = new Set([...checks.values()].filter(c => c.state === 'approved').map(c => c.taskId));
+  return { day, items: todays.map(task => ({ task, check: checks.get(task.id) })), bonuses: bonusesForDay(tasks, day, approved, child.taskDays),
+    approved: todays.filter(t => approved.has(t.id)).length, claimed: todays.filter(t => checks.get(t.id)?.state === 'claimed').length };
+}
+/** El niño dice que la ha hecho; el padre recibe el aviso */
+export async function claimTask(taskId: string, day: string) {
+  const task = await db.tasks.get(taskId); if (!task) return;
+  const id = checkId(taskId, day), prev = await db.checks.get(id), now = Date.now();
+  if (prev?.state === 'approved' || prev?.state === 'claimed') return;
+  await put('checks', [{ id, taskId, childId: task.childId, day, state: 'claimed', claimedAt: now, updatedAt: now }]);
+}
+const noteArg = (s: string) => s.replace(/[;=]/g, ',');
+/** El padre la da por hecha: suma sus estrellas y, si completa un conjunto, el premio del conjunto */
+export async function approveTask(taskId: string, day: string) {
+  const task = await db.tasks.get(taskId); if (!task) return;
+  const id = checkId(taskId, day), prev = await db.checks.get(id), now = Date.now();
+  if (prev?.state === 'approved') return;
+  await put('checks', [{ id, taskId, childId: task.childId, day, state: 'approved', ...(prev?.claimedAt ? { claimedAt: prev.claimedAt } : {}), decidedAt: now, updatedAt: now }]);
+  const dev = await deviceId();
+  const ev = (t: Task, key: string): StarEvent => ({ id: taskEventId(t.id, day), childId: t.childId, ts: now, day, type: 'tarea', amount: roundStars(t.stars),
+    note: '@ev.' + key + ';n=' + noteArg(t.title), by: 'parent', device: dev });
+  const events: StarEvent[] = [];
+  if (task.stars > 0 && !(await db.events.get(taskEventId(task.id, day)))) events.push(ev(task, 'task'));
+  const child = await db.children.get(task.childId);
+  const board = await taskBoard({ id: task.childId, taskDays: child?.taskDays }, day);
+  for (const b of board.bonuses) if (b.complete && b.bonus.stars > 0 && !(await db.events.get(taskEventId(b.bonus.id, day)))) events.push(ev(b.bonus, 'bonus'));
+  if (events.length) await put('events', events);
+}
+/** El padre dice que aún no está: el niño puede volver a marcarla. Una tarea ya pagada no cambia */
+export async function rejectTask(taskId: string, day: string) {
+  const task = await db.tasks.get(taskId); if (!task) return;
+  const id = checkId(taskId, day), prev = await db.checks.get(id), now = Date.now();
+  if (prev?.state === 'approved') return;
+  await put('checks', [{ id, taskId, childId: task.childId, day, state: 'rejected', ...(prev?.claimedAt ? { claimedAt: prev.claimedAt } : {}), decidedAt: now, updatedAt: now }]);
+}
+/** Tareas que esperan la decisión del padre (de cualquier día), las más antiguas primero */
+export async function pendingChecks(): Promise<{ check: TaskCheck; task?: Task; child?: Child }[]> {
+  const list = await db.checks.where('state').equals('claimed').toArray();
+  const out = await Promise.all(list.map(async check => ({ check, task: await db.tasks.get(check.taskId), child: await db.children.get(check.childId) })));
+  return out.filter(x => x.task && x.child && !x.task.deleted).sort((a, b) => (a.check.claimedAt ?? 0) - (b.check.claimedAt ?? 0));
+}
+
 /* ---------------- Piloto: «no lo entiendo» ---------------- */
 export async function addFlag(child: Child, gen: string, tag: string) {
   await put('flags', [{ id: uid(), childId: child.id, ts: Date.now(), gen, tag, lang: child.lang, tone: child.tone }]);
@@ -215,10 +289,11 @@ export async function addFlag(child: Child, gen: string, tag: string) {
 
 /* ---------------- Datos ---------------- */
 export async function exportAll() {
-  const [family, children, sessions, answers, events, rewards, mastery, flags] = await Promise.all([
-    db.family.toArray(), db.children.toArray(), db.sessions.toArray(), db.answers.toArray(), db.events.toArray(), db.rewards.toArray(), db.mastery.toArray(), db.flags.toArray()]);
+  const [family, children, sessions, answers, events, rewards, mastery, flags, tasks, checks] = await Promise.all([
+    db.family.toArray(), db.children.toArray(), db.sessions.toArray(), db.answers.toArray(), db.events.toArray(), db.rewards.toArray(), db.mastery.toArray(), db.flags.toArray(),
+    db.tasks.toArray(), db.checks.toArray()]);
   return { app: 'Mathzilo', version: 1, exportedAt: new Date().toISOString(),
-           family: family.map(f => ({ ...f, pinHash: undefined, pinSalt: undefined })), children, sessions, answers, events, rewards, mastery, flags };
+           family: family.map(f => ({ ...f, pinHash: undefined, pinSalt: undefined })), children, sessions, answers, events, rewards, mastery, flags, tasks, checks };
 }
 /* ---------------- Restaurar una copia exportada ---------------- */
 export type Backup = Awaited<ReturnType<typeof exportAll>> & { pilotNotes?: string };
@@ -247,6 +322,8 @@ export async function restoreBackup(d: Backup, pin: string) {
     await db.rewards.bulkPut(d.rewards);
     await db.mastery.bulkPut(d.mastery);
     if (Array.isArray(d.flags)) await db.flags.bulkPut(d.flags);
+    if (Array.isArray(d.tasks)) await db.tasks.bulkPut(d.tasks);        // copias anteriores a las tareas no las traen
+    if (Array.isArray(d.checks)) await db.checks.bulkPut(d.checks);
     if (device) await db.meta.put({ key: 'device', value: device });
     if (d.pilotNotes) await db.meta.put({ key: 'pilotNotes', value: d.pilotNotes });
     await db.meta.put({ key: 'lastExport', value: now });

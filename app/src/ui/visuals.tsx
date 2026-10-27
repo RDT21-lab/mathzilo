@@ -125,12 +125,16 @@ function Tri({ a, b, c, unit, scale }: { a: number; b: number; c: number; unit: 
 function TriH({ b, h, unit, scale }: { b: number; h: number; unit: string; scale: number }) {
   const k = Math.min(240 / b, 150 / h) * scale, B = b * k, H = h * k, apex = B * 0.35;
   const T = (tx: number, ty: number, s: string, anchor: 'start' | 'middle' | 'end' = 'middle') => <text x={tx} y={ty} textAnchor={anchor} fill={BONE} fontSize="19" fontWeight="700" fontFamily="Lexend, system-ui">{s}</text>;
+  // La altura se acota fuera, a la izquierda: dentro chocaría con el lado inclinado si el triángulo es bajo
+  const lab = Math.min(Math.max(-H / 2 + 7, -H + 16), 0);
   return (
-    <svg width={B + 110} height={H + 60} viewBox={`-20 ${-H - 20} ${B + 110} ${H + 60}`} aria-hidden="true">
+    <svg width={B + 120} height={H + 60} viewBox={`-90 ${-H - 20} ${B + 120} ${H + 60}`} aria-hidden="true">
       <polygon points={`0,0 ${B},0 ${apex},${-H}`} fill={CARD} stroke={GOLD} strokeWidth="4" strokeLinejoin="round" />
       <line x1={apex} y1={-H} x2={apex} y2="0" stroke={LAV} strokeWidth="3" strokeDasharray="7 6" />
+      <path d={`M-22 0V${-H}M-28 0H-16M-28 ${-H}H-16`} stroke={LAV} strokeWidth="2" fill="none" />
+      <line x1="-16" y1={-H} x2={apex} y2={-H} stroke={LAV} strokeWidth="1.5" strokeDasharray="3 5" opacity=".7" />
       {T(B / 2, 28, dimLabel(b, unit))}
-      {T(apex + 10, -H / 2, dimLabel(h, unit), 'start')}
+      {T(-30, lab, dimLabel(h, unit), 'end')}
     </svg>
   );
 }

@@ -40,6 +40,7 @@ Despliegue automático (opcional): en GitHub, añade los secretos `DEPLOY_HOST`,
    - Android (Chrome): menú ⋮ → «Instalar app».
    - iPhone (Safari): Compartir → «Añadir a pantalla de inicio».
 5. Pulsa **Proteger los datos** en la misma sección.
+6. Para recibir un aviso cuando un hijo marque una tarea como hecha: **Ajustes → Nube y otros dispositivos → Activar avisos** y acepta el permiso. Pulsa **Probar** para comprobarlo. En iPhone, primero instala la app (paso 4) y ábrela desde el icono.
 
 ## 3. Tablet del niño
 
@@ -54,6 +55,9 @@ Despliegue automático (opcional): en GitHub, añade los secretos `DEPLOY_HOST`,
 ## 4. Día a día
 
 - El niño elige su perfil, pulsa **Empezar** y hace el test (10, 15 o 20 preguntas). Solo el primer test del día da estrellas.
+- **Tareas**: Modo padre → **Tareas** → elige hijo → **+ Añadir tarea** (nombre, estrellas, que pueden llevar un decimal como 1,5, y los días de la semana o un día concreto). En **Premios por cumplir tareas** se dan estrellas extra por hacerlas todas o un grupo. En **Días con tareas** se desconectan días enteros, como el fin de semana.
+- El niño ve sus tareas en el botón **Tareas** de su pantalla y pulsa **¡Ya la he hecho!**. Al adulto le llega el aviso y la ve en el panel, en **Tareas por revisar**: **Sí, está hecha** suma las estrellas; **Aún no** se la devuelve al niño para que lo intente de nuevo.
+- **Dificultad**: en el panel, toca la tarjeta del hijo → **Dificultad** muestra sus últimos tests en el nivel actual; tú decides si sube o baja.
 - Para canjear un premio: Modo padre → **Canjear** → elegir hijo y premio → confirmar con el PIN. Necesita conexión, porque el servidor comprueba el PIN.
 - Cada semana conviene **Exportar datos** (Ajustes → Datos y privacidad). El panel lo recuerda.
 - ¿Has olvidado el PIN? En la pantalla del PIN, «¿Has olvidado el PIN?»: con el email y la contraseña de la cuenta se crea uno nuevo.

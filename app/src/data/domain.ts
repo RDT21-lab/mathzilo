@@ -1,6 +1,6 @@
 /* Reglas puras (sin base de datos): fecha del día, racha y escudos, saldo, dominio y sugerencias
    de nivel. El saldo nunca se guarda: es siempre la suma de los apuntes.                      */
-import type { Session, StarEvent } from './types';
+import type { Session, StarEvent, Task } from './types';
 
 /** Día local AAAA-MM-DD; antes de `dayStartHour` cuenta como el día anterior */
 export function dayOf(ts: number, dayStartHour: number): string {
@@ -64,9 +64,35 @@ export function computeStreak(sessions: Pick<Session, 'day' | 'passed' | 'server
            rested: streak === 0 ? lost : 0, states, shieldDays };
 }
 
+/** Las estrellas pueden llevar un decimal (tareas): se redondea para que 0,1 + 0,2 sea 0,3 */
+export const roundStars = (n: number) => Math.round(n * 10) / 10;
 export function balanceOf(events: Pick<StarEvent, 'amount'>[]): number {
-  return events.reduce((s, e) => s + e.amount, 0);
+  return roundStars(events.reduce((s, e) => s + e.amount, 0));
 }
+
+/* ---------- Tareas ---------- */
+/** Día de la semana de una fecha AAAA-MM-DD (0 = domingo) */
+export const weekdayOf = (day: string) => new Date(day + 'T12:00:00Z').getUTCDay();
+export const ALL_DAYS = [0, 1, 2, 3, 4, 5, 6];
+/** Tareas que tocan ese día: activas, del día de la semana o de esa fecha, y si el niño tiene tareas ese día */
+export function tasksForDay(tasks: Task[], day: string, taskDays: number[] = ALL_DAYS): Task[] {
+  const wd = weekdayOf(day);
+  if (!taskDays.includes(wd)) return [];
+  return tasks.filter(t => t.kind === 'task' && t.active && !t.deleted && (t.date ? t.date === day : t.days.includes(wd)));
+}
+export interface BonusState { bonus: Task; tasks: Task[]; done: number; complete: boolean }
+/** Premios por conjunto que se juegan ese día y cuántas de sus tareas están ya aprobadas */
+export function bonusesForDay(tasks: Task[], day: string, approved: Set<string>, taskDays: number[] = ALL_DAYS): BonusState[] {
+  const today = tasksForDay(tasks, day, taskDays);
+  return tasks.filter(b => b.kind === 'bonus' && b.active && !b.deleted).map(bonus => {
+    const inc = bonus.taskIds?.length ? today.filter(t => bonus.taskIds!.includes(t.id)) : today;
+    const done = inc.filter(t => approved.has(t.id)).length;
+    return { bonus, tasks: inc, done, complete: inc.length > 0 && done === inc.length };
+  }).filter(b => b.tasks.length > 0);
+}
+export const checkId = (taskId: string, day: string) => taskId + ':' + day;
+/** Los apuntes de tareas tienen identificador fijo: aprobar dos veces (o desde dos móviles) no paga dos veces */
+export const taskEventId = (taskId: string, day: string) => 'tarea:' + taskId + ':' + day;
 
 /** Dominio 0-100: sube con los aciertos y baja con los fallos (más deprisa al principio) */
 export function nextMastery(value: number | undefined, ok: boolean): number {

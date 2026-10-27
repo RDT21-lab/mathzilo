@@ -1,7 +1,7 @@
 /* Fases 8 y 9: ningún texto cortado ni desbordado, en los 4 idiomas, con letra normal y grande.
    Recorre perfiles, inicio, hojas, mascota, longitud y un test entero (con explicaciones). */
 import { test, expect, type Page } from '@playwright/test';
-import { onboard, prepare } from './helpers';
+import { addTasks, onboard, prepare } from './helpers';
 
 async function overflow(page: Page): Promise<string[]> {
   return page.evaluate(() => {
@@ -12,13 +12,14 @@ async function overflow(page: Page): Promise<string[]> {
       const hasText = [...el.childNodes].some(n => n.nodeType === 3 && n.textContent!.trim());
       if (!hasText) continue;
       const r = el.getBoundingClientRect(); if (!r.width) continue;
-      const box = (el.closest('.card,.pcard,.lencard,.qcard,.fbcard,.opt,.btn,.pill,.chip,.step,.rrow,.kidcard,.sect,.sheetbox,.sheet-p,.tabbar button,.segs button,.pbtn,.bubble') as HTMLElement) || dev;
+      const box = (el.closest('.card,.pcard,.lencard,.qcard,.fbcard,.opt,.btn,.pill,.chip,.step,.rrow,.kidcard,.sect,.tcard,.sheetbox,.sheet-p,.tabbar button,.segs button,.pbtn,.bubble') as HTMLElement) || dev;
       const B = box.getBoundingClientRect();
       const ox = getComputedStyle(el).overflowX;
-      const cut = el.scrollWidth > el.clientWidth + 1 && ox !== 'auto' && ox !== 'scroll' && el.clientWidth > 0;
+      // en los textos de un dibujo SVG, scrollWidth/clientWidth no significan nada: allí cuenta solo la posición
+      const cut = !(el instanceof SVGElement) && el.scrollWidth > el.clientWidth + 1 && ox !== 'auto' && ox !== 'scroll' && el.clientWidth > 0;
       if (cut || r.right > B.right + 1 || r.left < B.left - 1 || r.right > D.right + 1 ||
           (box !== dev && r.bottom > B.bottom + 1 && getComputedStyle(box).overflowY === 'visible'))
-        out.push(el.className + ': ' + el.textContent!.trim().slice(0, 50));
+        out.push(((el as unknown as { className: { baseVal?: string } }).className.baseVal ?? el.className) + ': ' + el.textContent!.trim().slice(0, 50));
     }
     return out;
   });
@@ -40,6 +41,7 @@ for (const big of [false, true]) {
         await prepare(ctx);
         const page = await ctx.newPage();
         await onboard(page, [{ name: 'Ana', level }]);
+        await addTasks(page);
         await page.evaluate(async ([lang, big]) => {
           const sm = (window as unknown as { __sm: any }).__sm;
           for (const c of await sm.db.children.toArray()) await sm.repo.updateChild(c.id, { lang, bigText: big });
@@ -51,6 +53,8 @@ for (const big of [false, true]) {
         await check('perfiles');
         await page.getByRole('button', { name: L[lang].play }).click();
         await check('inicio');
+        await page.locator('.tpill').click(); await page.waitForTimeout(1200); await check('tareas');
+        await page.locator('.top .l .icon-btn').click();
         await page.locator('.pill.gold').click(); await check('estrellas'); await page.locator('.overlay').click({ position: { x: 5, y: 5 } });
         await page.locator('.top .r .icon-btn').first().click(); await check('ajustes niño'); await page.locator('.overlay').click({ position: { x: 5, y: 5 } });
         await page.locator('.nametag').click(); await check('mascota');

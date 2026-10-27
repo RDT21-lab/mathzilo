@@ -1,7 +1,7 @@
 /* Base de datos local (IndexedDB con Dexie). Todo lo que el niño necesita vive aquí y funciona
    sin conexión; la nube solo recibe copias desde la cola `outbox`.                           */
 import Dexie, { type Table } from 'dexie';
-import type { Answer, Child, Family, Flag, Mastery, OutboxItem, Reward, Session, StarEvent } from './types';
+import type { Answer, Child, Family, Flag, Mastery, OutboxItem, Reward, Session, StarEvent, Task, TaskCheck } from './types';
 
 export class StarDB extends Dexie {
   family!: Table<Family, string>;
@@ -14,6 +14,8 @@ export class StarDB extends Dexie {
   meta!: Table<{ key: string; value: unknown }, string>;
   outbox!: Table<OutboxItem, number>;
   flags!: Table<Flag, string>;
+  tasks!: Table<Task, string>;
+  checks!: Table<TaskCheck, string>;
 
   constructor(name = 'starmath') {
     super(name);
@@ -30,6 +32,8 @@ export class StarDB extends Dexie {
     });
     // v2: marcas «no lo entiendo» del piloto (fase 11)
     this.version(2).stores({ flags: 'id, childId, ts' });
+    // v3: tareas que pone el padre y su estado de cada día
+    this.version(3).stores({ tasks: 'id, childId', checks: 'id, childId, day, state' });
   }
 }
 

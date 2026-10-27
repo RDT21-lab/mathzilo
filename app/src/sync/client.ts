@@ -6,7 +6,7 @@ import { db, deviceId, getMeta, setMeta } from '../data/db';
 import { getFamily, onLocalChange } from '../data/repo';
 import type { StarEvent, SyncConfig, SyncTable } from '../data/types';
 
-const ORDER: SyncTable[] = ['family', 'children', 'rewards', 'sessions', 'answers', 'events', 'flags'];
+const ORDER: SyncTable[] = ['family', 'children', 'rewards', 'tasks', 'checks', 'sessions', 'answers', 'events', 'flags'];
 const IMMUTABLE = new Set<SyncTable>(['sessions', 'answers', 'events', 'flags']);
 
 export class SyncError extends Error {
@@ -105,10 +105,12 @@ async function doSync(opts: { import?: boolean }, full = false) {
   }
   setStatus({ state: 'busy', pending: push.length });
   const pin = elevation && elevation.until > Date.now() ? elevation.pin : undefined;
+  // si esta versión conoce tablas nuevas, se pide todo una vez para recibir lo que antes no llegaba
+  if (await getMeta('syncTables', '') !== ORDER.join()) full = true;
   let res: { seq: number; pull: { table: SyncTable; op: 'put' | 'del'; row?: { id: string; updatedAt?: number }; id?: string }[]; rejected: { table: SyncTable; id: string; error: string }[] };
   try {
     res = await call(cfg.url, '/api/sync', { since: full ? 0 : await getMeta('syncCursor', 0), push, tz: new Date().getTimezoneOffset(),
-      dayStart: fam?.settings.dayStartHour ?? 4, import: !!opts.import, ...(pin && cfg.role !== 'parent' ? { pin } : {}) }, cfg.token);
+      dayStart: fam?.settings.dayStartHour ?? 4, import: !!opts.import, tables: ORDER, ...(pin && cfg.role !== 'parent' ? { pin } : {}) }, cfg.token);
   } catch (e) {
     const code = e instanceof SyncError ? e.code : 'error';
     setStatus({ state: code === 'offline' ? 'offline' : 'error', error: code, pending: push.length });
@@ -123,19 +125,20 @@ async function doSync(opts: { import?: boolean }, full = false) {
   }
   await db.outbox.where('seq').belowOrEqual(maxSeq).delete();
   await setMeta('syncCursor', res.seq);
+  await setMeta('syncTables', ORDER.join());
   setStatus({ state: 'idle', at: Date.now(), pending: await db.outbox.count(), error: undefined });
   if (needFull && !full) await doSync({}, true);
 }
 async function applyPull(pull: { table: SyncTable; op: 'put' | 'del'; row?: { id: string; updatedAt?: number }; id?: string }[]) {
   if (!pull.length) return;
-  await db.transaction('rw', [db.family, db.children, db.sessions, db.answers, db.events, db.rewards, db.mastery, db.meta, db.flags], async () => {
+  await db.transaction('rw', [db.family, db.children, db.sessions, db.answers, db.events, db.rewards, db.mastery, db.meta, db.flags, db.tasks, db.checks], async () => {
     for (const p of pull) {
       const t = db.table(p.table);
       if (p.op === 'del') {
         const id = p.id!;
         await t.delete(id);
         if (p.table === 'children') {
-          for (const x of [db.sessions, db.answers, db.events, db.mastery, db.flags]) await x.where('childId').equals(id).delete();
+          for (const x of [db.sessions, db.answers, db.events, db.mastery, db.flags, db.tasks, db.checks]) await x.where('childId').equals(id).delete();
           await db.meta.delete('active:' + id);
         }
         continue;
@@ -172,6 +175,50 @@ export async function compensateRemote(ref: StarEvent, pin: string): Promise<Sta
 export async function deleteRemoteAccount(pin: string) {
   const cfg = await getSyncConfig();
   if (cfg) await call(cfg.url, '/api/account/delete', { pin }, cfg.token);
+}
+
+/* ---------- Avisos en el móvil del padre (Web Push) ----------
+   El servidor avisa cuando un niño marca una tarea como hecha. El texto va cifrado de punta a
+   punta: el servicio de avisos de Google o Apple solo transporta bytes ilegibles.            */
+export type PushState = 'no-server' | 'unsupported' | 'need-install' | 'denied' | 'off' | 'on';
+const pushApis = () => 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+export async function pushState(): Promise<PushState> {
+  const cfg = await getSyncConfig();
+  if (!cfg || cfg.role !== 'parent') return 'no-server';
+  const ios = /iPad|iPhone|iPod/.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
+  const installed = window.matchMedia('(display-mode: standalone)').matches || (navigator as unknown as { standalone?: boolean }).standalone === true;
+  if (!pushApis()) return ios && !installed ? 'need-install' : 'unsupported';
+  if (Notification.permission === 'denied') return 'denied';
+  const sub = await (await navigator.serviceWorker.getRegistration())?.pushManager.getSubscription();
+  return sub && sub.endpoint === await getMeta('pushEndpoint', '') ? 'on' : 'off';
+}
+function keyBytes(b64url: string): Uint8Array {
+  const s = atob(b64url.replace(/-/g, '+').replace(/_/g, '/') + '==='.slice((b64url.length + 3) % 4));
+  return Uint8Array.from(s, c => c.charCodeAt(0));
+}
+export async function enablePush(lang: string) {
+  const cfg = await getSyncConfig();
+  if (!cfg || cfg.role !== 'parent' || !pushApis()) throw new SyncError('push-no');
+  if (await Notification.requestPermission() !== 'granted') throw new SyncError('push-permiso');
+  let key: string;
+  try { key = (await (await fetch(cfg.url.replace(/\/+$/, '') + '/api/push/key')).json()).key; } catch { throw new SyncError('offline'); }
+  const reg = await navigator.serviceWorker.ready;
+  let sub = await reg.pushManager.getSubscription();
+  if (sub && await getMeta('pushKey', '') !== key) { await sub.unsubscribe(); sub = null; }      // el servidor cambió de clave
+  sub ??= await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: keyBytes(key) as BufferSource });
+  await call(cfg.url, '/api/push/subscribe', { sub: sub.toJSON(), lang }, cfg.token);
+  await setMeta('pushEndpoint', sub.endpoint); await setMeta('pushKey', key);
+}
+export async function disablePush() {
+  const cfg = await getSyncConfig();
+  const sub = pushApis() ? await (await navigator.serviceWorker.getRegistration())?.pushManager.getSubscription() : null;
+  if (cfg && sub) await call(cfg.url, '/api/push/unsubscribe', { endpoint: sub.endpoint }, cfg.token).catch(() => {});
+  await sub?.unsubscribe();
+  await db.meta.delete('pushEndpoint');
+}
+export async function testPush() {
+  const cfg = (await getSyncConfig())!;
+  return call(cfg.url, '/api/push/test', {}, cfg.token) as Promise<{ sent: number }>;
 }
 
 /* ---------- En segundo plano ---------- */

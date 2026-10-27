@@ -5,20 +5,22 @@ import { db } from '../../data/db';
 import * as repo from '../../data/repo';
 import type { Child, Family, Lang, Reward, StarEvent } from '../../data/types';
 import { LANGS } from '../../data/types';
-import { addDays, balanceOf, computeStreak, dayOf, levelSuggestion } from '../../data/domain';
+import { addDays, balanceOf, computeStreak, dayOf, levelSuggestion, roundStars } from '../../data/domain';
 import { IDLE_MS, validPin } from '../../data/pin';
 import * as sync from '../../sync/client';
 import { useT, setLang, noteText, fmtNum, rawRes } from '../../i18n';
 import { Icon, Mascot, ParentStage, useLive, useToast, Toast } from '../common';
 import markUrl from '../../assets/mark.svg';
 import { downloadExport, ExportReminder, InstallSection, PilotSummary, RestoreBackup } from './Extras';
+import { ReviewBox, TasksScreen, usePendingCount } from './Tasks';
 
-type Screen = 'panel' | 'redeem' | 'settings';
+type Screen = 'panel' | 'tasks' | 'redeem' | 'settings';
 
 export function ParentApp({ family, onExit }: { family: Family; onExit: () => void }) {
   const [unlocked, setUnlocked] = useState(false);
   const [screen, setScreen] = useState<Screen>('panel');
   const [toast, setToast] = useToast();
+  const pending = usePendingCount();
   const last = useRef(Date.now());
   useEffect(() => { setLang(family.settings.lang); }, [family.settings.lang]);
   useEffect(() => {
@@ -35,9 +37,10 @@ export function ParentApp({ family, onExit }: { family: Family; onExit: () => vo
         : (
           <div className="pscr">
             {screen === 'panel' && <Panel family={family} toast={setToast} />}
+            {screen === 'tasks' && <TasksScreen family={family} toast={setToast} />}
             {screen === 'redeem' && <Redeem family={family} toast={setToast} />}
             {screen === 'settings' && <SettingsScreen family={family} toast={setToast} onExit={() => { setUnlocked(false); sync.elevate(null); onExit(); }} />}
-            <Tabbar screen={screen} onGo={setScreen} />
+            <Tabbar screen={screen} onGo={setScreen} pending={pending} />
           </div>
         )}
       <Toast msg={toast} />
@@ -45,10 +48,19 @@ export function ParentApp({ family, onExit }: { family: Family; onExit: () => vo
   );
 }
 
-function Tabbar({ screen, onGo }: { screen: Screen; onGo: (s: Screen) => void }) {
+function Tabbar({ screen, onGo, pending }: { screen: Screen; onGo: (s: Screen) => void; pending: number }) {
   const t = useT();
-  const tabs: [Screen, string, string][] = [['panel', 'grid', 'parent.tab.panel'], ['redeem', 'gift', 'parent.tab.redeem'], ['settings', 'gear', 'parent.tab.settings']];
-  return <nav className="tabbar">{tabs.map(([s, ic, k]) => <button key={s} aria-current={screen === s} onClick={() => onGo(s)}><Icon name={ic} size={26} />{t(k)}</button>)}</nav>;
+  const tabs: [Screen, string, string][] = [['panel', 'grid', 'parent.tab.panel'], ['tasks', 'list', 'parent.tab.tasks'], ['redeem', 'gift', 'parent.tab.redeem'], ['settings', 'gear', 'parent.tab.settings']];
+  return (
+    <nav className="tabbar four">
+      {tabs.map(([s, ic, k]) => (
+        <button key={s} aria-current={screen === s} onClick={() => onGo(s)}>
+          <Icon name={ic} size={26} />{t(k)}
+          {s === 'tasks' && pending > 0 && <span className="badge" aria-label={t('parent.t.review', { count: pending })}>{pending}</span>}
+        </button>
+      ))}
+    </nav>
+  );
 }
 
 /* ---------- PIN ---------- */
@@ -151,7 +163,7 @@ function useKids(family: Family) {
       const lastTest = sessions.filter(s => (s.serverDay ?? s.day) === today).sort((a, b) => b.endedAt - a.endedAt)[0];
       const dismissed = await db.meta.get('sugDismiss:' + c.id);
       const sug = levelSuggestion(sessions.filter(s => s.endedAt > ((dismissed?.value as number) ?? 0)), c.level);
-      return { c, streak, bal: balanceOf(events), mastery, errors, avg, lastTest, sug, sessions, today };
+      return { c, streak, bal: balanceOf(events), mastery, errors, avg, lastTest, sug, sessions, today, board: await repo.taskBoard(c, today) };
     }));
   }, [family], []);
 }
@@ -165,6 +177,7 @@ function Panel({ family, toast }: { family: Family; toast: (m: string) => void }
       <h2>{t('parent.hello')}</h2>
       <p className="lead">{t('parent.panelLead', { date })}</p>
       <SyncPill />
+      <ReviewBox family={family} toast={toast} />
       <ExportReminder />
       {kids.map(k => {
         const isOpen = open === k.c.id;
@@ -182,9 +195,10 @@ function Panel({ family, toast }: { family: Family; toast: (m: string) => void }
               {k.lastTest ? <span className={'chip ' + (k.lastTest.passed ? 'good' : 'bad')}>{t('parent.lastToday', { c: k.lastTest.correct, n: k.lastTest.length })}</span> : <span className="chip">{t('parent.noTestToday')}</span>}
               <span className="chip"><Icon name="shield" size={14} />{t('parent.shields', { n: k.streak.shields })}</span>
               <span className="chip">{t('parent.record', { n: k.streak.best })}</span>
+              {k.board.items.length > 0 && <span className={'chip' + (k.board.approved === k.board.items.length ? ' good' : '')}><Icon name="list" size={14} />{t('parent.t.chip', { a: k.board.approved, n: k.board.items.length })}</span>}
               {k.avg > 0 && <span className="chip">{t('parent.avgTime', { s: fmtNum(Math.round(k.avg * 10) / 10) })}</span>}
             </div>
-            {k.bal < 0 && <div className="sug warn">{t('parent.negWarn', { name: k.c.name, n: k.bal })}</div>}
+            {k.bal < 0 && <div className="sug warn">{t('parent.negWarn', { name: k.c.name, n: fmtNum(k.bal) })}</div>}
             {k.sug && (
               <div className="sug" onClick={e => e.stopPropagation()}>
                 <span>{t(k.sug === 'up' ? 'parent.sugUp' : 'parent.sugDown', { name: k.c.name, n: k.c.level + (k.sug === 'up' ? 1 : -1) })}</span>
@@ -197,6 +211,7 @@ function Panel({ family, toast }: { family: Family; toast: (m: string) => void }
             )}
             {isOpen && (
               <>
+                <LevelBox child={k.c} sessions={k.sessions} toast={toast} />
                 <div className="caps">{t('parent.mastery')}</div>
                 <div className="mast">
                   {mastery.length ? mastery.map(m => (
@@ -220,6 +235,33 @@ function Panel({ family, toast }: { family: Family; toast: (m: string) => void }
         );
       })}
       <PilotSummary family={family} />
+    </div>
+  );
+}
+/** Dificultad: resultados de los últimos tests en el nivel actual; el padre decide si sube o baja */
+function LevelBox({ child, sessions, toast }: { child: Child; sessions: { level: number; correct: number; length: number; endedAt: number; practice: boolean }[]; toast: (m: string) => void }) {
+  const t = useT();
+  const atLevel = sessions.filter(s => s.level === child.level).sort((a, b) => a.endedAt - b.endedAt).slice(-10);
+  const pct = (s: { correct: number; length: number }) => Math.round(s.correct / s.length * 100);
+  const last5 = atLevel.slice(-5);
+  const avg = last5.length ? Math.round(last5.reduce((n, s) => n + pct(s), 0) / last5.length) : null;
+  const change = async (n: number) => { await repo.updateChild(child.id, { level: n }); await db.meta.put({ key: 'sugDismiss:' + child.id, value: Date.now() }); toast(t('parent.levelChanged', { name: child.name, n })); };
+  return (
+    <div className="levelbox" onClick={e => e.stopPropagation()} onKeyDown={e => e.stopPropagation()}>
+      <div className="lv"><span className="caps">{t('parent.lv.title')}</span><b>{t('kid.level', { n: child.level })}</b></div>
+      {atLevel.length ? (
+        <>
+          <div className="lvbars" role="img" aria-label={atLevel.map(s => pct(s) + ' %').join(', ')}>
+            {atLevel.map((s, i) => <i key={i} className={pct(s) < 50 ? 'low' : pct(s) >= 90 ? 'hi' : ''} style={{ height: Math.max(3, pct(s)) + '%' }} />)}
+          </div>
+          <span>{t('parent.lv.summary', { n: atLevel.length, avg: avg ?? 0, m: last5.length })}</span>
+        </>
+      ) : <span className="muted">{t('parent.lv.none')}</span>}
+      <span className="muted small">{t('parent.lv.help')}</span>
+      <div className="acts">
+        {child.level > 1 && <button className="pbtn line" onClick={() => change(child.level - 1)}>{t('parent.lv.down', { n: child.level - 1 })}</button>}
+        {child.level < 6 && <button className="pbtn" onClick={() => change(child.level + 1)}>{t('parent.lv.up', { n: child.level + 1 })}</button>}
+      </div>
     </div>
   );
 }
@@ -262,7 +304,7 @@ function Redeem({ family, toast }: { family: Family; toast: (m: string) => void 
   const r = data.rewards.find(x => x.id === reward);
   const amount = r ? r.cost : parseInt(custom, 10) || 0;
   const what = r ? r.name : reason.trim() || t('parent.redeemDefault');
-  const valid = amount > 0 && bal - amount >= 0;
+  const valid = amount > 0 && roundStars(bal - amount) >= 0;
   const hist = data.events.filter(e => e.childId === kid.id && (e.type === 'canje' || e.type === 'ajuste')).sort((a, b) => b.ts - a.ts);
   const fixed = new Set(data.events.filter(e => e.ref).map(e => e.ref));
   const remote = !!data.cfg;
@@ -305,7 +347,7 @@ function Redeem({ family, toast }: { family: Family; toast: (m: string) => void 
         <div className="caps">{t('parent.rewards')}</div>
         {data.rewards.map(x => (
           <button key={x.id} className="rrow" aria-pressed={reward === x.id} disabled={x.cost > bal} onClick={() => { setReward(reward === x.id ? null : x.id); setCustom(''); }}>
-            <span>{x.name}{x.note && <small>{x.note}</small>}{x.cost > bal && <small>{t('parent.missing', { n: x.cost - bal })}</small>}</span><b>{fmtNum(x.cost)} ★</b>
+            <span>{x.name}{x.note && <small>{x.note}</small>}{x.cost > bal && <small>{t('parent.missing', { n: fmtNum(roundStars(x.cost - bal)) })}</small>}</span><b>{fmtNum(x.cost)} ★</b>
           </button>
         ))}
         <div className="caps">{t('parent.other')}</div>
@@ -313,8 +355,8 @@ function Redeem({ family, toast }: { family: Family; toast: (m: string) => void 
         <label className="field">{t('parent.reason')}<input type="text" value={reason} maxLength={40} placeholder={t('parent.reasonPh')} onChange={e => setReason(e.target.value)} /></label>
         <div className="sumbar">
           <div className="sb"><span>{what}</span><b className="gold">{amount ? '−' + fmtNum(amount) + ' ★' : '—'}</b></div>
-          <div className="sb"><span className="muted">{t('parent.after')}</span><b>{amount ? fmtNum(bal - amount) + ' ★' : '—'}</b></div>
-          {amount > 0 && bal - amount < 0 && <span style={{ color: 'var(--soft-fail)' }}>{t('parent.notEnough')}</span>}
+          <div className="sb"><span className="muted">{t('parent.after')}</span><b>{amount ? fmtNum(roundStars(bal - amount)) + ' ★' : '—'}</b></div>
+          {amount > 0 && roundStars(bal - amount) < 0 && <span style={{ color: 'var(--soft-fail)' }}>{t('parent.notEnough')}</span>}
           {remote && <span className="muted" style={{ fontSize: 13 }}>{t('parent.needOnline')}</span>}
           <button className="pbtn full" disabled={!valid} onClick={() => setConfirm({ kind: 'redeem' })}><Icon name="lock" size={20} /> {t('parent.confirmPin')}</button>
         </div>
@@ -426,7 +468,7 @@ function SettingsScreen({ family, toast, onExit }: { family: Family; toast: (m: 
         <button className="pbtn" style={{ marginTop: 8 }} disabled={!validPin(pin)} onClick={async () => { await repo.changePin(pin); sync.elevate(pin); setPin(''); toast(t('parent.pinChanged')); }}>{t('parent.changePin')}</button>
       </section>
       <InstallSection />
-      <SyncSection toast={toast} />
+      <SyncSection toast={toast} lang={family.settings.lang} />
       <section className="sect"><h3>{t('parent.s.data')}</h3>
         <div className="btncol">
           <button className="pbtn line" onClick={downloadExport}>{t('parent.export')}</button>
@@ -503,8 +545,35 @@ function PrivacySheet({ onClose }: { onClose: () => void }) {
 }
 export { PrivacySheet };
 
+/* ---------- Avisos en este móvil cuando un hijo marca una tarea ---------- */
+function PushRow({ lang, toast }: { lang: Lang; toast: (m: string) => void }) {
+  const t = useT();
+  const [st, setSt] = useState<sync.PushState | null>(null);
+  const [busy, setBusy] = useState(false);
+  const refresh = () => sync.pushState().then(setSt).catch(() => setSt('unsupported'));
+  useEffect(() => { refresh(); }, []);
+  const run = async (f: () => Promise<unknown>, ok?: string) => {
+    setBusy(true);
+    try { await f(); if (ok) toast(ok); } catch (e) { toast(t('parent.push.err.' + (e instanceof sync.SyncError ? e.code : 'error'), { defaultValue: t('parent.syncErr.error') })); }
+    finally { setBusy(false); refresh(); }
+  };
+  if (!st || st === 'no-server') return null;
+  return (
+    <div className="srow" style={{ flexDirection: 'column', alignItems: 'stretch', marginTop: 8 }}>
+      <span className="lb"><b style={{ display: 'inline-flex', gap: 6, alignItems: 'center' }}><Icon name="bell" size={18} />{t('parent.push.title')}</b><small>{t('parent.push.state.' + st)}</small></span>
+      {st === 'off' && <button className="pbtn" disabled={busy} onClick={() => run(() => sync.enablePush(lang), t('parent.push.enabled'))}>{t('parent.push.enable')}</button>}
+      {st === 'on' && (
+        <div className="acts">
+          <button className="pbtn line" disabled={busy} onClick={() => run(async () => { const r = await sync.testPush(); if (!r.sent) throw new sync.SyncError('push-fallo'); }, t('parent.push.testSent'))}>{t('parent.push.test')}</button>
+          <button className="pbtn line" disabled={busy} onClick={() => run(() => sync.disablePush())}>{t('parent.push.disable')}</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ---------- Nube y otros dispositivos ---------- */
-function SyncSection({ toast }: { toast: (m: string) => void }) {
+function SyncSection({ toast, lang }: { toast: (m: string) => void; lang: Lang }) {
   const t = useT();
   const cfg = useLive(() => sync.getSyncConfig(), [], null);
   const [url, setUrl] = useState(sync.defaultServer());
@@ -538,6 +607,7 @@ function SyncSection({ toast }: { toast: (m: string) => void }) {
             <button className="pbtn line" disabled={busy} onClick={() => run(() => sync.syncNow())}>{t('parent.syncNow')}</button>
             <button className="pbtn line" onClick={() => run(() => sync.unlink())}>{t('parent.unlink')}</button>
           </div>
+          {cfg.role === 'parent' && <PushRow lang={lang} toast={toast} />}
         </>
       )}
     </section>

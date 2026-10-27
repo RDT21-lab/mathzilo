@@ -44,6 +44,7 @@ export interface Child {
   bestStreak: number;       // guardado para que la mascota nunca retroceda
   sound: boolean;
   bigText?: boolean;        // letra más grande (accesibilidad)
+  taskDays?: number[];      // días de la semana con tareas (0 = domingo … 6 = sábado); sin valor = todos
   createdAt: number;
   updatedAt: number;
 }
@@ -77,7 +78,7 @@ export interface Answer {
   tag: string;
 }
 
-export type EventType = 'test' | 'racha' | 'escudo' | 'canje' | 'ajuste';
+export type EventType = 'test' | 'racha' | 'escudo' | 'canje' | 'ajuste' | 'tarea';
 export interface StarEvent {
   id: string;
   childId: string;
@@ -123,8 +124,36 @@ export interface ActiveTest {
   fast: boolean;
 }
 
+/** Tarea que pone el padre, o premio por cumplir un conjunto de tareas (kind 'bonus') */
+export interface Task {
+  id: string;
+  childId: string;
+  kind: 'task' | 'bonus';
+  title: string;
+  stars: number;            // puede llevar un decimal (1,5)
+  days: number[];           // días de la semana en que toca (0 = domingo … 6 = sábado)
+  date?: string;            // solo ese día (AAAA-MM-DD); entonces `days` no cuenta
+  taskIds?: string[];       // premio: tareas que incluye (vacío = todas las del día)
+  active: boolean;          // false = en pausa
+  deleted?: boolean;        // borrada (se guarda para que el historial siga teniendo su nombre)
+  createdAt: number;
+  updatedAt: number;
+}
+/** Estado de una tarea en un día: el niño dice que la ha hecho; el padre la da por buena o no */
+export type CheckState = 'claimed' | 'approved' | 'rejected';
+export interface TaskCheck {
+  id: string;               // tarea + ':' + día
+  taskId: string;
+  childId: string;
+  day: string;
+  state: CheckState;
+  claimedAt?: number;
+  decidedAt?: number;
+  updatedAt: number;
+}
+
 export interface OutboxItem { seq?: number; table: SyncTable; id: string; op: 'put' | 'del' }
-export type SyncTable = 'family' | 'children' | 'sessions' | 'answers' | 'events' | 'rewards' | 'flags';
+export type SyncTable = 'family' | 'children' | 'sessions' | 'answers' | 'events' | 'rewards' | 'flags' | 'tasks' | 'checks';
 
 /** El niño pulsó «No lo entiendo» en una explicación (sirve para mejorar los textos en el piloto) */
 export interface Flag { id: string; childId: string; ts: number; gen: string; tag: string; lang: Lang; tone: Tone }

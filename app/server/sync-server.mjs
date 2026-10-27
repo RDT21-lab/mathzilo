@@ -4,7 +4,9 @@
      sobrescriben nunca; hijos, premios y ajustes ganan por fecha de modificación.
    - Los canjes y ajustes solo nacen aquí, tras comprobar el PIN (mismo PBKDF2 que la app).
    - La tablet no puede tocar reglas, PIN, niveles ni premios, ni crear apuntes negativos.
-   - Aviso en tiempo real por Server-Sent Events.
+   - Aviso en tiempo real por Server-Sent Events, y Web Push al móvil del padre cuando un niño
+     marca una tarea como hecha.
+   - Tareas: solo el padre las crea y las da por buenas; la tablet solo puede decir «hecha».
    Datos: un archivo JSON por familia en DATA_DIR. Uso: node server/sync-server.mjs          */
 import http from 'node:http';
 import fs from 'node:fs';
@@ -12,12 +14,24 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import zlib from 'node:zlib';
 import { fileURLToPath } from 'node:url';
+import { sendPush, vapidKeys } from './webpush.mjs';
 
 const PIN_ITER = 120_000, MAX_TRIES = 5, LOCK_MS = 15 * 60_000, PAIR_MS = 10 * 60_000;
 const IMMUTABLE = new Set(['sessions', 'answers', 'events', 'flags']);
-const LWW = new Set(['family', 'children', 'rewards']);
+const LWW = new Set(['family', 'children', 'rewards', 'tasks', 'checks']);
 const TABLES = [...IMMUTABLE, ...LWW];
 const CHILD_SAFE = ['petName', 'kind', 'lang', 'sound', 'bigText', 'bestStreak', 'updatedAt'];
+const BY_CHILD = ['sessions', 'answers', 'events', 'flags', 'tasks', 'checks'];
+// Servicios de avisos de los navegadores: el servidor no envía nada a otras direcciones
+const PUSH_HOSTS = /(^|\.)(fcm\.googleapis\.com|push\.services\.mozilla\.com|push\.apple\.com|notify\.windows\.com)$/;
+const PUSH_TXT = {
+  es: { claim: '{name} dice que ha hecho: {task}', more: '{name} ha marcado {n} tareas como hechas', test: 'Los avisos de Mathzilo funcionan en este dispositivo.' },
+  en: { claim: '{name} says this is done: {task}', more: '{name} marked {n} tasks as done', test: 'Mathzilo notifications work on this device.' },
+  fr: { claim: '{name} dit avoir fait : {task}', more: '{name} a marqué {n} tâches comme faites', test: 'Les notifications Mathzilo fonctionnent sur cet appareil.' },
+  de: { claim: '{name} sagt, erledigt: {task}', more: '{name} hat {n} Aufgaben als erledigt markiert', test: 'Mathzilo-Benachrichtigungen funktionieren auf diesem Gerät.' }
+};
+const fill = (s, v) => s.replace(/\{(\w+)\}/g, (_, k) => String(v[k] ?? ''));
+const round1 = n => Math.round(n * 10) / 10;
 
 const sha = s => crypto.createHash('sha256').update(s).digest('hex');
 const rnd = n => crypto.randomBytes(n).toString('hex');
@@ -31,7 +45,8 @@ export function dayOf(ts, tzOffsetMin, dayStartHour) {
   return new Date(ts - tzOffsetMin * 60_000 - dayStartHour * 3600_000).toISOString().slice(0, 10);
 }
 
-export function createApp({ dataDir, staticDir = null, now = () => Date.now() } = {}) {
+export function createApp({ dataDir, staticDir = null, now = () => Date.now(), fetchImpl = (...a) => fetch(...a), pushHosts = PUSH_HOSTS,
+                           pushSubject = process.env.PUSH_SUBJECT || 'https://github.com/RDT21-lab/mathzilo' } = {}) {
   fs.mkdirSync(dataDir, { recursive: true });
   const indexFile = path.join(dataDir, 'index.json');
   const index = fs.existsSync(indexFile) ? JSON.parse(fs.readFileSync(indexFile, 'utf8')) : { emails: {}, tokens: {} };
@@ -39,13 +54,17 @@ export function createApp({ dataDir, staticDir = null, now = () => Date.now() } 
   const streams = new Map();                                   // familyId → Set<res>
   const compressed = new Map();                                // archivos estáticos ya comprimidos
   const logRate = new Map();                                   // familyId → marcas de tiempo de errores recibidos
+  const pending = new Set();                                   // avisos en camino (las pruebas esperan a que terminen)
+  if (!index.vapid) { index.vapid = vapidKeys(); fs.writeFileSync(indexFile, JSON.stringify(index)); }
 
   const saveIndex = () => fs.writeFileSync(indexFile, JSON.stringify(index));
   const famFile = id => path.join(dataDir, 'family-' + id.replace(/[^a-z0-9-]/gi, '') + '.json');
   function load(id) {
     if (!cache.has(id)) cache.set(id, fs.existsSync(famFile(id)) ? JSON.parse(fs.readFileSync(famFile(id), 'utf8'))
       : { id, seq: 0, rows: Object.fromEntries(TABLES.map(t => [t, {}])), log: [], pair: {}, pinLock: { fails: 0, until: 0 } });
-    return cache.get(id);
+    const st = cache.get(id);
+    for (const t of TABLES) st.rows[t] ??= {};                     // familias creadas antes de las tareas
+    return st;
   }
   function save(st) { const tmp = famFile(st.id) + '.tmp'; fs.writeFileSync(tmp, JSON.stringify(st)); fs.renameSync(tmp, famFile(st.id)); }
   function record(st, table, op, id, row) {
@@ -66,7 +85,32 @@ export function createApp({ dataDir, staticDir = null, now = () => Date.now() } 
     const t = m[1] && index.tokens[sha(m[1])];
     return t ? { ...t } : null;
   }
-  const balance = (st, childId) => Object.values(st.rows.events).reduce((s, { row }) => s + (row.childId === childId ? row.amount : 0), 0);
+  const balance = (st, childId) => round1(Object.values(st.rows.events).reduce((s, { row }) => s + (row.childId === childId ? row.amount : 0), 0));
+
+  /* Avisos al móvil del padre. Se envían después de responder; las suscripciones caducadas se borran */
+  function push(st, payloadFor) {
+    const subs = Object.entries(st.push ?? {});
+    if (!subs.length) return Promise.resolve(0);
+    const job = Promise.all(subs.map(async ([k, s]) => {
+      try {
+        const status = await sendPush(s.sub, payloadFor(PUSH_TXT[s.lang] ?? PUSH_TXT.es), index.vapid, pushSubject, fetchImpl);
+        if (status === 404 || status === 410) { delete st.push[k]; save(st); }
+        return status < 300 ? 1 : 0;
+      } catch { return 0; }
+    })).then(r => r.reduce((a, b) => a + b, 0));
+    pending.add(job); job.finally(() => pending.delete(job));
+    return job;
+  }
+  function pushClaims(st, claims) {
+    const byChild = new Map();
+    for (const c of claims) byChild.set(c.childId, [...(byChild.get(c.childId) ?? []), c]);
+    for (const [childId, list] of byChild) {
+      const name = st.rows.children[childId]?.row.name ?? '';
+      const task = st.rows.tasks[list[0].taskId]?.row.title ?? '';
+      push(st, T => ({ title: 'Mathzilo', body: list.length > 1 ? fill(T.more, { name, n: list.length }) : fill(T.claim, { name, task }),
+                       tag: 'tareas-' + childId, url: './#/padre' }));
+    }
+  }
 
   /* PIN con bloqueo en el servidor */
   function checkPin(st, pin) {
@@ -87,7 +131,7 @@ export function createApp({ dataDir, staticDir = null, now = () => Date.now() } 
     if (op === 'del') {
       if (table !== 'children' || role !== 'parent') return 'rol';
       const id = item.id;
-      for (const t of ['sessions', 'answers', 'events', 'flags']) for (const [rid, { row }] of Object.entries(st.rows[t])) if (row.childId === id) record(st, t, 'del', rid);
+      for (const t of BY_CHILD) for (const [rid, { row }] of Object.entries(st.rows[t] ?? {})) if (row.childId === id) record(st, t, 'del', rid);
       if (st.rows.children[id]) record(st, 'children', 'del', id);
       return null;
     }
@@ -104,6 +148,15 @@ export function createApp({ dataDir, staticDir = null, now = () => Date.now() } 
       if (table === 'events') {
         if (row.type === 'canje' || row.type === 'ajuste' || row.amount < 0) {
           if (!ctx.import) return 'solo-servidor';                // solo al subir por primera vez los datos de un dispositivo
+          record(st, table, 'put', row.id, row);
+          return null;
+        }
+        if (row.type === 'tarea') {
+          // solo el padre paga tareas; el identificador fija la tarea y el día (no se paga dos veces)
+          if (role !== 'parent') return 'rol';
+          const m = /^tarea:([^:]+):(\d{4}-\d{2}-\d{2})$/.exec(row.id), task = m && st.rows.tasks[m[1]]?.row;
+          if (!task || task.childId !== row.childId || row.day !== m[2]) return 'tarea';
+          if (!(row.amount > 0 && row.amount <= 1000 && round1(row.amount) === row.amount)) return 'cantidad';
           record(st, table, 'put', row.id, row);
           return null;
         }
@@ -127,6 +180,18 @@ export function createApp({ dataDir, staticDir = null, now = () => Date.now() } 
     }
     // LWW: gana el cambio más reciente
     if (prev && (prev.updatedAt ?? 0) >= (row.updatedAt ?? 0)) return null;
+    if (table === 'tasks') {
+      if (role !== 'parent') return 'rol';
+      if (!st.rows.children[row.childId]) return 'fila';
+    }
+    if (table === 'checks') {
+      const task = st.rows.tasks[row.taskId]?.row;
+      if (!task || task.childId !== row.childId || row.id !== row.taskId + ':' + row.day || !['claimed', 'approved', 'rejected'].includes(row.state)) return 'fila';
+      if (role !== 'parent' && (row.state !== 'claimed' || prev?.state === 'approved')) return 'rol';   // la tablet solo dice «hecha»
+      if (row.state === 'claimed' && prev?.state !== 'claimed') ctx.claims.push(row);
+      record(st, table, 'put', row.id, row);
+      return null;
+    }
     if (role !== 'parent') {
       if (table === 'family' || table === 'rewards') return 'rol';
       if (table === 'children') {
@@ -177,7 +242,7 @@ export function createApp({ dataDir, staticDir = null, now = () => Date.now() } 
       const st = load(a.familyId);
       let role = a.role;
       if (role !== 'parent' && b.pin !== undefined) { if (!checkPin(st, b.pin).ok) return [403, { error: 'pin' }]; role = 'parent'; }
-      const ctx = { tz: Number(b.tz) || 0, dayStart: Number(b.dayStart) || 0, import: !!b.import && role === 'parent' && !!st.importOpen };
+      const ctx = { tz: Number(b.tz) || 0, dayStart: Number(b.dayStart) || 0, import: !!b.import && role === 'parent' && !!st.importOpen, claims: [] };
       const before = st.seq, rejected = [];
       // la familia primero: sus reglas validan lo demás
       const push = Array.isArray(b.push) ? [...b.push].sort((x, y) => (x.table === 'family' ? -1 : 0) - (y.table === 'family' ? -1 : 0)) : [];
@@ -187,9 +252,12 @@ export function createApp({ dataDir, staticDir = null, now = () => Date.now() } 
       }
       if (ctx.import) st.importOpen = false;
       if (st.seq !== before || ctx.import) { save(st); notify(st); }
+      if (ctx.claims.length) pushClaims(st, ctx.claims);
       const since = Number(b.since) || 0;
+      // cada versión de la app dice qué tablas conoce; las anteriores a las tareas no lo dicen
+      const known = new Set(Array.isArray(b.tables) ? b.tables : ['family', 'children', 'rewards', 'sessions', 'answers', 'events', 'flags']);
       const seen = new Map();
-      for (const e of st.log) if (e.seq > since) seen.set(e.table + ':' + e.id, e);
+      for (const e of st.log) if (e.seq > since && known.has(e.table)) seen.set(e.table + ':' + e.id, e);
       const pull = [...seen.values()].sort((x, y) => x.seq - y.seq).map(e => e.op === 'put' && st.rows[e.table][e.id]
         ? { table: e.table, op: 'put', row: st.rows[e.table][e.id].row } : { table: e.table, op: 'del', id: e.id });
       return [200, { seq: st.seq, pull, rejected, serverTime: now(), role }];
@@ -206,7 +274,7 @@ export function createApp({ dataDir, staticDir = null, now = () => Date.now() } 
       if (e.type === 'canje') {
         amount = -Math.abs(Math.trunc(Number(e.amount)));
         if (!amount) return [400, { error: 'cantidad' }];
-        if (balance(st, e.childId) + amount < 0) return [409, { error: 'saldo', balance: balance(st, e.childId) }];
+        if (round1(balance(st, e.childId) + amount) < 0) return [409, { error: 'saldo', balance: balance(st, e.childId) }];
       } else if (e.type === 'ajuste') {
         const ref = st.rows.events[e.ref]?.row;
         if (!ref || ref.childId !== e.childId) return [404, { error: 'ref' }];
@@ -219,6 +287,32 @@ export function createApp({ dataDir, staticDir = null, now = () => Date.now() } 
       record(st, 'events', 'put', row.id, row);
       save(st); notify(st);
       return [200, { event: row, seq: st.seq, balance: balance(st, e.childId) }];
+    },
+    /* Avisos: clave pública, alta y baja de un móvil del padre, y aviso de prueba */
+    'GET /api/push/key': () => [200, { key: index.vapid.publicKey }],
+    'POST /api/push/subscribe': (b, a) => {
+      if (a?.role !== 'parent') return [403, { error: 'rol' }];
+      const sub = b.sub ?? {}, keys = sub.keys ?? {};
+      let host = '';
+      try { const u = new URL(String(sub.endpoint)); if (u.protocol === 'https:') host = u.hostname; } catch { /* no es una dirección */ }
+      if (!host || !pushHosts.test(host) || typeof keys.p256dh !== 'string' || typeof keys.auth !== 'string') return [400, { error: 'suscripcion' }];
+      const st = load(a.familyId);
+      st.push ??= {};
+      st.push[sha(sub.endpoint)] = { sub: { endpoint: sub.endpoint, keys: { p256dh: keys.p256dh, auth: keys.auth } }, lang: PUSH_TXT[b.lang] ? b.lang : 'es', at: now() };
+      st.push = Object.fromEntries(Object.entries(st.push).sort((x, y) => y[1].at - x[1].at).slice(0, 10));   // como mucho 10 móviles
+      save(st);
+      return [200, { ok: true }];
+    },
+    'POST /api/push/unsubscribe': (b, a) => {
+      if (a?.role !== 'parent') return [403, { error: 'rol' }];
+      const st = load(a.familyId);
+      if (st.push) { delete st.push[sha(String(b.endpoint ?? ''))]; save(st); }
+      return [200, { ok: true }];
+    },
+    'POST /api/push/test': async (b, a) => {
+      if (a?.role !== 'parent') return [403, { error: 'rol' }];
+      const sent = await push(load(a.familyId), T => ({ title: 'Mathzilo', body: T.test, tag: 'prueba', url: './#/padre' }));
+      return [200, { sent }];
     },
     /* Registro de errores de la app, sin datos personales: solo mensaje, pila y versión */
     'POST /api/log': (b, a) => {
@@ -248,7 +342,7 @@ export function createApp({ dataDir, staticDir = null, now = () => Date.now() } 
 
   const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml', '.png': 'image/png',
                  '.json': 'application/json', '.webmanifest': 'application/manifest+json', '.woff2': 'font/woff2', '.woff': 'font/woff' };
-  return http.createServer((req, res) => {
+  const server = http.createServer((req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Headers', 'authorization, content-type');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -270,9 +364,9 @@ export function createApp({ dataDir, staticDir = null, now = () => Date.now() } 
     if (route) {
       let body = '';
       req.on('data', c => { body += c; if (body.length > 5_000_000) req.destroy(); });
-      req.on('end', () => {
+      req.on('end', async () => {
         let out;
-        try { out = route(body ? JSON.parse(body) : {}, auth(req)); } catch (e) { out = [400, { error: 'json', detail: String(e.message) }]; }
+        try { out = await route(body ? JSON.parse(body) : {}, auth(req)); } catch (e) { out = [400, { error: 'json', detail: String(e.message) }]; }
         res.writeHead(out[0], { 'content-type': 'application/json' });
         res.end(JSON.stringify(out[1]));
       });
@@ -306,6 +400,9 @@ export function createApp({ dataDir, staticDir = null, now = () => Date.now() } 
     }
     res.writeHead(404); res.end();
   });
+  /** Para las pruebas: espera a que salgan los avisos pendientes */
+  server.flushPush = () => Promise.all([...pending]);
+  return server;
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {

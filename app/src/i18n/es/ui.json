@@ -50,7 +50,9 @@
     "superado": "Test de {{t}} superado",
     "perfecto": "Test perfecto",
     "racha": "Racha de {{d}} días",
-    "fix": "Corrección de un apunte"
+    "fix": "Corrección de un apunte",
+    "task": "Tarea: {{n}}",
+    "bonus": "Premio de tareas: {{n}}"
   },
   "kid": {
     "who": "¿Quién va a jugar?",
@@ -166,7 +168,22 @@
     "sound": "Sonidos",
     "bigText": "Letra grande",
     "dontGet": "No lo entiendo",
-    "flagThanks": "Gracias. Se lo contaremos a tu familia para mejorarlo."
+    "flagThanks": "Gracias. Se lo contaremos a tu familia para mejorarlo.",
+    "tasksPill": "Tareas",
+    "tasksTitle": "Mis tareas de hoy",
+    "tasksDone": "{{a}} de {{n}} hechas",
+    "available": "para gastar",
+    "lastTestL": "Último test",
+    "weekL": "Esta semana",
+    "tasksL": "Tareas hoy",
+    "noTasks": "Hoy no tienes tareas. ¡Disfruta!",
+    "taskOk": "¡Confirmada!",
+    "taskWait": "Tu familia la está mirando",
+    "taskAgain": "Tu familia dice que aún no está. ¡Tú puedes!",
+    "taskDone": "¡Ya la he hecho!",
+    "taskSent": "¡Genial! Se lo hemos dicho a tu familia.",
+    "bonusInfo": "{{a}} de {{n}} tareas para el premio",
+    "bonusOk": "¡Premio conseguido!"
   },
   "parent": {
     "title": "Modo padre",
@@ -183,7 +200,8 @@
     "tab": {
       "panel": "Panel",
       "redeem": "Canjear",
-      "settings": "Ajustes"
+      "settings": "Ajustes",
+      "tasks": "Tareas"
     },
     "hello": "Hola",
     "panelLead": "{{date}}. Toca una tarjeta para ver el detalle.",
@@ -312,7 +330,85 @@
     "deleteAll": "Borrar la cuenta y los datos",
     "deleteAllConfirm": "Se borrará todo en este dispositivo{{cloud}}. No se puede deshacer. Introduce el PIN para confirmar.",
     "andCloud": " y en la nube",
-    "logout": "Salir del modo padre"
+    "logout": "Salir del modo padre",
+    "t": {
+      "title": "Tareas",
+      "lead": "Pon tareas para cada día y decide cuántas estrellas valen.",
+      "today": "Hoy, {{date}}",
+      "noneToday": "Hoy no hay tareas.",
+      "dayOff": "Hoy es un día sin tareas.",
+      "noStars": "Sin estrellas",
+      "done": "Hecha",
+      "yes": "Sí, está hecha",
+      "markDone": "Marcar hecha",
+      "notYet": "Aún no",
+      "approved": "+{{n}} ★ para {{name}}",
+      "bonusProgress": "{{a}} de {{n}} hechas",
+      "listTitle": "Tareas de {{name}}",
+      "empty": "Todavía no hay tareas.",
+      "add": "+ Añadir tarea",
+      "added": "Guardado",
+      "bonusTitle": "Premios por cumplir tareas",
+      "bonusLead": "Estrellas extra cuando cumple todas las tareas del día o un grupo de ellas.",
+      "someTasks": "Tareas elegidas: {{n}}",
+      "allTasks": "Todas las tareas del día",
+      "addBonus": "+ Añadir premio",
+      "daysTitle": "Días con tareas",
+      "daysLead": "Los días desactivados {{name}} no tiene tareas (por ejemplo, el fin de semana).",
+      "everyDay": "Todos los días",
+      "workdays": "De lunes a viernes",
+      "weekend": "Fin de semana",
+      "paused": "en pausa",
+      "pause": "Pausar",
+      "resume": "Activar",
+      "edit": "Editar",
+      "name": "Tarea",
+      "namePh": "Hacer la cama",
+      "bonusName": "Nombre del premio",
+      "bonusDefault": "Todas las tareas del día",
+      "stars": "Estrellas (puede llevar un decimal: 1,5)",
+      "starsBad": "Escribe un número, por ejemplo 2 o 1,5",
+      "when": "Cuándo",
+      "repeat": "Varios días",
+      "once": "Un día",
+      "date": "Día",
+      "daysHelp": "Días de la semana en que toca:",
+      "which": "Qué tareas",
+      "whichAll": "Todas",
+      "whichSome": "Algunas",
+      "review_one": "{{count}} tarea por revisar",
+      "review_other": "{{count}} tareas por revisar",
+      "chip": "Tareas {{a}}/{{n}}"
+    },
+    "lv": {
+      "title": "Dificultad",
+      "summary": "Tests en este nivel: {{n}} · media de los últimos: {{avg}} %",
+      "none": "Aún no hay tests en este nivel.",
+      "help": "Tú decides. Mathzilo sugiere subir con un 90 % o más en 5 tests seguidos y bajar con menos de un 50 % en 3.",
+      "up": "Subir a nivel {{n}}",
+      "down": "Bajar a nivel {{n}}"
+    },
+    "push": {
+      "title": "Avisos en este móvil",
+      "enable": "Activar avisos",
+      "enabled": "Avisos activados",
+      "disable": "Desactivar",
+      "test": "Probar",
+      "testSent": "Aviso de prueba enviado",
+      "state": {
+        "off": "Recibe un aviso cuando un hijo marque una tarea como hecha.",
+        "on": "Activados: te avisaremos cuando un hijo marque una tarea como hecha.",
+        "denied": "El navegador tiene bloqueados los avisos de Mathzilo. Actívalos en los ajustes del navegador.",
+        "need-install": "En iPhone y iPad, primero instala la app en la pantalla de inicio (sección «Instalar la app») y ábrela desde ahí.",
+        "unsupported": "Este navegador no admite avisos."
+      },
+      "err": {
+        "push-permiso": "No has dado permiso para los avisos.",
+        "push-no": "Este dispositivo no admite avisos.",
+        "push-fallo": "No se pudo enviar el aviso de prueba.",
+        "offline": "Sin conexión con el servidor."
+      }
+    }
   },
   "onb": {
     "welcome": "Te damos la bienvenida",
@@ -356,6 +452,7 @@
       "Sin cuenta, todo se queda en este dispositivo. Con cuenta, los datos se copian al servidor de sincronización que indiques, cifrados en tránsito (HTTPS). Cada familia solo puede ver lo suyo.",
       "No hay publicidad, ni analítica de terceros, ni compras dentro de la app. La app no maneja dinero: las estrellas valen lo que decida la familia.",
       "Puedes exportar todos los datos o borrarlos en Ajustes > Datos y privacidad. Borrar la cuenta borra también la copia del servidor.",
+      "Si activas los avisos, el servidor envía al móvil del adulto el nombre del niño y de la tarea, cifrados de punta a punta a través del servicio de avisos del navegador (Google, Apple o Mozilla), que no puede leerlos.",
       "Responsable del tratamiento: la persona que gestiona el servidor de la familia. Este aviso es un borrador y conviene revisarlo con un profesional antes de usar la app con otras familias."
     ]
   },

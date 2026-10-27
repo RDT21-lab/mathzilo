@@ -85,3 +85,16 @@ export async function unlockParent(page: Page) {
   for (const d of PIN) await page.keyboard.press(d);
   await expect(page.getByRole('heading', { name: 'Hola' })).toBeVisible();
 }
+
+/** Tareas de ejemplo: una confirmada, una marcada por el niño, una pendiente y un premio por todas */
+export async function addTasks(page: Page) {
+  await page.evaluate(async () => {
+    const sm = (window as unknown as { __sm: any }).__sm;
+    const kid = (await sm.db.children.toArray())[0], day = await sm.repo.today(), all = [0, 1, 2, 3, 4, 5, 6];
+    const a = await sm.repo.addTask({ childId: kid.id, kind: 'task', title: 'Hacer la cama', stars: 1.5, days: all });
+    const b = await sm.repo.addTask({ childId: kid.id, kind: 'task', title: 'Recoger los juguetes del salón', stars: 1, days: all });
+    await sm.repo.addTask({ childId: kid.id, kind: 'task', title: 'Leer 15 minutos', stars: 2, days: all });
+    await sm.repo.addTask({ childId: kid.id, kind: 'bonus', title: 'Todas las tareas del día', stars: 3, days: all });
+    await sm.repo.claimTask(a.id, day); await sm.repo.approveTask(a.id, day); await sm.repo.claimTask(b.id, day);
+  });
+}

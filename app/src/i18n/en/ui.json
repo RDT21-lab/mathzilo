@@ -50,7 +50,9 @@
     "superado": "Test of {{t}} passed",
     "perfecto": "Perfect test",
     "racha": "{{d}}-day streak",
-    "fix": "Correction"
+    "fix": "Correction",
+    "task": "Task: {{n}}",
+    "bonus": "Task prize: {{n}}"
   },
   "kid": {
     "who": "Who's playing?",
@@ -166,7 +168,22 @@
     "sound": "Sounds",
     "bigText": "Large text",
     "dontGet": "I don't get it",
-    "flagThanks": "Thanks. We'll tell your family so it can be improved."
+    "flagThanks": "Thanks. We'll tell your family so it can be improved.",
+    "tasksPill": "Tasks",
+    "tasksTitle": "My tasks today",
+    "tasksDone": "{{a}} of {{n}} done",
+    "available": "to spend",
+    "lastTestL": "Last test",
+    "weekL": "This week",
+    "tasksL": "Tasks today",
+    "noTasks": "No tasks today. Enjoy!",
+    "taskOk": "Confirmed!",
+    "taskWait": "Your family is checking it",
+    "taskAgain": "Your family says it is not done yet. You can do it!",
+    "taskDone": "I've done it!",
+    "taskSent": "Great! We've told your family.",
+    "bonusInfo": "{{a}} of {{n}} tasks for the prize",
+    "bonusOk": "Prize earned!"
   },
   "parent": {
     "title": "Parent mode",
@@ -183,7 +200,8 @@
     "tab": {
       "panel": "Overview",
       "redeem": "Rewards",
-      "settings": "Settings"
+      "settings": "Settings",
+      "tasks": "Tasks"
     },
     "hello": "Hello",
     "panelLead": "{{date}}. Tap a card to see more.",
@@ -312,7 +330,85 @@
     "deleteAll": "Delete the account and data",
     "deleteAllConfirm": "Everything will be deleted on this device{{cloud}}. This can't be undone. Enter the PIN to confirm.",
     "andCloud": " and in the cloud",
-    "logout": "Leave parent mode"
+    "logout": "Leave parent mode",
+    "t": {
+      "title": "Tasks",
+      "lead": "Set tasks for each day and decide how many stars they are worth.",
+      "today": "Today, {{date}}",
+      "noneToday": "No tasks today.",
+      "dayOff": "Today is a day without tasks.",
+      "noStars": "No stars",
+      "done": "Done",
+      "yes": "Yes, it's done",
+      "markDone": "Mark done",
+      "notYet": "Not yet",
+      "approved": "+{{n}} ★ for {{name}}",
+      "bonusProgress": "{{a}} of {{n}} done",
+      "listTitle": "{{name}}'s tasks",
+      "empty": "No tasks yet.",
+      "add": "+ Add task",
+      "added": "Saved",
+      "bonusTitle": "Prizes for completing tasks",
+      "bonusLead": "Extra stars for completing all of the day’s tasks or a group of them.",
+      "someTasks": "Chosen tasks: {{n}}",
+      "allTasks": "All of the day’s tasks",
+      "addBonus": "+ Add prize",
+      "daysTitle": "Days with tasks",
+      "daysLead": "{{name}} has no tasks on the days switched off (for example, the weekend).",
+      "everyDay": "Every day",
+      "workdays": "Monday to Friday",
+      "weekend": "Weekend",
+      "paused": "paused",
+      "pause": "Pause",
+      "resume": "Resume",
+      "edit": "Edit",
+      "name": "Task",
+      "namePh": "Make the bed",
+      "bonusName": "Prize name",
+      "bonusDefault": "All of the day’s tasks",
+      "stars": "Stars (one decimal allowed: 1.5)",
+      "starsBad": "Type a number, for example 2 or 1.5",
+      "when": "When",
+      "repeat": "Several days",
+      "once": "One day",
+      "date": "Day",
+      "daysHelp": "Days of the week it applies:",
+      "which": "Which tasks",
+      "whichAll": "All",
+      "whichSome": "Some",
+      "review_one": "{{count}} task to check",
+      "review_other": "{{count}} tasks to check",
+      "chip": "Tasks {{a}}/{{n}}"
+    },
+    "lv": {
+      "title": "Difficulty",
+      "summary": "Tests at this level: {{n}} · recent average: {{avg}} %",
+      "none": "No tests at this level yet.",
+      "help": "You decide. Mathzilo suggests moving up with 90 % or more in 5 tests in a row, and down with under 50 % in 3.",
+      "up": "Move up to level {{n}}",
+      "down": "Move down to level {{n}}"
+    },
+    "push": {
+      "title": "Notifications on this phone",
+      "enable": "Turn on notifications",
+      "enabled": "Notifications on",
+      "disable": "Turn off",
+      "test": "Test",
+      "testSent": "Test notification sent",
+      "state": {
+        "off": "Get a notification when a child marks a task as done.",
+        "on": "On: we'll let you know when a child marks a task as done.",
+        "denied": "The browser is blocking notifications from Mathzilo. Allow them in the browser settings.",
+        "need-install": "On iPhone and iPad, first add the app to the home screen (see “Install the app”) and open it from there.",
+        "unsupported": "This browser does not support notifications."
+      },
+      "err": {
+        "push-permiso": "Notification permission was not given.",
+        "push-no": "This device does not support notifications.",
+        "push-fallo": "The test notification could not be sent.",
+        "offline": "No connection to the server."
+      }
+    }
   },
   "onb": {
     "welcome": "Welcome",
@@ -356,6 +452,7 @@
       "Without an account, everything stays on this device. With an account, data is copied to the sync server you choose, encrypted in transit (HTTPS). Each family can only see its own data.",
       "There are no adverts, no third-party analytics and no in-app purchases. The app never handles money: stars are worth whatever the family decides.",
       "You can export all the data or delete it in Settings > Data and privacy. Deleting the account also deletes the server copy.",
+      "If you turn on notifications, the server sends the child’s name and the task to the adult’s phone, encrypted end to end through the browser’s notification service (Google, Apple or Mozilla), which cannot read them.",
       "Data controller: the person who runs the family's server. This notice is a draft and should be reviewed by a professional before the app is used with other families."
     ]
   },
