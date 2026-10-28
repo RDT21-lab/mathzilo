@@ -52,7 +52,7 @@ export async function playTest(page: Page, correct = true) {
     let clicked = false;
     for (const name of ['¡Entendido!', 'Siguiente', 'Seguimos', 'Ver resultado']) {
       const b = page.getByRole('button', { name }).first();
-      if (await b.isVisible().catch(() => false) && await b.isEnabled()) { await b.click(); clicked = true; break; }
+      if (await b.isVisible().catch(() => false) && await b.isEnabled({ timeout: 1000 }).catch(() => false)) { await b.click(); clicked = true; break; }
     }
     if (clicked) continue;
     if (await page.locator('.res').isVisible()) return;

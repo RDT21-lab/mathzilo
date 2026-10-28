@@ -74,11 +74,11 @@ export function balanceOf(events: Pick<StarEvent, 'amount'>[]): number {
 /** Día de la semana de una fecha AAAA-MM-DD (0 = domingo) */
 export const weekdayOf = (day: string) => new Date(day + 'T12:00:00Z').getUTCDay();
 export const ALL_DAYS = [0, 1, 2, 3, 4, 5, 6];
-/** Tareas que tocan ese día: activas, del día de la semana o de esa fecha, y si el niño tiene tareas ese día */
+/** Tareas que tocan ese día: activas, de esa fecha, o del día de la semana si el niño tiene tareas ese día.
+    Una tarea con fecha la ha puesto el padre a propósito: sale aunque ese día de la semana esté desconectado */
 export function tasksForDay(tasks: Task[], day: string, taskDays: number[] = ALL_DAYS): Task[] {
-  const wd = weekdayOf(day);
-  if (!taskDays.includes(wd)) return [];
-  return tasks.filter(t => t.kind === 'task' && t.active && !t.deleted && (t.date ? t.date === day : t.days.includes(wd)));
+  const wd = weekdayOf(day), on = taskDays.includes(wd);
+  return tasks.filter(t => t.kind === 'task' && t.active && !t.deleted && (t.date ? t.date === day : on && t.days.includes(wd)));
 }
 export interface BonusState { bonus: Task; tasks: Task[]; done: number; complete: boolean }
 /** Premios por conjunto que se juegan ese día y cuántas de sus tareas están ya aprobadas */

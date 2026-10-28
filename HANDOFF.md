@@ -50,6 +50,8 @@ Pedido por la familia piloto:
 - Servidor: tablas `tasks` y `checks` (última modificación gana); la tablet solo puede marcar `claimed` y nunca deshacer una aprobada; solo el padre crea apuntes `tarea` (validados contra la tarea y con un decimal como mucho). Base local Dexie v3.
 - Pruebas: `tests/tasks.test.ts` (reglas, decimales, flujo local, dos dispositivos, aviso cifrado descifrado y firma VAPID comprobada) y `e2e/tasks.spec.ts` (móvil + tablet reales). Accesibilidad y maquetación cubren las pantallas nuevas.
 - Pendiente: probar los avisos en un móvil real (Android Chrome e iPhone con la app instalada).
+- **v0.9.1 (28-10-2026), correcciones de la revisión**: el PIN de la tablet en modo padre se renueva con el uso (antes caducaba a los 5 min y el servidor rechazaba aprobaciones y tareas nuevas); los pasos de una tarea siempre ganan al anterior aunque los relojes no cuadren; lo que el servidor rechaza vuelve en local al estado del servidor (salvo la familia); una tarea con fecha sale aunque ese día de la semana esté desconectado; sin avisos de tareas en pausa o borradas.
+- Límites conocidos: aprobaciones hechas en la tablet sin conexión que tardan más de 5 min en sincronizar se rechazan (hay que repetirlas); un premio por conjunto cuyas tareas se aprueban en dos dispositivos antes de sincronizar no se paga solo.
 
 ## Cómo arrancar
 Desde `starmath-fase1/app` (en PowerShell o Git Bash):

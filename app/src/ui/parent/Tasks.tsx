@@ -62,7 +62,7 @@ export function TasksScreen({ family, toast }: { family: Family; toast: (m: stri
   const taskDays = kid.taskDays ?? ALL_DAYS;
   const tasks = data?.tasks.filter(x => x.kind === 'task') ?? [];
   const bonuses = data?.tasks.filter(x => x.kind === 'bonus') ?? [];
-  const dateTxt = new Date().toLocaleDateString(lang, { weekday: 'long', day: 'numeric', month: 'long' });
+  const dateTxt = new Date(today + 'T12:00:00').toLocaleDateString(lang, { weekday: 'long', day: 'numeric', month: 'long' });
   return (
     <div className="pbody">
       <h2>{t('parent.t.title')}</h2>

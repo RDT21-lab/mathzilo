@@ -26,6 +26,8 @@ const configChanged = () => configListeners.forEach(f => f());
 /* PIN del modo padre en la tablet: eleva los cambios de ajustes durante 5 minutos */
 let elevation: { pin: string; until: number } | null = null;
 export function elevate(pin: string | null) { elevation = pin ? { pin, until: Date.now() + 5 * 60_000 } : null; }
+/** Mientras el padre usa la tablet, el PIN sigue valiendo (el modo padre se cierra tras 5 minutos sin tocar nada) */
+export function keepElevated() { if (elevation) elevation.until = Date.now() + 5 * 60_000; }
 
 async function call(base: string, p: string, body: unknown, token?: string) {
   let r: Response;
@@ -120,8 +122,9 @@ async function doSync(opts: { import?: boolean }, full = false) {
   // lo que el servidor rechaza no puede quedarse en local: los dos dispositivos deben cuadrar
   let needFull = false;
   for (const r of res.rejected) {
-    if (IMMUTABLE.has(r.table)) await db.table(r.table).delete(r.id);
-    else needFull = true;
+    // la copia local es más reciente que la del servidor: se quita para que la recarga traiga la buena
+    if (r.table !== 'family') await db.table(r.table).delete(r.id);
+    if (!IMMUTABLE.has(r.table)) needFull = true;
   }
   await db.outbox.where('seq').belowOrEqual(maxSeq).delete();
   await setMeta('syncCursor', res.seq);

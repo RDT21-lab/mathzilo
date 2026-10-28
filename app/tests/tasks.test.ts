@@ -1,7 +1,7 @@
 /* Tareas: el padre las pone y las da por buenas (estrellas con un decimal y premios por conjunto);
    la tablet solo puede decir «hecha», y el móvil del padre recibe un aviso cifrado.            */
 import 'fake-indexeddb/auto';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import os from 'node:os';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -26,6 +26,8 @@ describe('reglas de las tareas', () => {
   });
   it('los días sin tareas del niño (fin de semana desconectado) no tienen ninguna', () => {
     expect(tasksForDay([task('perro', { days: ALL_DAYS })], '2026-10-31', [1, 2, 3, 4, 5])).toEqual([]);
+    // una tarea con fecha la ha puesto el padre para ese día: sale igualmente
+    expect(tasksForDay([task('excursion', { date: '2026-10-31', days: [] })], '2026-10-31', [1, 2, 3, 4, 5]).map(t => t.id)).toEqual(['excursion']);
   });
   it('premio por todas las tareas del día o por un grupo', () => {
     const ts = [task('a'), task('b'), task('c'), task('todas', { kind: 'bonus', days: ALL_DAYS }), task('ab', { kind: 'bonus', days: ALL_DAYS, taskIds: ['a', 'b'] })];
@@ -192,6 +194,38 @@ describe('tareas entre el móvil del padre y la tablet', () => {
     expect(bad.json.rejected.map((r: { error: string }) => r.error)).toEqual(['cantidad', 'tarea']);
     await on(phone, () => sync.syncNow());
     expect(await on(phone, () => repo.balance(childId))).toBe(1.5);
+  });
+
+  it('aunque el reloj de la tablet vaya una hora adelantado, la decisión del padre gana', async () => {
+    const t3 = await on(phone, async () => { const t = await repo.addTask({ childId, kind: 'task', title: 'Regar', stars: 1, days: ALL_DAYS }); await sync.syncNow(); return t; });
+    await on(tablet, () => sync.syncNow());
+    const clock = vi.spyOn(Date, 'now').mockReturnValue(Date.now() + 3600_000);
+    await on(tablet, () => repo.claimTask(t3.id, day));
+    clock.mockRestore();
+    await on(tablet, () => sync.syncNow());
+    await on(phone, async () => { await sync.syncNow(); await repo.approveTask(t3.id, day); await sync.syncNow(); });
+    await on(tablet, () => sync.syncNow());
+    expect((await on(tablet, () => db.checks.get(t3.id + ':' + day)))?.state).toBe('approved');
+    expect(await on(tablet, () => repo.balance(childId))).toBe(2.5);
+  });
+
+  it('en la tablet, lo que el servidor no acepta vuelve a como está en el servidor', async () => {
+    const t4 = await on(phone, async () => { const t = await repo.addTask({ childId, kind: 'task', title: 'Ordenar', stars: 1, days: ALL_DAYS }); await sync.syncNow(); return t; });
+    await on(tablet, async () => { await sync.syncNow(); await repo.claimTask(t4.id, day); await sync.syncNow(); });
+    // sin PIN, la tablet no puede aprobar: no se queda «aprobada» ni con las estrellas en local
+    await on(tablet, async () => { await repo.approveTask(t4.id, day); await sync.syncNow(); });
+    expect((await on(tablet, () => db.checks.get(t4.id + ':' + day)))?.state).toBe('claimed');
+    expect(await on(tablet, () => repo.balance(childId))).toBe(2.5);
+    // con el PIN puesto y el padre usándola más de 5 minutos, sí
+    sync.elevate('4321');
+    const t0 = Date.now(), clock = vi.spyOn(Date, 'now');
+    clock.mockReturnValue(t0 + 4 * 60_000); sync.keepElevated();
+    clock.mockReturnValue(t0 + 8 * 60_000);
+    await on(tablet, async () => { await repo.approveTask(t4.id, day); await sync.syncNow(); });
+    clock.mockRestore(); sync.elevate(null);
+    expect((await on(tablet, () => db.checks.get(t4.id + ':' + day)))?.state).toBe('approved');
+    await on(phone, () => sync.syncNow());
+    expect(await on(phone, () => repo.balance(childId))).toBe(3.5);
   });
 
   it('borrar al hijo borra también sus tareas en el servidor', async () => {

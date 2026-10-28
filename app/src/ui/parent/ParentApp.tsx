@@ -25,7 +25,7 @@ export function ParentApp({ family, onExit }: { family: Family; onExit: () => vo
   useEffect(() => { setLang(family.settings.lang); }, [family.settings.lang]);
   useEffect(() => {
     if (!unlocked) return;
-    const touch = () => { last.current = Date.now(); };
+    const touch = () => { last.current = Date.now(); sync.keepElevated(); };
     const iv = setInterval(() => { if (Date.now() - last.current > IDLE_MS) { setUnlocked(false); sync.elevate(null); } }, 10_000);
     window.addEventListener('pointerdown', touch); window.addEventListener('keydown', touch);
     return () => { clearInterval(iv); window.removeEventListener('pointerdown', touch); window.removeEventListener('keydown', touch); };

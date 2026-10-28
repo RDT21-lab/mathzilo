@@ -94,7 +94,7 @@ export function createApp({ dataDir, staticDir = null, now = () => Date.now(), f
     const job = Promise.all(subs.map(async ([k, s]) => {
       try {
         const status = await sendPush(s.sub, payloadFor(PUSH_TXT[s.lang] ?? PUSH_TXT.es), index.vapid, pushSubject, fetchImpl);
-        if (status === 404 || status === 410) { delete st.push[k]; save(st); }
+        if ((status === 404 || status === 410) && cache.get(st.id) === st) { delete st.push[k]; save(st); }   // no si la cuenta se borró
         return status < 300 ? 1 : 0;
       } catch { return 0; }
     })).then(r => r.reduce((a, b) => a + b, 0));
@@ -188,7 +188,7 @@ export function createApp({ dataDir, staticDir = null, now = () => Date.now(), f
       const task = st.rows.tasks[row.taskId]?.row;
       if (!task || task.childId !== row.childId || row.id !== row.taskId + ':' + row.day || !['claimed', 'approved', 'rejected'].includes(row.state)) return 'fila';
       if (role !== 'parent' && (row.state !== 'claimed' || prev?.state === 'approved')) return 'rol';   // la tablet solo dice «hecha»
-      if (row.state === 'claimed' && prev?.state !== 'claimed') ctx.claims.push(row);
+      if (row.state === 'claimed' && prev?.state !== 'claimed' && task.active && !task.deleted) ctx.claims.push(row);
       record(st, table, 'put', row.id, row);
       return null;
     }

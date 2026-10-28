@@ -244,12 +244,14 @@ export async function taskBoard(child: Pick<Child, 'id' | 'taskDays'>, day: stri
   return { day, items: todays.map(task => ({ task, check: checks.get(task.id) })), bonuses: bonusesForDay(tasks, day, approved, child.taskDays),
     approved: todays.filter(t => approved.has(t.id)).length, claimed: todays.filter(t => checks.get(t.id)?.state === 'claimed').length };
 }
+/** Cada paso de una tarea gana al anterior aunque el reloj de este dispositivo vaya por detrás del otro */
+const stamp = (prev?: TaskCheck) => Math.max(Date.now(), (prev?.updatedAt ?? 0) + 1);
 /** El niño dice que la ha hecho; el padre recibe el aviso */
 export async function claimTask(taskId: string, day: string) {
   const task = await db.tasks.get(taskId); if (!task) return;
   const id = checkId(taskId, day), prev = await db.checks.get(id), now = Date.now();
   if (prev?.state === 'approved' || prev?.state === 'claimed') return;
-  await put('checks', [{ id, taskId, childId: task.childId, day, state: 'claimed', claimedAt: now, updatedAt: now }]);
+  await put('checks', [{ id, taskId, childId: task.childId, day, state: 'claimed', claimedAt: now, updatedAt: stamp(prev) }]);
 }
 const noteArg = (s: string) => s.replace(/[;=]/g, ',');
 /** El padre la da por hecha: suma sus estrellas y, si completa un conjunto, el premio del conjunto */
@@ -257,7 +259,7 @@ export async function approveTask(taskId: string, day: string) {
   const task = await db.tasks.get(taskId); if (!task) return;
   const id = checkId(taskId, day), prev = await db.checks.get(id), now = Date.now();
   if (prev?.state === 'approved') return;
-  await put('checks', [{ id, taskId, childId: task.childId, day, state: 'approved', ...(prev?.claimedAt ? { claimedAt: prev.claimedAt } : {}), decidedAt: now, updatedAt: now }]);
+  await put('checks', [{ id, taskId, childId: task.childId, day, state: 'approved', ...(prev?.claimedAt ? { claimedAt: prev.claimedAt } : {}), decidedAt: now, updatedAt: stamp(prev) }]);
   const dev = await deviceId();
   const ev = (t: Task, key: string): StarEvent => ({ id: taskEventId(t.id, day), childId: t.childId, ts: now, day, type: 'tarea', amount: roundStars(t.stars),
     note: '@ev.' + key + ';n=' + noteArg(t.title), by: 'parent', device: dev });
@@ -273,7 +275,7 @@ export async function rejectTask(taskId: string, day: string) {
   const task = await db.tasks.get(taskId); if (!task) return;
   const id = checkId(taskId, day), prev = await db.checks.get(id), now = Date.now();
   if (prev?.state === 'approved') return;
-  await put('checks', [{ id, taskId, childId: task.childId, day, state: 'rejected', ...(prev?.claimedAt ? { claimedAt: prev.claimedAt } : {}), decidedAt: now, updatedAt: now }]);
+  await put('checks', [{ id, taskId, childId: task.childId, day, state: 'rejected', ...(prev?.claimedAt ? { claimedAt: prev.claimedAt } : {}), decidedAt: now, updatedAt: stamp(prev) }]);
 }
 /** Tareas que esperan la decisión del padre (de cualquier día), las más antiguas primero */
 export async function pendingChecks(): Promise<{ check: TaskCheck; task?: Task; child?: Child }[]> {
