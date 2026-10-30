@@ -1,5 +1,5 @@
 /* Piezas comunes: escalado del diseño, consultas en vivo a la base de datos, iconos y mascota. */
-import { useEffect, useLayoutEffect, useState, type ReactNode } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { liveQuery } from 'dexie';
 import M from '../mascots/mascots.js';
 import type { Child } from '../data/types';
@@ -16,23 +16,29 @@ export function useLive<T>(fn: () => Promise<T>, deps: unknown[], initial: T): T
   return v;
 }
 
-function useViewport() {
+/** Tamaño del escenario: la pantalla menos las zonas que tapan la cámara, la isla dinámica o la barra de inicio */
+function useStage() {
+  const ref = useRef<HTMLDivElement>(null);
   const [vp, setVp] = useState({ w: window.innerWidth, h: window.innerHeight });
   useLayoutEffect(() => {
-    const f = () => setVp({ w: window.innerWidth, h: window.innerHeight });
+    const el = ref.current!;
+    const f = () => setVp({ w: el.clientWidth || window.innerWidth, h: el.clientHeight || window.innerHeight });
+    f();
+    const ro = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(f);
+    ro?.observe(el);
     window.addEventListener('resize', f);
     window.visualViewport?.addEventListener('resize', f);
-    return () => { window.removeEventListener('resize', f); window.visualViewport?.removeEventListener('resize', f); };
+    return () => { ro?.disconnect(); window.removeEventListener('resize', f); window.visualViewport?.removeEventListener('resize', f); };
   }, []);
-  return vp;
+  return { ref, ...vp };
 }
 
 /** Tablet del niño: diseño 1024×680 escalado para caber entero (bandas si sobra) */
 export function KidStage({ children, big }: { children: ReactNode; big?: boolean }) {
-  const { w, h } = useViewport();
+  const { ref, w, h } = useStage();
   const s = Math.min(w / 1024, h / 680);
   return (
-    <div className="stage">
+    <div className="stage" ref={ref}>
       <div className={'device kid' + (big ? ' big' : '')} style={{ width: 1024, height: 680, transform: `scale(${s})`, left: (w - 1024 * s) / 2, top: (h - 680 * s) / 2 }}>
         {children}
       </div>
@@ -41,11 +47,11 @@ export function KidStage({ children, big }: { children: ReactNode; big?: boolean
 }
 /** Móvil del padre: 390 de ancho escalado al ancho de la pantalla; el alto se adapta */
 export function ParentStage({ children }: { children: ReactNode }) {
-  const { w, h } = useViewport();
+  const { ref, w, h } = useStage();
   const s = Math.min(w / 390, 1.5, h / 640);
   const width = Math.min(390, w / s);
   return (
-    <div className="stage">
+    <div className="stage" ref={ref}>
       <div className="device parent" style={{ width, height: h / s, transform: `scale(${s})`, left: (w - width * s) / 2, top: 0 }}>
         {children}
       </div>
