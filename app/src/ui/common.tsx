@@ -33,13 +33,18 @@ function useStage() {
   return { ref, ...vp };
 }
 
-/** Tablet del niño: diseño 1024×680 escalado para caber entero (bandas si sobra) */
+/** Tablet del niño. En horizontal: diseño 1024×680 escalado para caber entero (bandas si sobra).
+ *  En vertical: 680 de ancho y el alto que tenga la pantalla (entre 860 y 1240), con las columnas apiladas. */
 export function KidStage({ children, big }: { children: ReactNode; big?: boolean }) {
   const { ref, w, h } = useStage();
-  const s = Math.min(w / 1024, h / 680);
+  const portrait = h > w * 1.05;
+  const W = portrait ? 680 : 1024;
+  const H = portrait ? Math.round(Math.min(1240, Math.max(860, (W * h) / w))) : 680;
+  const s = Math.min(w / W, h / H);
   return (
     <div className="stage" ref={ref}>
-      <div className={'device kid' + (big ? ' big' : '')} style={{ width: 1024, height: 680, transform: `scale(${s})`, left: (w - 1024 * s) / 2, top: (h - 680 * s) / 2 }}>
+      <div className={'device kid' + (portrait ? ' portrait' : '') + (big ? ' big' : '')}
+           style={{ width: W, height: H, transform: `scale(${s})`, left: (w - W * s) / 2, top: (h - H * s) / 2 }}>
         {children}
       </div>
     </div>

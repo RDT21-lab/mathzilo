@@ -53,6 +53,18 @@ Pedido por la familia piloto:
 - **v0.9.1 (28-10-2026), correcciones de la revisión**: el PIN de la tablet en modo padre se renueva con el uso (antes caducaba a los 5 min y el servidor rechazaba aprobaciones y tareas nuevas); los pasos de una tarea siempre ganan al anterior aunque los relojes no cuadren; lo que el servidor rechaza vuelve en local al estado del servidor (salvo la familia); una tarea con fecha sale aunque ese día de la semana esté desconectado; sin avisos de tareas en pausa o borradas.
 - Límites conocidos: aprobaciones hechas en la tablet sin conexión que tardan más de 5 min en sincronizar se rechazan (hay que repetirlas); un premio por conjunto cuyas tareas se aprueban en dos dispositivos antes de sincronizar no se paga solo.
 
+## Estado (03-11-2026): ajustes del piloto (v0.9.3)
+- **Premios del test a 0 por defecto**: bonus al aprobar (10/15/20), test perfecto y rachas (3/7/14/30) empiezan en 0 en las familias nuevas; cada «+» sube **0,5** (medias estrellas). Las tareas no cambian (siguen con sus propias estrellas). Las familias ya creadas conservan sus valores: se bajan a mano en Ajustes → Estrellas.
+- **Fuera las estrellas por acierto**: se quita «Por acierto» de los ajustes, el «+1 ★» tras cada respuesta y la frase «Cada acierto es una estrella». Un premio a 0 no sale en el resultado. El servidor rechaza apuntes `@ev.aciertos` de tablets con la versión anterior (error `aciertos`); los apuntes antiguos se quedan en el historial.
+- **Tablet en vertical**: `KidStage` dibuja a 680 de ancho y el alto de la pantalla (860–1240) y añade `.portrait`; los perfiles van uno debajo de otro (en horizontal, uno al lado del otro) y cada pantalla apila sus columnas (estilos al final de `styles/app-extra.css`). La tablet puede girar en cualquier momento.
+- Pruebas: reglas de estrellas con medias estrellas, rechazo de aciertos en el servidor, e2e de los ajustes (0 → 0,5 → 1) y maquetación en vertical (iPad 768×1024 y Android 800×1280; DE y ES, letra normal y grande). Las pruebas que cuentan estrellas ponen sus premios con `setTestRules`.
+
+## Estado (03-11-2026): versión oficial 1.0.0
+- **Fuera el resumen del piloto** (y sus notas). Las marcas «No lo entiendo» ahora se ven en el panel, en la ficha de cada hijo («Explicaciones que no entendió», últimas 4 semanas). La exportación ya no incluye notas del piloto. Se borra `docs/piloto.md`; el paso 10 de `docs/lanzamiento-paso-a-paso.md` pasa a ser «Primeras semanas de uso».
+- **Auditoría del servidor**: una dirección mal formada (`/%zz`) tumbaba el proceso (ahora 400); la comprobación de la carpeta de la app dejaba leer carpetas hermanas cuyo nombre empezase por `dist`; sin límite de intentos en el inicio de sesión ni en el código de vinculación de 6 cifras: ahora 10 contraseñas mal por email o 30 códigos mal en el servidor bloquean 15 min (error `intentos`) y la contraseña se compara en tiempo constante.
+- App: el historial de tests del panel muestra las medias estrellas con coma.
+- Pruebas: 108 unitarias y 33 de punta a punta en verde.
+
 ## Cómo arrancar
 Desde `starmath-fase1/app` (en PowerShell o Git Bash):
 ```

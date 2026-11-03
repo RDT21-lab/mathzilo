@@ -10,6 +10,7 @@ import type { AddressInfo } from 'node:net';
 import { StarDB, useDatabase, db } from '../src/data/db';
 import * as repo from '../src/data/repo';
 import * as sync from '../src/sync/client';
+import { DEFAULT_RULES } from '../src/engine';
 // @ts-expect-error módulo JS del servidor
 import { createApp } from '../server/sync-server.mjs';
 
@@ -45,6 +46,8 @@ describe('sincronización entre móvil y tablet', () => {
   it('alta del padre, subida inicial y vinculación de la tablet', async () => {
     await on(phone, async () => {
       await repo.createFamily({ lang: 'es', pin: '4321', children: [{ name: 'Sara', kind: 'zorro', petName: 'Nova', level: 3, lang: 'es' }] });
+      // los premios del test empiezan a 0: aquí se ponen con medias estrellas
+      await repo.updateSettings({ rules: { ...DEFAULT_RULES, passBonus: { 10: 4.5, 15: 6, 20: 7 }, perfect: 2.5 } });
       // un canje hecho antes de tener cuenta también sube (importación inicial)
       await play(phone, 9);
       await repo.redeemLocal((await db.children.toArray())[0].id, 3, 'Cromos');
@@ -55,7 +58,7 @@ describe('sincronización entre móvil y tablet', () => {
     await on(tablet, () => sync.pairClaim(url, code));
     expect(await on(tablet, () => db.children.count())).toBe(1);
     expect(await bal(tablet)).toBe(await bal(phone));
-    expect(await bal(phone)).toBe(9 + 2 - 3);
+    expect(await bal(phone)).toBe(4.5 - 3);
   });
 
   it('test en modo avión + canje del padre → mismo saldo en los dos', async () => {
@@ -66,19 +69,19 @@ describe('sincronización entre móvil y tablet', () => {
     const r = await play(tablet, 8);
     expect(r.score.total).toBeGreaterThan(0);
     const tabletBal = await bal(tablet);
-    expect(tabletBal).toBe(8 + 8 + 2);
-    expect(await bal(phone)).toBe(8);                          // el móvil aún no lo sabe
+    expect(tabletBal).toBe(1.5 + 4.5);
+    expect(await bal(phone)).toBe(1.5);                          // el móvil aún no lo sabe
     // vuelve la conexión
     await on(tablet, () => sync.syncNow());
     await on(phone, () => sync.syncNow());
     expect(await bal(phone)).toBe(tabletBal);
     // canje del padre desde el móvil, validado en el servidor
     const childId = await on(phone, async () => (await db.children.toArray())[0].id);
-    await on(phone, () => sync.redeemRemote(childId, 10, 'Helado', '4321'));
+    await on(phone, () => sync.redeemRemote(childId, 4, 'Helado', '4321'));
     await on(tablet, () => sync.syncNow());
     await on(phone, () => sync.syncNow());
-    expect(await bal(phone)).toBe(tabletBal - 10);
-    expect(await bal(tablet)).toBe(tabletBal - 10);
+    expect(await bal(phone)).toBe(tabletBal - 4);
+    expect(await bal(tablet)).toBe(tabletBal - 4);
     Date.now = realNow; fakeNow = null;
   });
 
@@ -95,12 +98,12 @@ describe('sincronización entre móvil y tablet', () => {
     const res = await rawSync(token, { since: 0, tz: 0, dayStart: 4, push: [
       { table: 'events', op: 'put', row: { id: 'x1', childId, ts: Date.now(), day: '2026-01-01', type: 'ajuste', amount: 500, note: 'truco', by: 'parent', device: 'x' } },
       { table: 'events', op: 'put', row: { id: 'x2', childId, ts: Date.now(), day: '2026-01-01', type: 'test', amount: 50, note: 'truco', by: 'child', device: 'x' } },
-      { table: 'family', op: 'put', row: { id: 'family', updatedAt: Date.now() + 1e9, settings: { rules: { perCorrect: 100 } } } }
+      { table: 'family', op: 'put', row: { id: 'family', updatedAt: Date.now() + 1e9, settings: { rules: { passPct: 5 } } } }
     ] });
     expect(res.rejected.map((r: { error: string }) => r.error).sort()).toEqual(['rol', 'sin-sesion', 'solo-servidor']);
     await on(phone, () => sync.syncNow());
     expect(await bal(phone)).toBe(before);
-    expect(await on(phone, async () => (await repo.getFamily())!.settings.rules.perCorrect)).toBe(1);
+    expect(await on(phone, async () => (await repo.getFamily())!.settings.rules.passPct)).toBe(70);
   });
 
   it('el segundo test del día no da estrellas aunque la tablet lo intente', async () => {
@@ -108,11 +111,21 @@ describe('sincronización entre móvil y tablet', () => {
     const childId = await on(tablet, async () => (await db.children.toArray())[0].id);
     const now = Date.now() - 3 * 86400_000, day = new Date(now - 4 * 3600_000).toISOString().slice(0, 10);   // un día sin tests
     const ses = (id: string) => ({ id, childId, startedAt: now, endedAt: now, day, length: 10, level: 3, correct: 10, stars: 15, passed: true, practice: false, fast: false, device: 'x' });
-    const ev = (id: string, sid: string) => ({ id, childId, ts: now, day, type: 'test', amount: 10, note: '', by: 'child', device: 'x', sessionId: sid });
+    const ev = (id: string, sid: string) => ({ id, childId, ts: now, day, type: 'test', amount: 4.5, note: '', by: 'child', device: 'x', sessionId: sid });
     const res = await rawSync(token, { since: 0, tz: 0, dayStart: 4, push: [
       { table: 'sessions', op: 'put', row: ses('s-a') }, { table: 'events', op: 'put', row: ev('e-a', 's-a') },
       { table: 'sessions', op: 'put', row: ses('s-b') }, { table: 'events', op: 'put', row: ev('e-b', 's-b') }] });
     expect(res.rejected.map((r: { error: string }) => r.error)).toEqual(['segundo-test']);
+  });
+
+  it('los aciertos ya no dan estrellas aunque la tablet antigua lo intente', async () => {
+    const token = await cfgToken(tablet);
+    const childId = await on(tablet, async () => (await db.children.toArray())[0].id);
+    const now = Date.now() - 4 * 86400_000, day = new Date(now - 4 * 3600_000).toISOString().slice(0, 10);
+    const res = await rawSync(token, { since: 0, tz: 0, dayStart: 4, push: [
+      { table: 'sessions', op: 'put', row: { id: 's-c', childId, startedAt: now, endedAt: now, day, length: 10, level: 3, correct: 8, stars: 8, passed: true, practice: false, fast: false, device: 'x' } },
+      { table: 'events', op: 'put', row: { id: 'e-c', childId, ts: now, day, type: 'test', amount: 1, note: '@ev.aciertos;n=8;t=10', by: 'child', device: 'x', sessionId: 's-c' } }] });
+    expect(res.rejected.map((r: { error: string }) => r.error)).toEqual(['aciertos']);
   });
 
   it('reloj de la tablet adelantado: el servidor fija la fecha', async () => {

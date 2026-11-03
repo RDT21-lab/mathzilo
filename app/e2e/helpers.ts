@@ -28,7 +28,7 @@ export async function onboard(page: Page, kids: { name: string; level: number }[
 }
 
 /** Lo que tiene que pulsar el niño para la pregunta en pantalla (calculado con el motor) */
-async function currentAnswer(page: Page, correct: boolean) {
+export async function currentAnswer(page: Page, correct: boolean) {
   return page.evaluate(async (correct) => {
     const sm = (window as unknown as { __sm: any }).__sm;
     for (const k of await sm.db.children.toArray()) {
@@ -97,4 +97,13 @@ export async function addTasks(page: Page) {
     await sm.repo.addTask({ childId: kid.id, kind: 'bonus', title: 'Todas las tareas del día', stars: 3, days: all });
     await sm.repo.claimTask(a.id, day); await sm.repo.approveTask(a.id, day); await sm.repo.claimTask(b.id, day);
   });
+}
+
+/** Los premios del test empiezan a 0: las pruebas que cuentan estrellas ponen 12 por aprobar 10 y 3 por perfecto */
+export async function setTestRules(page: Page, patch: Record<string, unknown> = { passBonus: { 10: 12, 15: 0, 20: 0 }, perfect: 3 }) {
+  await page.evaluate(async (patch) => {
+    const sm = (window as unknown as { __sm: any }).__sm;
+    const fam = await sm.repo.getFamily();
+    await sm.repo.updateSettings({ rules: { ...fam.settings.rules, ...patch } });
+  }, patch);
 }

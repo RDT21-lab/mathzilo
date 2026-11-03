@@ -132,9 +132,6 @@
 .fbbtns { display: flex; gap: 10px; margin-top: auto; flex: none; }
 .fbbtns .btn { flex: 1; min-height: 60px; font-size: 19px; padding: 0 14px; }
 .fbcard .fbbtns .btn { margin-top: 0; width: auto; }
-.pilot { cursor: default; }
-.pilothd { background: none; border: 0; text-align: left; display: flex; flex-direction: column; gap: 2px; padding: 0; cursor: pointer; font: inherit; color: inherit; min-height: 48px; }
-.pilothd b { font-size: 17px; }
 .howto { margin: 4px 0; padding-left: 22px; font-size: 14px; color: var(--muted); display: flex; flex-direction: column; gap: 4px; }
 .okline { color: var(--ok); margin: 0; font-weight: 700; }
 .small { font-size: 13px; }
@@ -218,3 +215,67 @@
 .taskrow { flex-wrap: wrap; }
 .taskrow .tx { flex: 1 1 150px; }
 .taskrow .st { margin-left: auto; }
+
+/* ---------- Tablet en vertical (v0.9.3) ----------
+   KidStage dibuja a 680 de ancho y con el alto de la pantalla (860-1240) y añade .portrait:
+   las columnas de cada pantalla se apilan y los perfiles van uno debajo de otro. */
+.portrait .tscr { padding: 24px 32px 28px; }
+.portrait .top:has(.r) .wm { display: none; }
+.portrait .ttl { font-size: 42px; }
+/* perfiles: tarjetas horizontales, una debajo de otra */
+.portrait .pcards { flex-direction: column; align-items: stretch; gap: 18px; padding: 10px 0 80px; }
+.portrait .pcard { width: 100%; height: auto; flex: 0 1 auto; display: grid; grid-template-columns: 124px minmax(0, 1.1fr) minmax(0, 1fr);
+                   grid-template-rows: auto auto auto; column-gap: 20px; row-gap: 6px; align-items: center; justify-items: start; text-align: left; padding: 18px 24px; }
+.portrait .pcard:hover, .portrait .pcard:focus-visible { transform: translateY(-3px); }
+.portrait .pcard .mascot { grid-column: 1; grid-row: 1 / span 3; }
+.portrait .pcard .nm { grid-column: 2; grid-row: 1; overflow-wrap: anywhere; }
+.portrait .pcard .row { grid-column: 2; grid-row: 2; justify-content: flex-start; }
+.portrait .pcard .pstar { grid-column: 2; grid-row: 3; }
+.portrait .pcard .pinfo { grid-column: 3; grid-row: 1 / span 3; align-self: center; padding: 0; margin: 0; gap: 4px; }
+.portrait .pcard .pinfo .pl:first-child { border-top: 0; }
+/* inicio: la mascota arriba (con el bocadillo al lado) y las tarjetas debajo */
+.portrait .home { grid-template-columns: 1fr; grid-template-rows: minmax(250px, 1fr) auto; gap: 16px; }
+.portrait .stagepane { container-type: size; }
+.portrait .stagepane .planet { left: 18px; margin-left: 0; width: 210px; height: 210px; bottom: 28px; }
+.portrait .stagepane .mascot { left: 8px; margin-left: 0; width: 230px; height: 230px; bottom: 36px; }
+.portrait .stagepane .nametag { left: 123px; }
+.portrait .bubble { left: 262px; right: 0; top: auto; bottom: 110px; }
+.portrait .bubble::after { left: -14px; bottom: 26px; border: 14px solid transparent; border-right-color: var(--bone); border-left: 0; }
+@container (min-height: 380px) {
+  .portrait .stagepane .planet { width: 290px; height: 290px; }
+  .portrait .stagepane .mascot { width: 310px; height: 310px; }
+  .portrait .stagepane .nametag { left: 163px; }
+  .portrait .bubble { left: 336px; bottom: 150px; }
+}
+.portrait .rcol { gap: 12px; }
+/* cuántas preguntas: tarjetas en fila, una debajo de otra */
+.portrait .lens { flex-direction: column; gap: 16px; padding: 20px 0 16px; }
+.portrait .lencard { width: 100%; flex: 1 1 0; display: grid; grid-template-columns: 140px 1fr; grid-auto-rows: auto; align-content: center;
+                     justify-items: start; column-gap: 20px; row-gap: 6px; padding: 12px 28px; text-align: left; }
+.portrait .lencard:hover:not([disabled]), .portrait .lencard:focus-visible { transform: translateY(-3px); }
+.portrait .lencard .n { grid-row: 1 / span 3; justify-self: center; }
+.portrait .lencard > :not(.n) { grid-column: 2; }
+/* pregunta: el enunciado arriba y las respuestas debajo */
+.portrait .qgrid { grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr) minmax(430px, 1.1fr); gap: 18px; }
+.portrait .qcard .mascot { width: 76px; height: 76px; left: auto; right: 12px; top: 8px; bottom: auto; }
+.portrait .qvis { margin-top: 30px; min-height: 0; }
+.portrait .qvis svg { max-height: 190px; width: auto; }
+.portrait .count { min-width: 0; }
+/* resultado */
+.portrait .res { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); gap: 14px; margin-top: 6px; }
+.portrait .resl .mascot { width: 170px; height: 170px; }
+.portrait .resl h2 { font-size: 34px; }
+.portrait .resr { overflow-y: auto; }
+/* mascota: la mascota con su nombre arriba y las etapas debajo */
+.portrait .mas { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); gap: 16px; }
+.portrait .masl { display: grid; grid-template-columns: 240px minmax(0, 1fr); grid-template-rows: 1fr auto auto 1fr; column-gap: 20px; row-gap: 14px;
+                  align-items: center; justify-items: start; min-height: 250px; }
+.portrait .masl .planet { position: absolute; left: 10px; top: 14px; bottom: auto; margin-left: 0; width: 220px; height: 220px; }
+.portrait .masl .mascot { grid-column: 1; grid-row: 1 / span 4; width: 240px; height: 240px; margin: 0; }
+.portrait .masl .nameedit { grid-column: 2; grid-row: 2; }
+.portrait .masl .emos { grid-column: 2; grid-row: 3; flex-wrap: wrap; }
+.portrait .masr { overflow-y: auto; }
+.portrait .step .mascot { width: 64px; height: 64px; }
+/* hojas */
+.portrait .sheetbox { width: 616px; max-height: 88%; }
+.portrait .langs { grid-template-columns: repeat(2, 1fr); }

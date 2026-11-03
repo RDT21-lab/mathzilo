@@ -272,7 +272,7 @@ button.pill:hover { background: var(--card-raised); }
 .stepper { display: flex; align-items: center; gap: 6px; flex: none; }
 .stepper button { width: 44px; height: 44px; border-radius: 12px; border: 2px solid var(--line); background: transparent; font-size: 22px; font-weight: 700; cursor: pointer; line-height: 1; }
 .stepper button:hover { border-color: var(--muted); }
-.stepper b { min-width: 34px; text-align: center; font-size: 18px; }
+.stepper b { min-width: 46px; text-align: center; font-size: 18px; }
 .segs { display: inline-flex; gap: 4px; background: var(--navy); padding: 4px; border-radius: 12px; }
 .segs button { border: 0; background: transparent; color: var(--muted); border-radius: 9px; min-height: 40px; padding: 0 14px; font-size: 15px; font-weight: 500; cursor: pointer; }
 .segs button[aria-pressed="true"] { background: var(--gold); color: var(--gold-ink); font-weight: 700; }

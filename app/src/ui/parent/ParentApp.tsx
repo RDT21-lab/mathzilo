@@ -11,7 +11,7 @@ import * as sync from '../../sync/client';
 import { useT, setLang, noteText, fmtNum, rawRes } from '../../i18n';
 import { Icon, Mascot, ParentStage, useLive, useToast, Toast } from '../common';
 import markUrl from '../../assets/mark.svg';
-import { downloadExport, ExportReminder, InstallSection, PilotSummary, RestoreBackup } from './Extras';
+import { downloadExport, ExportReminder, InstallSection, RestoreBackup } from './Extras';
 import { ReviewBox, TasksScreen, usePendingCount } from './Tasks';
 
 type Screen = 'panel' | 'tasks' | 'redeem' | 'settings';
@@ -161,9 +161,14 @@ function useKids(family: Family) {
       recent.filter(a => !a.ok).forEach(a => { errors[a.tag] = (errors[a.tag] ?? 0) + 1; });
       const avg = answers.length ? answers.slice(-100).reduce((s, a) => s + a.ms, 0) / Math.min(100, answers.length) / 1000 : 0;
       const lastTest = sessions.filter(s => (s.serverDay ?? s.day) === today).sort((a, b) => b.endedAt - a.endedAt)[0];
+      // explicaciones en las que pulsó «No lo entiendo» (últimas 4 semanas)
+      const flagCount: Record<string, number> = {};
+      (await db.flags.where('childId').equals(c.id).toArray()).filter(f => f.ts > Date.now() - 28 * 86400_000)
+        .forEach(f => { const k = f.gen + '|' + f.tag; flagCount[k] = (flagCount[k] ?? 0) + 1; });
+      const flags = Object.entries(flagCount).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([k, n]) => ({ gen: k.split('|')[0], tag: k.split('|')[1], n }));
       const dismissed = await db.meta.get('sugDismiss:' + c.id);
       const sug = levelSuggestion(sessions.filter(s => s.endedAt > ((dismissed?.value as number) ?? 0)), c.level);
-      return { c, streak, bal: balanceOf(events), mastery, errors, avg, lastTest, sug, sessions, today, board: await repo.taskBoard(c, today) };
+      return { c, streak, bal: balanceOf(events), mastery, errors, flags, avg, lastTest, sug, sessions, today, board: await repo.taskBoard(c, today) };
     }));
   }, [family], []);
 }
@@ -221,12 +226,18 @@ function Panel({ family, toast }: { family: Family; toast: (m: string) => void }
                 </div>
                 <div className="caps">{t('parent.errors')}</div>
                 <div className="chips2">{errs.length ? errs.map(([tag, n]) => <span key={tag} className="chip bad">{t('tagName.' + tag)} · {n}</span>) : <span className="muted">{t('parent.noErrors')}</span>}</div>
+                {k.flags.length > 0 && (
+                  <>
+                    <div className="caps">{t('parent.flagged')}</div>
+                    <div className="hist">{k.flags.map(f => <div className="led" key={f.gen + f.tag}><span>{t('skill.' + f.gen)} · {t('tagName.' + f.tag)}</span><b>{f.n}</b></div>)}</div>
+                  </>
+                )}
                 <div className="caps">{t('parent.calendar')}</div>
                 <Calendar states={k.streak.states} today={k.today} />
                 <div className="caps">{t('parent.lastTests')}</div>
                 <div className="hist">
                   {k.sessions.sort((a, b) => b.endedAt - a.endedAt).slice(0, 5).map(s => (
-                    <div className="led" key={s.id}><span>{new Date(s.endedAt).toLocaleDateString(family.settings.lang, { day: 'numeric', month: 'short' })} · {t('kid.level', { n: s.level })} · {s.correct}/{s.length}{s.practice ? ' · ' + t('parent.practice') : ''}{s.fast ? ' · ' + t('parent.fast') : ''}</span><b className="gold">+{s.stars} ★</b></div>
+                    <div className="led" key={s.id}><span>{new Date(s.endedAt).toLocaleDateString(family.settings.lang, { day: 'numeric', month: 'short' })} · {t('kid.level', { n: s.level })} · {s.correct}/{s.length}{s.practice ? ' · ' + t('parent.practice') : ''}{s.fast ? ' · ' + t('parent.fast') : ''}</span><b className="gold">+{fmtNum(s.stars)} ★</b></div>
                   ))}
                 </div>
               </>
@@ -234,7 +245,6 @@ function Panel({ family, toast }: { family: Family; toast: (m: string) => void }
           </div>
         );
       })}
-      <PilotSummary family={family} />
     </div>
   );
 }
@@ -393,9 +403,9 @@ function Stepper({ value, label, sub, onChange, min, max, step = 1, fmt }: { val
   return (
     <div className="srow"><span className="lb">{label}{sub && <small>{sub}</small>}</span>
       <span className="stepper">
-        <button onClick={() => onChange(Math.max(min, value - step))} aria-label={t('common.less')}>−</button>
-        <b>{fmt ? fmt(value) : value}</b>
-        <button onClick={() => onChange(Math.min(max, value + step))} aria-label={t('common.more')}>+</button>
+        <button onClick={() => onChange(roundStars(Math.max(min, value - step)))} aria-label={t('common.less')}>−</button>
+        <b>{fmt ? fmt(value) : fmtNum(value)}</b>
+        <button onClick={() => onChange(roundStars(Math.min(max, value + step)))} aria-label={t('common.more')}>+</button>
       </span>
     </div>
   );
@@ -440,11 +450,11 @@ function SettingsScreen({ family, toast, onExit }: { family: Family; toast: (m: 
           : <button className="pbtn line" onClick={() => setAdding(true)}>{t('parent.addChild')}</button>)}
       </section>
       <section className="sect"><h3>{t('parent.s.stars')}</h3>
-        <Stepper label={t('parent.perCorrect')} value={R.perCorrect} min={1} max={5} onChange={v => setRules({ perCorrect: v })} />
-        <Stepper label={t('parent.passPct')} sub={t('parent.passPctSub')} value={R.passPct} min={50} max={100} step={5} fmt={v => v + ' %'} onChange={v => setRules({ passPct: v })} />
-        {[10, 15, 20].map(n => <Stepper key={n} label={t('parent.pb', { n })} value={R.passBonus[n]} min={0} max={20} onChange={v => setRules({ passBonus: { ...R.passBonus, [n]: v } })} />)}
-        <Stepper label={t('parent.perfect')} value={R.perfect} min={0} max={20} onChange={v => setRules({ perfect: v })} />
-        {[3, 7, 14, 30].map(n => <Stepper key={n} label={t('parent.sb', { n })} value={R.streakBonus[n]} min={0} max={200} step={n === 30 ? 5 : 1} onChange={v => setRules({ streakBonus: { ...R.streakBonus, [n]: v } })} />)}
+        <p className="muted small" style={{ margin: '0 0 4px' }}>{t('parent.starsLead')}</p>
+        <Stepper label={t('parent.passPct')} sub={t('parent.passPctSub')} value={R.passPct} min={50} max={100} step={5} fmt={v => fmtNum(v) + ' %'} onChange={v => setRules({ passPct: v })} />
+        {[10, 15, 20].map(n => <Stepper key={n} label={t('parent.pb', { n })} value={R.passBonus[n] ?? 0} min={0} max={20} step={0.5} onChange={v => setRules({ passBonus: { ...R.passBonus, [n]: v } })} />)}
+        <Stepper label={t('parent.perfect')} value={R.perfect ?? 0} min={0} max={20} step={0.5} onChange={v => setRules({ perfect: v })} />
+        {[3, 7, 14, 30].map(n => <Stepper key={n} label={t('parent.sb', { n })} value={R.streakBonus[n] ?? 0} min={0} max={200} step={0.5} onChange={v => setRules({ streakBonus: { ...R.streakBonus, [n]: v } })} />)}
         <div className="srow"><span className="lb">{t('parent.maxLenAll')}</span><Segs value={R.maxLen} options={[[10, '10'], [15, '15'], [20, '20']]} onChange={v => setRules({ maxLen: v })} /></div>
       </section>
       <section className="sect"><h3>{t('parent.s.rewards')}</h3>

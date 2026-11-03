@@ -1,4 +1,4 @@
-/* Modo niño (tablet en horizontal): perfiles → inicio → longitud → preguntas → resultado.
+/* Modo niño (tablet en horizontal o en vertical): perfiles → inicio → longitud → preguntas → resultado.
    Un solo objetivo por pantalla, botones de 56 px o más, sin rojo ni sonido de fallo.     */
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { db } from '../../data/db';
@@ -266,7 +266,7 @@ function Length({ child, family, onBack, onStart, onSheet }: { child: Child; fam
             <button key={n} className="lencard pop" style={{ ['--i' as string]: i }} disabled={dis} onClick={() => onStart(n)}>
               <span className="n">{n}</span><span className="u">{t('kid.questions')}</span>
               <span className="muted">{dis ? t('kid.limited') : t('kid.minutes', { n: Math.round(n * 0.5) })}</span>
-              {!practice && !dis && <span className="chip gold"><Icon name="star" size={16} />{t('kid.bonus', { n: family.settings.rules.passBonus[n] ?? 0 })}</span>}
+              {!practice && !dis && (family.settings.rules.passBonus[n] ?? 0) > 0 && <span className="chip gold"><Icon name="star" size={16} />{t('kid.bonus', { n: fmtNum(family.settings.rules.passBonus[n]) })}</span>}
             </button>
           );
         })}
@@ -401,7 +401,7 @@ function QuestionScreen({ child, active: initial, onPause, onDone, toast }: { ch
     right = (
       <div className="fbcard ok">
         <div className="big"><Icon name="check" size={44} /> {t('praise.' + (shown % 6))}</div>
-        {active.practice ? <p className="muted">{t('kid.practiceOk')}</p> : <div className="stars-plus">+1 ★</div>}
+        {active.practice && <p className="muted">{t('kid.practiceOk')}</p>}
         <p>{t('kid.okSay', { pet: child.petName })}</p>
         <button className="btn btn-gold" onClick={next} disabled={busy}>{last ? t('kid.seeResult') : t('kid.next')}<Icon name="arrow" size={26} /></button>
       </div>
@@ -516,11 +516,11 @@ function Result({ child, family, r, onGo, onSheet }: { child: Child; family: Fam
           {s.practice ? <div className="rw"><span>{t('kid.practiceRow')}</span><b>0 ★</b></div>
             : s.items.map((it, i) => (
               <div key={it.id} className={'rw rise' + (it.id === 'racha' ? ' hl' : '')} style={{ ['--i' as string]: i + 1 }}>
-                <span>{t('res.' + it.id, { n: it.n, p: family.settings.rules.perCorrect, d: it.days })}</span><b>+{it.stars} ★</b>
+                <span>{t('res.' + it.id, { d: it.days })}</span><b>+{fmtNum(it.stars)} ★</b>
               </div>
             ))}
           {s.fast && <div className="rw"><span className="muted">{t('kid.fastRow')}</span><b className="muted">—</b></div>}
-          <div className="tot"><span>{t('kid.total')}</span><b>+{s.total} ★</b></div>
+          <div className="tot"><span>{t('kid.total')}</span><b>+{fmtNum(s.total)} ★</b></div>
           {r.stageAfter > r.stageBefore ? (
             <div className="evo pop" style={{ ['--i' as string]: 4 }}>
               <Mascot child={child} emo="animando" stage={r.stageAfter} />

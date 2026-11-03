@@ -1,4 +1,4 @@
-/* Fase 10: copias de seguridad, registro de errores sin datos personales y marcas del piloto. */
+/* Servidor: copias de seguridad, registro de errores sin datos personales, marcas «no lo entiendo» y defensas. */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import os from 'node:os';
 import fs from 'node:fs';
@@ -53,6 +53,19 @@ describe('servidor', () => {
     expect(r.json.pull.some((p: { table: string }) => p.table === 'flags')).toBe(true);
   });
 
+  it('una dirección mal formada no tumba el servidor ni sale de la carpeta de la app', async () => {
+    const d = fs.mkdtempSync(path.join(os.tmpdir(), 'starmath-static-'));
+    fs.mkdirSync(path.join(d, 'dist')); fs.mkdirSync(path.join(d, 'dist-secreto'));
+    fs.writeFileSync(path.join(d, 'dist', 'index.html'), 'app'); fs.writeFileSync(path.join(d, 'dist-secreto', 'x.txt'), 'secreto');
+    const s2 = createApp({ dataDir: path.join(d, 'data'), staticDir: path.join(d, 'dist') });
+    await new Promise<void>(r => s2.listen(0, '127.0.0.1', () => r()));
+    const u = 'http://127.0.0.1:' + (s2.address() as AddressInfo).port;
+    expect((await fetch(u + '/%zz')).status).toBe(400);
+    expect(await (await fetch(u + '/..%2Fdist-secreto%2Fx.txt')).text()).not.toContain('secreto');
+    expect(await (await fetch(u + '/')).text()).toBe('app');                     // sigue vivo
+    s2.close(); fs.rmSync(d, { recursive: true, force: true });
+  });
+
   it('cada familia solo ve lo suyo: otra familia no puede leer ni escribir sus datos', async () => {
     const a = (await post('/api/register', { email: 'familia-a@example.test', password: 'clave-larga-a' })).json;
     const b = (await post('/api/register', { email: 'familia-b@example.test', password: 'clave-larga-b' })).json;
@@ -74,6 +87,16 @@ describe('servidor', () => {
     // sin token o con uno inventado, nada
     expect((await post('/api/sync', { since: 0 })).status).toBe(401);
     expect((await post('/api/sync', { since: 0 }, 'f'.repeat(64))).status).toBe(401);
+  });
+
+  // al final: deja bloqueada la vinculación en este servidor durante 15 min
+  it('fuerza bruta: contraseña y código de vinculación se bloquean tras muchos fallos', async () => {
+    await post('/api/register', { email: 'bruta@example.test', password: 'clave-buena-1' });
+    for (let i = 0; i < 10; i++) expect((await post('/api/login', { email: 'bruta@example.test', password: 'mala-' + i })).status).toBe(401);
+    expect((await post('/api/login', { email: 'bruta@example.test', password: 'clave-buena-1' })).json.error).toBe('intentos');
+    let st = 0;
+    for (let i = 0; i < 31; i++) st = (await post('/api/pair/claim', { code: String(100000 + i) })).status;
+    expect(st).toBe(429);
   });
 
   it('copia de seguridad y restauración', () => {

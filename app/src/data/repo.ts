@@ -165,7 +165,7 @@ export async function finishTest(a: ActiveTest): Promise<FinishResult> {
   const answers: Answer[] = a.answers.map(x => ({ ...x, id: uid(), sessionId: session.id, childId: child.id }));
   const events: StarEvent[] = score.items.filter(it => it.stars > 0).map(it => ({
     id: uid(), childId: child.id, ts: now, day, type: it.id === 'racha' ? 'racha' : 'test', amount: it.stars,
-    note: '@ev.' + it.id + (it.id === 'aciertos' ? ';n=' + it.n + ';t=' + a.n : it.id === 'racha' ? ';d=' + it.days : ';t=' + a.n),
+    note: '@ev.' + it.id + (it.id === 'racha' ? ';d=' + it.days : ';t=' + a.n),
     by: 'child', device: dev, sessionId: session.id }));
   await put('sessions', [session]);
   await put('answers', answers);
@@ -284,7 +284,7 @@ export async function pendingChecks(): Promise<{ check: TaskCheck; task?: Task; 
   return out.filter(x => x.task && x.child && !x.task.deleted).sort((a, b) => (a.check.claimedAt ?? 0) - (b.check.claimedAt ?? 0));
 }
 
-/* ---------------- Piloto: «no lo entiendo» ---------------- */
+/* ---------------- «No lo entiendo» (el padre lo ve en la ficha del hijo) ---------------- */
 export async function addFlag(child: Child, gen: string, tag: string) {
   await put('flags', [{ id: uid(), childId: child.id, ts: Date.now(), gen, tag, lang: child.lang, tone: child.tone }]);
 }
@@ -298,7 +298,7 @@ export async function exportAll() {
            family: family.map(f => ({ ...f, pinHash: undefined, pinSalt: undefined })), children, sessions, answers, events, rewards, mastery, flags, tasks, checks };
 }
 /* ---------------- Restaurar una copia exportada ---------------- */
-export type Backup = Awaited<ReturnType<typeof exportAll>> & { pilotNotes?: string };
+export type Backup = Awaited<ReturnType<typeof exportAll>>;
 export class BackupError extends Error {}
 /** Lee y valida un archivo exportado (sin tocar nada todavía) */
 export function readBackup(text: string): Backup {
@@ -327,7 +327,6 @@ export async function restoreBackup(d: Backup, pin: string) {
     if (Array.isArray(d.tasks)) await db.tasks.bulkPut(d.tasks);        // copias anteriores a las tareas no las traen
     if (Array.isArray(d.checks)) await db.checks.bulkPut(d.checks);
     if (device) await db.meta.put({ key: 'device', value: device });
-    if (d.pilotNotes) await db.meta.put({ key: 'pilotNotes', value: d.pilotNotes });
     await db.meta.put({ key: 'lastExport', value: now });
   });
   notify();
