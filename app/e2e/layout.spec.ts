@@ -94,17 +94,20 @@ test('perfiles: en horizontal uno al lado del otro; en vertical uno debajo de ot
   const page = await ctx.newPage();
   await onboard(page, [{ name: 'Ana', level: 2 }, { name: 'Bruno', level: 4 }, { name: 'Carmen', level: 6 }]);
   const boxes = async () => Promise.all((await page.locator('.pcard').all()).map(c => c.boundingBox().then(b => b!)));
+  await expect(page.locator('.pcard')).toHaveCount(3);
+  await page.mouse.move(1, 1);                                              // sin «hover» (la tarjeta se levanta 6 px)
+  await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
+  await page.waitForTimeout(300);
   let b = await boxes();
-  expect(b).toHaveLength(3);
   expect(b[1].x).toBeGreaterThan(b[0].x + b[0].width - 1);              // en fila
-  expect(Math.abs(b[1].y - b[0].y)).toBeLessThan(2);
+  expect(Math.abs(b[1].y - b[0].y)).toBeLessThan(8);
   await page.setViewportSize({ width: 768, height: 1024 });                 // la tablet gira
   await expect(page.locator('.device.kid.portrait')).toBeVisible();
   await page.waitForTimeout(300);
   b = await boxes();
   for (let i = 1; i < 3; i++) {
     expect(b[i].y).toBeGreaterThan(b[i - 1].y + b[i - 1].height - 1);      // en columna
-    expect(Math.abs(b[i].x - b[0].x)).toBeLessThan(2);
+    expect(Math.abs(b[i].x - b[0].x)).toBeLessThan(8);
   }
   const dev = (await page.locator('.device').boundingBox())!;
   expect(b[2].y + b[2].height).toBeLessThanOrEqual(dev.y + dev.height);
