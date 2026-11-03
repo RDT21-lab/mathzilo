@@ -28,7 +28,7 @@ export async function onboard(page: Page, kids: { name: string; level: number }[
 }
 
 /** Lo que tiene que pulsar el niño para la pregunta en pantalla (calculado con el motor) */
-async function currentAnswer(page: Page, correct: boolean) {
+export async function currentAnswer(page: Page, correct: boolean) {
   return page.evaluate(async (correct) => {
     const sm = (window as unknown as { __sm: any }).__sm;
     for (const k of await sm.db.children.toArray()) {

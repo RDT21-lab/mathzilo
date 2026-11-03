@@ -17,6 +17,8 @@ import { fileURLToPath } from 'node:url';
 import { sendPush, vapidKeys } from './webpush.mjs';
 
 const PIN_ITER = 120_000, MAX_TRIES = 5, LOCK_MS = 15 * 60_000, PAIR_MS = 10 * 60_000;
+// fuerza bruta: 10 contraseñas mal por email o 30 códigos de vinculación mal en todo el servidor bloquean 15 min
+const LOGIN_FAILS = 10, PAIR_FAILS = 30, FAIL_WINDOW = 15 * 60_000;
 const IMMUTABLE = new Set(['sessions', 'answers', 'events', 'flags']);
 const LWW = new Set(['family', 'children', 'rewards', 'tasks', 'checks']);
 const TABLES = [...IMMUTABLE, ...LWW];
@@ -55,6 +57,9 @@ export function createApp({ dataDir, staticDir = null, now = () => Date.now(), f
   const compressed = new Map();                                // archivos estáticos ya comprimidos
   const logRate = new Map();                                   // familyId → marcas de tiempo de errores recibidos
   const pending = new Set();                                   // avisos en camino (las pruebas esperan a que terminen)
+  const fails = new Map();                                     // 'login:<email>' | 'pair' → marcas de tiempo de intentos fallidos
+  const failsIn = k => (fails.get(k) ?? []).filter(x => x > now() - FAIL_WINDOW);
+  const fail = k => fails.set(k, [...failsIn(k), now()]);
   if (!index.vapid) { index.vapid = vapidKeys(); fs.writeFileSync(indexFile, JSON.stringify(index)); }
 
   const saveIndex = () => fs.writeFileSync(indexFile, JSON.stringify(index));
@@ -222,7 +227,10 @@ export function createApp({ dataDir, staticDir = null, now = () => Date.now(), f
     },
     'POST /api/login': (b) => {
       const email = String(b.email ?? '').trim().toLowerCase(), acc = index.emails[email];
-      if (!acc || hashPass(String(b.password ?? ''), acc.salt).hash !== acc.hash) return [401, { error: 'login' }];
+      if (failsIn('login:' + email).length >= LOGIN_FAILS) return [429, { error: 'intentos' }];
+      const ok = acc && crypto.timingSafeEqual(Buffer.from(hashPass(String(b.password ?? ''), acc.salt).hash), Buffer.from(acc.hash));
+      if (!ok) { fail('login:' + email); return [401, { error: 'login' }]; }
+      fails.delete('login:' + email);
       return [200, { familyId: acc.familyId, token: newToken(acc.familyId, 'parent', email) }];
     },
     'POST /api/pair/create': (b, a) => {
@@ -233,9 +241,10 @@ export function createApp({ dataDir, staticDir = null, now = () => Date.now(), f
       return [200, { code, expiresIn: PAIR_MS / 1000 }];
     },
     'POST /api/pair/claim': (b) => {
-      const code = String(b.code ?? ''), familyId = index.pairs?.[code];
+      if (failsIn('pair').length >= PAIR_FAILS) return [429, { error: 'intentos' }];
+      const code = String(b.code ?? ''), familyId = Object.hasOwn(index.pairs ?? {}, code) ? index.pairs[code] : null;
       const st = familyId && load(familyId);
-      if (!st || !(st.pair[code] > now())) return [404, { error: 'codigo' }];
+      if (!st || !(st.pair[code] > now())) { fail('pair'); return [404, { error: 'codigo' }]; }
       delete st.pair[code]; delete index.pairs[code]; save(st);
       return [200, { familyId, token: newToken(familyId, 'tablet', 'tablet') }];
     },
@@ -375,8 +384,10 @@ export function createApp({ dataDir, staticDir = null, now = () => Date.now(), f
       return;
     }
     if (staticDir && req.method === 'GET') {
-      let file = path.join(staticDir, decodeURIComponent(url.pathname));
-      if (!file.startsWith(staticDir)) { res.writeHead(403); res.end(); return; }
+      let rel;
+      try { rel = decodeURIComponent(url.pathname); } catch { res.writeHead(400); res.end(); return; }   // «/%zz» no tumba el servidor
+      let file = path.join(staticDir, rel);
+      if (file !== staticDir && !file.startsWith(staticDir + path.sep)) { res.writeHead(403); res.end(); return; }
       if (!fs.existsSync(file) || fs.statSync(file).isDirectory()) file = path.join(staticDir, 'index.html');
       if (fs.existsSync(file)) {
         const type = MIME[path.extname(file)] ?? 'application/octet-stream';

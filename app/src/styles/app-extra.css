@@ -132,9 +132,6 @@
 .fbbtns { display: flex; gap: 10px; margin-top: auto; flex: none; }
 .fbbtns .btn { flex: 1; min-height: 60px; font-size: 19px; padding: 0 14px; }
 .fbcard .fbbtns .btn { margin-top: 0; width: auto; }
-.pilot { cursor: default; }
-.pilothd { background: none; border: 0; text-align: left; display: flex; flex-direction: column; gap: 2px; padding: 0; cursor: pointer; font: inherit; color: inherit; min-height: 48px; }
-.pilothd b { font-size: 17px; }
 .howto { margin: 4px 0; padding-left: 22px; font-size: 14px; color: var(--muted); display: flex; flex-direction: column; gap: 4px; }
 .okline { color: var(--ok); margin: 0; font-weight: 700; }
 .small { font-size: 13px; }

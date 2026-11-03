@@ -1,6 +1,6 @@
 /* De punta a punta en la tablet: alta, test perfecto, estrellas, sin conexión y canje en local. */
 import { test, expect } from '@playwright/test';
-import { onboard, playTest, prepare, setTestRules, unlockParent, PIN } from './helpers';
+import { currentAnswer, onboard, playTest, prepare, setTestRules, unlockParent, PIN } from './helpers';
 
 test.use({ viewport: { width: 1024, height: 680 } });
 
@@ -82,4 +82,25 @@ test('premios del test: empiezan a 0, suben de 0,5 en 0,5 y no hay estrellas por
   await expect(page.locator('.rw')).toHaveCount(1);
   await expect(page.locator('.tot b')).toHaveText('+0,5 ★');
   await expect(page.locator('.pill.gold')).toHaveText('0,5');
+});
+
+test('«No lo entiendo» llega a la ficha del hijo en el panel del padre', async ({ page, context }) => {
+  await prepare(context);
+  await onboard(page, [{ name: 'Noa', level: 1 }]);
+  await page.getByRole('button', { name: 'Jugar como Noa' }).click();
+  await page.getByRole('button', { name: 'Empezar' }).click();
+  await page.locator('.lencard').first().click();
+  // responde mal la primera pregunta (respuesta calculada con el motor) y sale la explicación
+  await page.locator('.answers').waitFor();
+  let ans = await currentAnswer(page, false);
+  for (let i = 0; i < 20 && !ans; i++) { await page.waitForTimeout(150); ans = await currentAnswer(page, false); }
+  if (!ans) throw new Error('sin pregunta activa');
+  if (ans.type === 'mc') await page.locator('.opt').nth(ans.idx).click(); else for (const ch of ans.typed) await page.keyboard.press(ch);
+  await page.getByRole('button', { name: 'Comprobar' }).click();
+  await page.getByRole('button', { name: 'No lo entiendo' }).click();
+  await page.getByRole('button', { name: 'Pausar y salir' }).click();
+  await unlockParent(page);
+  await page.locator('.kidcard').filter({ hasText: 'Noa' }).click();
+  await expect(page.getByText('Explicaciones que no entendió')).toBeVisible();
+  await expect(page.locator('.kidcard .hist .led').first()).toContainText('1');
 });

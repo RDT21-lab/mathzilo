@@ -1,6 +1,6 @@
 # Mathzilo: lanzamiento paso a paso
 
-Tiempo total: unas 2-3 horas repartidas en dos días, más las 2 semanas de piloto.
+Tiempo total: unas 2-3 horas repartidas en dos días.
 Coste: un servidor pequeño en la UE (unos pocos euros al mes) y un dominio (unos 10-15 € al año).
 
 > **Antes de empezar.** Este portátil es corporativo y la carpeta está en OneDrive de la empresa.
@@ -201,12 +201,11 @@ Si algo falla, anota qué hacías y en qué dispositivo, y mira el paso 6 (error
 
 ---
 
-## Paso 10 · Piloto de 2 semanas y ajustes
+## Paso 10 · Primeras semanas de uso
 
-Sigue `docs/piloto.md`:
-- Un test al día, sin ayuda. Las observaciones van en **Panel → Resumen del piloto → Notas del piloto**.
-- El día 14, exporta los datos (**Ajustes → Datos y privacidad → Exportar datos**) y revisa el resumen del piloto: días con test, aprobados, estrellas al mes frente al premio más caro y explicaciones marcadas como «No lo entiendo».
-- Ajusta bonus, precios y niveles. Pásame los textos confusos y los fallos para corregirlos.
+- Un test al día, sin ayuda. Los premios del test (aprobar, test perfecto y rachas) empiezan en 0: súbelos en **Ajustes → Estrellas** de 0,5 en 0,5 si quieres que el test también dé estrellas. Las tareas tienen sus propias estrellas.
+- En **Panel**, al abrir la ficha de cada hijo, verás su dominio por tema, los errores más frecuentes y las explicaciones en las que pulsó «No lo entiendo».
+- Si le cuesta mucho o le resulta fácil, cambia la dificultad desde esa misma ficha.
 
 ## Mantenimiento
 

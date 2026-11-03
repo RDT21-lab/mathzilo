@@ -155,5 +155,5 @@ export interface TaskCheck {
 export interface OutboxItem { seq?: number; table: SyncTable; id: string; op: 'put' | 'del' }
 export type SyncTable = 'family' | 'children' | 'sessions' | 'answers' | 'events' | 'rewards' | 'flags' | 'tasks' | 'checks';
 
-/** El niño pulsó «No lo entiendo» en una explicación (sirve para mejorar los textos en el piloto) */
+/** El niño pulsó «No lo entiendo» en una explicación (el padre lo ve en la ficha del hijo) */
 export interface Flag { id: string; childId: string; ts: number; gen: string; tag: string; lang: Lang; tone: Tone }
