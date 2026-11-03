@@ -164,8 +164,10 @@ export function createApp({ dataDir, staticDir = null, now = () => Date.now(), f
         const ses = row.sessionId && st.rows.sessions[row.sessionId]?.row;
         if (!ses || ses.childId !== row.childId) return 'sin-sesion';
         if (row.type === 'racha' && rules && !Object.values(rules.streakBonus).includes(row.amount)) return 'racha';
+        // los aciertos ya no dan estrellas (v0.9.3): una tablet con la versión anterior no puede sumarlas
+        if (row.type === 'test' && /^@ev\.aciertos\b/.test(row.note ?? '') && !ctx.import) return 'aciertos';
         if (row.type === 'test' && rules) {
-          const cap = ses.length * rules.perCorrect + Math.max(0, ...Object.values(rules.passBonus)) + rules.perfect;
+          const cap = Math.max(0, ...Object.values(rules.passBonus)) + (rules.perfect ?? 0);
           const already = Object.values(st.rows.events).filter(e => e.row.sessionId === ses.id && e.row.type === 'test').reduce((s, e) => s + e.row.amount, 0);
           if (already + row.amount > cap) return 'tope';
           // un solo test con estrellas por hijo y día

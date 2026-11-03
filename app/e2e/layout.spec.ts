@@ -32,12 +32,14 @@ const L = {
   de: { play: 'Spielen als Ana', check: 'Prüfen', next: ['Verstanden!', 'Weiter', "Weiter geht's", 'Zum Ergebnis'] }
 } as const;
 
-for (const big of [false, true]) {
-  for (const lang of ['de', 'fr', 'en', 'es'] as const) {
+// horizontal (1024×680) en los 4 idiomas; vertical (iPad 768×1024, el más bajo en proporción) en alemán y español
+const VIEWS = [{ tag: '', width: 1024, height: 680, langs: ['de', 'fr', 'en', 'es'] }, { tag: ' · vertical', width: 768, height: 1024, langs: ['de', 'es'] }] as const;
+for (const view of VIEWS) for (const big of [false, true]) {
+  for (const lang of view.langs) {
     for (const level of [2, 5]) {
       test.setTimeout(420_000);
-      test(`maquetación ${lang} · nivel ${level}${big ? ' · letra grande' : ''}`, async ({ browser }) => {
-        const ctx = await browser.newContext({ viewport: { width: 1024, height: 680 }, locale: 'es-ES', reducedMotion: 'reduce' });
+      test(`maquetación ${lang} · nivel ${level}${big ? ' · letra grande' : ''}${view.tag}`, async ({ browser }) => {
+        const ctx = await browser.newContext({ viewport: { width: view.width, height: view.height }, locale: 'es-ES', reducedMotion: 'reduce' });
         await prepare(ctx);
         const page = await ctx.newPage();
         await onboard(page, [{ name: 'Ana', level }]);
@@ -85,3 +87,30 @@ for (const big of [false, true]) {
     }
   }
 }
+
+test('perfiles: en horizontal uno al lado del otro; en vertical uno debajo de otro', async ({ browser }) => {
+  const ctx = await browser.newContext({ viewport: { width: 1024, height: 680 }, locale: 'es-ES', reducedMotion: 'reduce' });
+  await prepare(ctx);
+  const page = await ctx.newPage();
+  await onboard(page, [{ name: 'Ana', level: 2 }, { name: 'Bruno', level: 4 }, { name: 'Carmen', level: 6 }]);
+  const boxes = async () => Promise.all((await page.locator('.pcard').all()).map(c => c.boundingBox().then(b => b!)));
+  let b = await boxes();
+  expect(b).toHaveLength(3);
+  expect(b[1].x).toBeGreaterThan(b[0].x + b[0].width - 1);              // en fila
+  expect(Math.abs(b[1].y - b[0].y)).toBeLessThan(2);
+  await page.setViewportSize({ width: 768, height: 1024 });                 // la tablet gira
+  await expect(page.locator('.device.kid.portrait')).toBeVisible();
+  await page.waitForTimeout(300);
+  b = await boxes();
+  for (let i = 1; i < 3; i++) {
+    expect(b[i].y).toBeGreaterThan(b[i - 1].y + b[i - 1].height - 1);      // en columna
+    expect(Math.abs(b[i].x - b[0].x)).toBeLessThan(2);
+  }
+  const dev = (await page.locator('.device').boundingBox())!;
+  expect(b[2].y + b[2].height).toBeLessThanOrEqual(dev.y + dev.height);
+  expect(await overflow(page)).toEqual([]);
+  await page.setViewportSize({ width: 800, height: 1280 });                 // tablet Android en vertical
+  await page.waitForTimeout(300);
+  expect(await overflow(page)).toEqual([]);
+  await ctx.close();
+});

@@ -4,6 +4,7 @@ import { computeStreak, addDays, dayOf, levelSuggestion } from '../src/data/doma
 import { db } from '../src/data/db';
 import * as repo from '../src/data/repo';
 import type { ActiveTest } from '../src/data/types';
+import { DEFAULT_RULES } from '../src/engine';
 
 const T0 = '2026-10-01';
 const days = (n: number, from = T0) => Array.from({ length: n }, (_, i) => addDays(from, i));
@@ -70,8 +71,9 @@ describe('saldo: tests y canjes en local', () => {
 
   it('el saldo cuadra tras una secuencia de tests y canjes de prueba', async () => {
     await repo.createFamily({ lang: 'es', pin: '1234', children: [{ name: 'Lucía', kind: 'zorro', petName: 'Chispa', level: 1, lang: 'es' }] });
+    await repo.updateSettings({ rules: { ...DEFAULT_RULES, passBonus: { 10: 10, 15: 12, 20: 15 } } });
     const [lucia] = await db.children.toArray();
-    const r1 = await playTest(lucia.id, 10, 8);                // 8 + 2 = 10
+    const r1 = await playTest(lucia.id, 10, 8);                // bonus de aprobar 10
     expect(r1.score.total).toBe(10);
     const r2 = await playTest(lucia.id, 10, 10);               // práctica: 0
     expect(r2.score.practice).toBe(true);
@@ -86,13 +88,14 @@ describe('saldo: tests y canjes en local', () => {
     expect(await repo.balance(lucia.id)).toBe(10);
     const evs = await db.events.toArray();
     expect(evs.reduce((s, e) => s + e.amount, 0)).toBe(10);
-    expect(evs.length).toBe(4);                                 // aciertos, aprobado, canje, ajuste
+    expect(evs.length).toBe(3);                                 // aprobado, canje, ajuste
     // cada escritura está en la cola de sincronización
     expect(await db.outbox.count()).toBeGreaterThan(5);
   });
 
   it('exportar → borrar todo → restaurar deja los datos exactamente igual', async () => {
     await repo.createFamily({ lang: 'es', pin: '1234', children: [{ name: 'Lucía', kind: 'zorro', petName: 'Chispa', level: 2, lang: 'es' }] });
+    await repo.updateSettings({ rules: { ...DEFAULT_RULES, passBonus: { 10: 5.5, 15: 6, 20: 7 } } });
     const [lucia] = await db.children.toArray();
     await playTest(lucia.id, 10, 9);
     await repo.redeemLocal(lucia.id, 3, 'Cromos');

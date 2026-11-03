@@ -40,7 +40,6 @@
     "5": "¡Sigue así!"
   },
   "res": {
-    "aciertos": "Aciertos ({{n}} × {{p}} ★)",
     "superado": "Test superado",
     "perfecto": "Test perfecto",
     "racha": "Bonus de racha · {{d}} días"
@@ -101,7 +100,7 @@
     "minutes": "Unos {{n}} minutos",
     "limited": "Tu familia lo ha limitado",
     "bonus": "+{{n}} si apruebas",
-    "notePass": "Apruebas con un {{p}} % de aciertos. Cada acierto es una estrella.",
+    "notePass": "Apruebas con un {{p}} % de aciertos.",
     "notePractice": "Hoy ya ganaste tus estrellas. Esto es práctica libre.",
     "qOf": "Pregunta {{i}} de {{n}}",
     "pause": "Pausar y salir",
@@ -272,7 +271,7 @@
     "addChild": "+ Añadir hijo",
     "deleteChild": "Borrar a {{name}}",
     "deleteChildConfirm": "Se borrarán todos los tests y estrellas de {{name}}. ¿Seguro?",
-    "perCorrect": "Por acierto",
+    "starsLead": "El test solo da estrellas como bonus (aprobar, test perfecto y rachas). Empiezan en 0; cada + suma 0,5.",
     "passPct": "Para aprobar",
     "passPctSub": "Porcentaje mínimo de aciertos",
     "pb": "Bonus al aprobar {{n}}",

@@ -1,6 +1,6 @@
 /* Criterio de la fase 7 con dos navegadores reales: móvil del padre y tablet en modo avión. */
 import { test, expect } from '@playwright/test';
-import { onboard, playTest, prepare, unlockParent, PIN } from './helpers';
+import { onboard, playTest, prepare, setTestRules, unlockParent, PIN } from './helpers';
 
 test('test sin conexión en la tablet + canje del padre → mismo saldo en los dos', async ({ browser }) => {
   const phoneCtx = await browser.newContext({ viewport: { width: 390, height: 800 }, locale: 'es-ES' });
@@ -10,6 +10,7 @@ test('test sin conexión en la tablet + canje del padre → mismo saldo en los d
 
   // Móvil: alta de la familia y cuenta en el servidor
   await onboard(phone, [{ name: 'Sara', level: 3 }]);
+  await setTestRules(phone);
   await unlockParent(phone);
   await phone.getByRole('button', { name: 'Ajustes' }).click();
   await phone.getByLabel('Email').fill('familia-e2e@example.test');

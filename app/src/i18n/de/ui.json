@@ -40,7 +40,6 @@
     "5": "Weiter so!"
   },
   "res": {
-    "aciertos": "Richtige ({{n}} × {{p}} ★)",
     "superado": "Test bestanden",
     "perfecto": "Perfekter Test",
     "racha": "Serienbonus · {{d}} Tage"
@@ -101,7 +100,7 @@
     "minutes": "Etwa {{n}} Minuten",
     "limited": "Deine Familie hat das begrenzt",
     "bonus": "+{{n}}, wenn du bestehst",
-    "notePass": "Du bestehst mit {{p}} % richtigen Antworten. Jede richtige Antwort ist ein Stern.",
+    "notePass": "Du bestehst mit {{p}} % richtigen Antworten.",
     "notePractice": "Deine Sterne für heute hast du schon. Das hier ist freies Üben.",
     "qOf": "Frage {{i}} von {{n}}",
     "pause": "Pausieren und raus",
@@ -272,7 +271,7 @@
     "addChild": "+ Kind hinzufügen",
     "deleteChild": "{{name}} löschen",
     "deleteChildConfirm": "Alle Tests und Sterne von {{name}} werden gelöscht. Sicher?",
-    "perCorrect": "Pro richtiger Antwort",
+    "starsLead": "Der Test gibt Sterne nur als Bonus (bestanden, perfekter Test und Serien). Sie beginnen bei 0; jedes + gibt 0,5 dazu.",
     "passPct": "Zum Bestehen",
     "passPctSub": "Mindestanteil richtiger Antworten",
     "pb": "Bonus fürs Bestehen ({{n}})",

@@ -113,18 +113,19 @@ export function explain(q: Question, tag: string, given: Val | null): Explanatio
 }
 
 /* ---------- Estrellas ---------- */
+/** Estrellas de un test: solo bonus (aprobar, perfecto, racha); cada acierto ya no suma (v0.9.3).
+ *  Las cantidades van de 0,5 en 0,5. Las tareas tienen sus propias estrellas. */
 export interface Rules {
   passPct: number;
-  perCorrect: number;
   passBonus: Record<number, number>;
   perfect: number;
   streakBonus: Record<number, number>;
   maxLen: number;
 }
 export const DEFAULT_RULES: Rules = {
-  passPct: 70, perCorrect: 1, passBonus: { 10: 2, 15: 3, 20: 4 }, perfect: 3, streakBonus: { 3: 3, 7: 7, 14: 15, 30: 40 }, maxLen: 20
+  passPct: 70, passBonus: { 10: 0, 15: 0, 20: 0 }, perfect: 0, streakBonus: { 3: 0, 7: 0, 14: 0, 30: 0 }, maxLen: 20
 };
-export interface ScoreItem { id: 'aciertos' | 'superado' | 'perfecto' | 'racha'; n?: number; days?: number; stars: number }
+export interface ScoreItem { id: 'superado' | 'perfecto' | 'racha'; days?: number; stars: number }
 export interface ScoreResult {
   passed: boolean; pct: number; first: boolean; practice: boolean; items: ScoreItem[]; total: number;
   newStreak: number; streakExtended: boolean; fast: boolean;
@@ -136,7 +137,6 @@ export function scoreTest(rules: Rules, st: { doneToday: boolean; streakToday: b
   const first = !st.doneToday;
   const items: ScoreItem[] = [];
   if (first) {
-    items.push({ id: 'aciertos', n: res.correct, stars: res.correct * rules.perCorrect });
     if (passed && !res.fast) {
       items.push({ id: 'superado', stars: rules.passBonus[res.total] ?? 0 });
       if (res.correct === res.total) items.push({ id: 'perfecto', stars: rules.perfect });
@@ -148,6 +148,7 @@ export function scoreTest(rules: Rules, st: { doneToday: boolean; streakToday: b
     const sb = rules.streakBonus[newStreak];
     if (sb && !res.fast) items.push({ id: 'racha', stars: sb, days: newStreak });
   }
-  const total = items.reduce((s, it) => s + it.stars, 0);
-  return { passed, pct, first, practice: !first, items, total, newStreak, streakExtended: extended, fast: !!res.fast };
+  const shown = items.filter(it => it.stars > 0);              // un premio a 0 no sale en el resultado
+  const total = shown.reduce((s, it) => s + it.stars, 0);
+  return { passed, pct, first, practice: !first, items: shown, total, newStreak, streakExtended: extended, fast: !!res.fast };
 }

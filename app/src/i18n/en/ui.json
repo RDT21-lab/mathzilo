@@ -40,7 +40,6 @@
     "5": "Keep it up!"
   },
   "res": {
-    "aciertos": "Correct answers ({{n}} × {{p}} ★)",
     "superado": "Test passed",
     "perfecto": "Perfect test",
     "racha": "Streak bonus · {{d}} days"
@@ -101,7 +100,7 @@
     "minutes": "About {{n}} minutes",
     "limited": "Your family has set a limit",
     "bonus": "+{{n}} if you pass",
-    "notePass": "You pass with {{p}}% correct. Each correct answer is a star.",
+    "notePass": "You pass with {{p}}% correct.",
     "notePractice": "You already earned today's stars. This is free practice.",
     "qOf": "Question {{i}} of {{n}}",
     "pause": "Pause and leave",
@@ -272,7 +271,7 @@
     "addChild": "+ Add a child",
     "deleteChild": "Delete {{name}}",
     "deleteChildConfirm": "All of {{name}}'s tests and stars will be deleted. Are you sure?",
-    "perCorrect": "Per correct answer",
+    "starsLead": "Tests only give stars as bonuses (passing, perfect test and streaks). They start at 0; each + adds 0.5.",
     "passPct": "Pass mark",
     "passPctSub": "Minimum percentage correct",
     "pb": "Bonus for passing {{n}}",

@@ -393,9 +393,9 @@ function Stepper({ value, label, sub, onChange, min, max, step = 1, fmt }: { val
   return (
     <div className="srow"><span className="lb">{label}{sub && <small>{sub}</small>}</span>
       <span className="stepper">
-        <button onClick={() => onChange(Math.max(min, value - step))} aria-label={t('common.less')}>−</button>
-        <b>{fmt ? fmt(value) : value}</b>
-        <button onClick={() => onChange(Math.min(max, value + step))} aria-label={t('common.more')}>+</button>
+        <button onClick={() => onChange(roundStars(Math.max(min, value - step)))} aria-label={t('common.less')}>−</button>
+        <b>{fmt ? fmt(value) : fmtNum(value)}</b>
+        <button onClick={() => onChange(roundStars(Math.min(max, value + step)))} aria-label={t('common.more')}>+</button>
       </span>
     </div>
   );
@@ -440,11 +440,11 @@ function SettingsScreen({ family, toast, onExit }: { family: Family; toast: (m: 
           : <button className="pbtn line" onClick={() => setAdding(true)}>{t('parent.addChild')}</button>)}
       </section>
       <section className="sect"><h3>{t('parent.s.stars')}</h3>
-        <Stepper label={t('parent.perCorrect')} value={R.perCorrect} min={1} max={5} onChange={v => setRules({ perCorrect: v })} />
-        <Stepper label={t('parent.passPct')} sub={t('parent.passPctSub')} value={R.passPct} min={50} max={100} step={5} fmt={v => v + ' %'} onChange={v => setRules({ passPct: v })} />
-        {[10, 15, 20].map(n => <Stepper key={n} label={t('parent.pb', { n })} value={R.passBonus[n]} min={0} max={20} onChange={v => setRules({ passBonus: { ...R.passBonus, [n]: v } })} />)}
-        <Stepper label={t('parent.perfect')} value={R.perfect} min={0} max={20} onChange={v => setRules({ perfect: v })} />
-        {[3, 7, 14, 30].map(n => <Stepper key={n} label={t('parent.sb', { n })} value={R.streakBonus[n]} min={0} max={200} step={n === 30 ? 5 : 1} onChange={v => setRules({ streakBonus: { ...R.streakBonus, [n]: v } })} />)}
+        <p className="muted small" style={{ margin: '0 0 4px' }}>{t('parent.starsLead')}</p>
+        <Stepper label={t('parent.passPct')} sub={t('parent.passPctSub')} value={R.passPct} min={50} max={100} step={5} fmt={v => fmtNum(v) + ' %'} onChange={v => setRules({ passPct: v })} />
+        {[10, 15, 20].map(n => <Stepper key={n} label={t('parent.pb', { n })} value={R.passBonus[n] ?? 0} min={0} max={20} step={0.5} onChange={v => setRules({ passBonus: { ...R.passBonus, [n]: v } })} />)}
+        <Stepper label={t('parent.perfect')} value={R.perfect ?? 0} min={0} max={20} step={0.5} onChange={v => setRules({ perfect: v })} />
+        {[3, 7, 14, 30].map(n => <Stepper key={n} label={t('parent.sb', { n })} value={R.streakBonus[n] ?? 0} min={0} max={200} step={0.5} onChange={v => setRules({ streakBonus: { ...R.streakBonus, [n]: v } })} />)}
         <div className="srow"><span className="lb">{t('parent.maxLenAll')}</span><Segs value={R.maxLen} options={[[10, '10'], [15, '15'], [20, '20']]} onChange={v => setRules({ maxLen: v })} /></div>
       </section>
       <section className="sect"><h3>{t('parent.s.rewards')}</h3>

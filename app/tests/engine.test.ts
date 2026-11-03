@@ -172,18 +172,24 @@ describe('teclado numérico', () => {
 });
 
 describe('reglas de estrellas', () => {
-  const R = DEFAULT_RULES;
-  it('10 preguntas con 8 aciertos da 10 estrellas', () => {
-    expect(scoreTest(R, { doneToday: false, streakToday: false, streak: 0 }, { correct: 8, total: 10, fast: false }).total).toBe(10);
+  const R = { ...DEFAULT_RULES, passBonus: { 10: 2.5, 15: 3, 20: 4 }, perfect: 3, streakBonus: { 3: 3, 7: 7.5, 14: 15, 30: 40 } };
+  it('por defecto el test no da estrellas (los premios empiezan a 0)', () => {
+    expect(scoreTest(DEFAULT_RULES, { doneToday: false, streakToday: false, streak: 6 }, { correct: 20, total: 20, fast: false }).total).toBe(0);
+    expect(Object.values(DEFAULT_RULES.passBonus).concat(Object.values(DEFAULT_RULES.streakBonus), DEFAULT_RULES.perfect).every(v => v === 0)).toBe(true);
+  });
+  it('los aciertos no suman: 8 de 10 da solo el bonus de aprobar (con media estrella)', () => {
+    const s = scoreTest(R, { doneToday: false, streakToday: false, streak: 0 }, { correct: 8, total: 10, fast: false });
+    expect(s.total).toBe(2.5);
+    expect(s.items.map(i => i.id)).toEqual(['superado']);
   });
   it('perfecto y bonus de racha del día 7', () => {
     const s = scoreTest(R, { doneToday: false, streakToday: false, streak: 6 }, { correct: 20, total: 20, fast: false });
-    expect(s.total).toBe(20 + 4 + 3 + 7);
+    expect(s.total).toBe(4 + 3 + 7.5);
     expect(s.newStreak).toBe(7);
   });
   it('el segundo test del día es práctica y la prisa quita bonus', () => {
     expect(scoreTest(R, { doneToday: true, streakToday: true, streak: 3 }, { correct: 10, total: 10, fast: false }).total).toBe(0);
-    expect(scoreTest(R, { doneToday: false, streakToday: false, streak: 2 }, { correct: 10, total: 10, fast: true }).total).toBe(10);
+    expect(scoreTest(R, { doneToday: false, streakToday: false, streak: 2 }, { correct: 10, total: 10, fast: true }).total).toBe(0);
   });
   it('7 de 10 aprueba; 10 de 15 no', () => {
     expect(scoreTest(R, { doneToday: false, streakToday: false, streak: 0 }, { correct: 7, total: 10, fast: false }).passed).toBe(true);

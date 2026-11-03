@@ -40,7 +40,6 @@
     "5": "Continue comme ça !"
   },
   "res": {
-    "aciertos": "Bonnes réponses ({{n}} × {{p}} ★)",
     "superado": "Test réussi",
     "perfecto": "Test parfait",
     "racha": "Bonus de série · {{d}} jours"
@@ -101,7 +100,7 @@
     "minutes": "Environ {{n}} minutes",
     "limited": "Ta famille l'a limité",
     "bonus": "+{{n}} si tu réussis",
-    "notePass": "Tu réussis avec {{p}} % de bonnes réponses. Chaque bonne réponse vaut une étoile.",
+    "notePass": "Tu réussis avec {{p}} % de bonnes réponses.",
     "notePractice": "Tu as déjà gagné tes étoiles du jour. C'est de l'entraînement libre.",
     "qOf": "Question {{i}} sur {{n}}",
     "pause": "Mettre en pause et sortir",
@@ -272,7 +271,7 @@
     "addChild": "+ Ajouter un enfant",
     "deleteChild": "Supprimer {{name}}",
     "deleteChildConfirm": "Tous les tests et étoiles de {{name}} seront supprimés. Tu es sûr ?",
-    "perCorrect": "Par bonne réponse",
+    "starsLead": "Le test ne donne des étoiles qu'en bonus (réussite, test parfait et séries). Elles partent de 0 ; chaque + ajoute 0,5.",
     "passPct": "Pour réussir",
     "passPctSub": "Pourcentage minimum de bonnes réponses",
     "pb": "Bonus de réussite ({{n}})",

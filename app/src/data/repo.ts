@@ -165,7 +165,7 @@ export async function finishTest(a: ActiveTest): Promise<FinishResult> {
   const answers: Answer[] = a.answers.map(x => ({ ...x, id: uid(), sessionId: session.id, childId: child.id }));
   const events: StarEvent[] = score.items.filter(it => it.stars > 0).map(it => ({
     id: uid(), childId: child.id, ts: now, day, type: it.id === 'racha' ? 'racha' : 'test', amount: it.stars,
-    note: '@ev.' + it.id + (it.id === 'aciertos' ? ';n=' + it.n + ';t=' + a.n : it.id === 'racha' ? ';d=' + it.days : ';t=' + a.n),
+    note: '@ev.' + it.id + (it.id === 'racha' ? ';d=' + it.days : ';t=' + a.n),
     by: 'child', device: dev, sessionId: session.id }));
   await put('sessions', [session]);
   await put('answers', answers);
