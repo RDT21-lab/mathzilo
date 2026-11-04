@@ -5,9 +5,9 @@ import { useState } from 'react';
 import { db } from '../../data/db';
 import * as repo from '../../data/repo';
 import type { Child, Family, Task } from '../../data/types';
-import { ALL_DAYS, dayOf, roundStars } from '../../data/domain';
+import { ALL_DAYS, roundStars } from '../../data/domain';
 import { useT, fmtNum } from '../../i18n';
-import { Icon, Mascot, useLive } from '../common';
+import { Icon, Mascot, useLive, useToday } from '../common';
 
 const WEEK = [1, 2, 3, 4, 5, 6, 0];                    // la semana empieza en lunes
 const WORKDAYS = [1, 2, 3, 4, 5];
@@ -52,7 +52,7 @@ export function TasksScreen({ family, toast }: { family: Family; toast: (m: stri
   const [kidId, setKidId] = useState<string | null>(null);
   const [form, setForm] = useState<null | { kind: 'task' | 'bonus'; task?: Task }>(null);
   const kid = kids.find(k => k.id === kidId) ?? kids[0];
-  const today = dayOf(Date.now(), family.settings.dayStartHour);
+  const today = useToday(family.settings.dayStartHour);
   const data = useLive(async () => kid ? {
     tasks: (await db.tasks.where('childId').equals(kid.id).toArray()).filter(x => !x.deleted).sort((a, b) => a.createdAt - b.createdAt),
     board: await repo.taskBoard(kid, today)
@@ -159,7 +159,7 @@ function TaskForm({ kind, task, tasks, today, lang, onDone }: { kind: 'task' | '
   const [stars, setStars] = useState(task ? String(task.stars).replace('.', t('sym.dec')) : kind === 'bonus' ? '2' : '1');
   const [once, setOnce] = useState(!!task?.date);
   const [date, setDate] = useState(task?.date ?? today);
-  const [days, setDays] = useState<number[]>(task?.days ?? WORKDAYS);
+  const [days, setDays] = useState<number[]>(task?.days ?? ALL_DAYS);       // por defecto, todos los días
   const [some, setSome] = useState(!!task?.taskIds?.length);
   const [pick, setPick] = useState<string[]>(task?.taskIds ?? []);
   const n = parseStars(stars);
@@ -207,8 +207,8 @@ function TaskForm({ kind, task, tasks, today, lang, onDone }: { kind: 'task' | '
 export function ReviewBox({ family, toast }: { family: Family; toast: (m: string) => void }) {
   const t = useT();
   const list = useLive(() => repo.pendingChecks(), [], []);
+  const today = useToday(family.settings.dayStartHour);
   if (!list.length) return null;
-  const today = dayOf(Date.now(), family.settings.dayStartHour);
   return (
     <section className="review-box" aria-live="polite">
       <h3><Icon name="bell" size={20} className="gold" />{t('parent.t.review', { count: list.length })}</h3>

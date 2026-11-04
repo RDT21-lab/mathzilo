@@ -5,12 +5,12 @@ import { db } from '../../data/db';
 import * as repo from '../../data/repo';
 import type { ActiveTest, Child, Family, Lang, Session } from '../../data/types';
 import { LANGS } from '../../data/types';
-import { balanceOf, computeStreak, dayOf, addDays, roundStars, FAST_MS, FAST_RUN } from '../../data/domain';
+import { balanceOf, computeStreak, addDays, roundStars, FAST_MS, FAST_RUN } from '../../data/domain';
 import { explain, inputToVal, isCorrect, makeQuestion, similar, tagFor, valKey, type Explanation, type Question, type Val } from '../../engine';
 import i18n, { useT, setLang, renderTpl, tplText, ValView, valText, noteText, fmtNum } from '../../i18n';
 import markUrl from '../../assets/mark.svg';
 import wordUrl from '../../assets/wordmark.svg';
-import { Icon, KidStage, Mascot, useLive, useToast, Toast, stageFor, STAGE_STREAK, type Emo, EMOS } from '../common';
+import { Icon, KidStage, Mascot, useLive, useToast, useToday, Toast, stageFor, STAGE_STREAK, type Emo, EMOS } from '../common';
 import { VisualView } from '../visuals';
 import { playOk, playWin } from '../../sound';
 
@@ -59,8 +59,9 @@ function Top({ child, left, onSheet, onProfiles, onTasks, family }: { child?: Ch
                                                      onTasks?: () => void; family?: Family }) {
   const t = useT();
   const bal = useLive(async () => child ? balanceOf(await db.events.where('childId').equals(child.id).toArray()) : 0, [child?.id], 0);
-  const board = useLive(async () => child && family && onTasks ? repo.taskBoard(child, dayOf(Date.now(), family.settings.dayStartHour)) : null,
-                        [child?.id, child?.taskDays, family?.settings.dayStartHour, !!onTasks], null);
+  const today = useToday(family?.settings.dayStartHour ?? 4);
+  const board = useLive(async () => child && family && onTasks ? repo.taskBoard(child, today) : null,
+                        [child?.id, child?.taskDays, today, !!onTasks], null);
   return (
     <div className="top">
       <div className="l">{left ?? <Brand />}</div>
@@ -91,9 +92,9 @@ function BackBtn({ onClick }: { onClick: () => void }) {
 /* ---------- Perfiles ---------- */
 function Profiles({ children, family, onPick, onParent, needRefresh, onRefresh }: { children: Child[]; family: Family; onPick: (c: Child) => void; onParent: () => void; needRefresh: boolean; onRefresh: () => void }) {
   const t = useT();
+  const today = useToday(family.settings.dayStartHour);
   const info = useLive(async () => {
     const out: Record<string, ProfileInfo> = {};
-    const today = dayOf(Date.now(), family.settings.dayStartHour);
     for (const c of children) {
       const sessions = await db.sessions.where('childId').equals(c.id).toArray();
       const s = computeStreak(sessions, today, family.settings.shieldsOn, c.bestStreak);
@@ -104,7 +105,7 @@ function Profiles({ children, family, onPick, onParent, needRefresh, onRefresh }
                     weekPct: qs ? Math.round(week.reduce((n, x) => n + x.correct, 0) / qs * 100) : null, board: await repo.taskBoard(c, today) };
     }
     return out;
-  }, [children, family], {});
+  }, [children, family, today], {});
   return (
     <div className="tscr">
       <Top />
@@ -152,15 +153,15 @@ function ProfileStats({ info }: { info?: ProfileInfo }) {
 
 /* ---------- Inicio ---------- */
 function useChildState(child: Child, family: Family) {
+  const today = useToday(family.settings.dayStartHour);
   return useLive(async () => {
     const sessions = await db.sessions.where('childId').equals(child.id).toArray();
-    const today = dayOf(Date.now(), family.settings.dayStartHour);
     const streak = computeStreak(sessions, today, family.settings.shieldsOn, child.bestStreak);
     const bal = balanceOf(await db.events.where('childId').equals(child.id).toArray());
     const rewards = (await db.rewards.toArray()).filter(r => r.active).sort((a, b) => a.cost - b.cost);
     const active = await repo.getActive(child.id);
     return { streak, bal, rewards, active, today };
-  }, [child.id, child.bestStreak, family], null);
+  }, [child.id, child.bestStreak, family, today], null);
 }
 function WeekDots({ states, today, small }: { states: Record<string, string>; today: string; small?: boolean }) {
   const t = useT();
@@ -595,7 +596,7 @@ function MascotScreen({ child, onBack, onSheet }: { child: Child; onBack: () => 
 /* ---------- Mis tareas ---------- */
 function TasksScreen({ child, family, onBack, onSheet, toast }: { child: Child; family: Family; onBack: () => void; onSheet: (s: 'stars' | 'settings') => void; toast: (m: string) => void }) {
   const t = useT();
-  const day = dayOf(Date.now(), family.settings.dayStartHour);
+  const day = useToday(family.settings.dayStartHour);
   const board = useLive(() => repo.taskBoard(child, day), [child.id, child.taskDays, day], null);
   if (!board) return <div className="tscr" />;
   return (

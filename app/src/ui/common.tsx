@@ -3,6 +3,7 @@ import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 're
 import { liveQuery } from 'dexie';
 import M from '../mascots/mascots.js';
 import type { Child } from '../data/types';
+import { dayOf } from '../data/domain';
 import { useT } from '../i18n';
 
 /** Resultado de una consulta a IndexedDB que se refresca solo cuando cambian los datos */
@@ -14,6 +15,21 @@ export function useLive<T>(fn: () => Promise<T>, deps: unknown[], initial: T): T
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
   return v;
+}
+
+/** Día de la app (AAAA-MM-DD) que cambia solo al pasar la hora de inicio del día: la tablet o el móvil
+    pueden quedarse con la app abierta de un día para otro y deben mostrar las tareas y la racha de hoy */
+export function useToday(dayStartHour: number): string {
+  const [day, setDay] = useState(() => dayOf(Date.now(), dayStartHour));
+  useEffect(() => {
+    const f = () => setDay(dayOf(Date.now(), dayStartHour));
+    f();
+    const id = setInterval(f, 30_000);
+    document.addEventListener('visibilitychange', f);
+    window.addEventListener('focus', f);
+    return () => { clearInterval(id); document.removeEventListener('visibilitychange', f); window.removeEventListener('focus', f); };
+  }, [dayStartHour]);
+  return day;
 }
 
 /** Tamaño del escenario: la pantalla menos las zonas que tapan la cámara, la isla dinámica o la barra de inicio */

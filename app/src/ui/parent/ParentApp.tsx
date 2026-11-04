@@ -5,11 +5,11 @@ import { db } from '../../data/db';
 import * as repo from '../../data/repo';
 import type { Child, Family, Lang, Reward, StarEvent } from '../../data/types';
 import { LANGS } from '../../data/types';
-import { addDays, balanceOf, computeStreak, dayOf, levelSuggestion, roundStars } from '../../data/domain';
+import { addDays, balanceOf, computeStreak, levelSuggestion, roundStars } from '../../data/domain';
 import { IDLE_MS, validPin } from '../../data/pin';
 import * as sync from '../../sync/client';
 import { useT, setLang, noteText, fmtNum, rawRes } from '../../i18n';
-import { Icon, Mascot, ParentStage, useLive, useToast, Toast } from '../common';
+import { Icon, Mascot, ParentStage, useLive, useToast, useToday, Toast } from '../common';
 import markUrl from '../../assets/mark.svg';
 import { downloadExport, ExportReminder, InstallSection, RestoreBackup } from './Extras';
 import { ReviewBox, TasksScreen, usePendingCount } from './Tasks';
@@ -147,9 +147,9 @@ function ForgotPin({ onDone }: { onDone: () => void }) {
 
 /* ---------- Panel ---------- */
 function useKids(family: Family) {
+  const today = useToday(family.settings.dayStartHour);
   return useLive(async () => {
     const kids = await db.children.toCollection().sortBy('createdAt');
-    const today = dayOf(Date.now(), family.settings.dayStartHour);
     return Promise.all(kids.map(async c => {
       const sessions = await db.sessions.where('childId').equals(c.id).toArray();
       const events = await db.events.where('childId').equals(c.id).toArray();
@@ -170,7 +170,7 @@ function useKids(family: Family) {
       const sug = levelSuggestion(sessions.filter(s => s.endedAt > ((dismissed?.value as number) ?? 0)), c.level);
       return { c, streak, bal: balanceOf(events), mastery, errors, flags, avg, lastTest, sug, sessions, today, board: await repo.taskBoard(c, today) };
     }));
-  }, [family], []);
+  }, [family, today], []);
 }
 function Panel({ family, toast }: { family: Family; toast: (m: string) => void }) {
   const t = useT();

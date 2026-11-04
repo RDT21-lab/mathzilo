@@ -33,9 +33,8 @@ test('tarea del padre → «hecha» en la tablet → aprobada → 1,5 ★ en los
   await phone.getByRole('button', { name: '+ Añadir tarea' }).click();
   await phone.getByLabel('Tarea', { exact: true }).fill('Hacer la cama');
   await phone.getByLabel('Estrellas (puede llevar un decimal: 1,5)').fill('1,5');
-  const form = phone.locator('.taskform');
-  await form.getByRole('button', { name: 'sábado' }).click();
-  await form.getByRole('button', { name: 'domingo' }).click();
+  // por defecto se repite todos los días
+  await expect(phone.locator('.taskform .daypick button[aria-pressed="true"]')).toHaveCount(7);
   await phone.getByRole('button', { name: 'Guardar' }).click();
   await expect(phone.locator('.taskrow').filter({ hasText: 'Hacer la cama' }).first()).toContainText('+1,5 ★');
 
