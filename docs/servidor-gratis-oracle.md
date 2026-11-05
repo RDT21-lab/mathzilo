@@ -38,6 +38,8 @@ La imagen `ghcr.io/rdt21-lab/mathzilo:latest` es pública y está compilada para
 4. Tu dirección será `mathzilo-rdt.duckdns.org`.
 
 ### 4.5 Entrar en la máquina e instalar Docker (15 min)
+> **Nuestro servidor (82.70.94.81)** no se creó desde la consola, sino con `tools/oracle_retry.py`, y su clave es `%USERPROFILE%\.ssh\mathzilo`, sin extensión. `mathzilo.key` es de un intento anterior en la consola que nunca llegó a crear la máquina, y el servidor la rechaza («Permission denied (publickey)»). Entra con `ssh -i "$env:USERPROFILE\.ssh\mathzilo" ubuntu@82.70.94.81`.
+
 En PowerShell, en tu PC:
 ```powershell
 $key = "$env:USERPROFILE\.ssh\mathzilo.key"

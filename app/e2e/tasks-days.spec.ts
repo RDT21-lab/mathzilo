@@ -14,8 +14,9 @@ async function toParent(page: Page) {
 }
 async function toKid(page: Page) {
   await page.evaluate(() => { location.hash = '#/'; });
-  const play = page.getByRole('button', { name: 'Jugar como Sara' });
-  if (await play.isVisible().catch(() => false)) await play.click();
+  // al volver del modo padre siempre se ve primero la pantalla de perfiles: esperar a la tarjeta
+  // (en máquinas lentas, como las de GitHub, tarda en aparecer y un isVisible() la daba por ausente)
+  await page.getByRole('button', { name: 'Jugar como Sara' }).click();
 }
 /** Por defecto se repite todos los días; `everyDay: false` quita el sábado y el domingo */
 async function addTask(page: Page, title: string, everyDay: boolean) {
