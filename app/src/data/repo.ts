@@ -3,9 +3,10 @@
 import { db, deviceId, getMeta, setMeta } from './db';
 import { balanceOf, bonusesForDay, checkId, computeStreak, dayOf, doneSubject, type Subject, nextMastery, roundStars, taskEventId, tasksForDay, type BonusState, type StreakInfo } from './domain';
 import { hashPin, newSalt, LOCK_MS, MAX_TRIES } from './pin';
-import { DEFAULT_RULES, makeTest, scoreTest, LEVEL_SKILLS, type ScoreResult } from '../engine';
+import { DEFAULT_RULES, makeTest, scoreTest, topicsFor, LEVEL_SKILLS, type ScoreResult } from '../engine';
 import M from '../mascots/mascots.js';
 import type { ActiveTest, Answer, Child, Family, Flag, Kind, Lang, Reward, Session, Settings, StarEvent, SyncTable, Task, TaskCheck, Tone } from './types';
+import { PET_NAMES } from './types';
 
 const uid = () => crypto.randomUUID();
 const FAMILY_ID = 'family';
@@ -71,7 +72,7 @@ export async function changePin(pin: string) {
 /* ---------------- Hijos ---------------- */
 export async function addChild(c: NewChild): Promise<Child> {
   const now = Date.now();
-  const child: Child = { id: uid(), name: c.name.trim(), kind: c.kind, petName: c.petName.trim() || (c.kind === 'zorro' ? 'Chispa' : 'Bip'),
+  const child: Child = { id: uid(), name: c.name.trim(), kind: c.kind, petName: c.petName.trim() || PET_NAMES[c.kind] || 'Chispa',
     level: c.level, lang: c.lang, tone: c.level <= 3 ? 'young' : 'older', maxLen: 20, bestStreak: 0, sound: true, createdAt: now, updatedAt: now };
   await put('children', [child]);
   return child;
@@ -139,7 +140,7 @@ export async function startTest(child: Child, n: number, subject: Subject = 'mat
   const review = [...new Set(recentWrong.filter(a => (sessionsById.get(a.sessionId)?.endedAt ?? 0) > since).map(a => a.skill))];
   const seed = Math.floor(Math.random() * 1e9);
   const level = geo ? Math.min(3, Math.max(1, child.geoLevel ?? 1)) : child.level;
-  const qs = makeTest(level, n, seed, { mastery, review }, subject).map(q => ({ gen: q.gen, seed: q.seed }));
+  const qs = makeTest(level, n, seed, { mastery, review, ...(geo ? { topics: topicsFor(child) } : {}) }, subject).map(q => ({ gen: q.gen, seed: q.seed }));
   const a: ActiveTest = { childId: child.id, n, level, practice: done, qs, i: 0, answers: [], startedAt: Date.now(), quick: 0, fast: false, ...(geo ? { subject: 'geo' as const } : {}) };
   await saveActive(a);
   return a;

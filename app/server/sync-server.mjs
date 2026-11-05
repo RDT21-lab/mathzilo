@@ -22,7 +22,7 @@ const LOGIN_FAILS = 10, PAIR_FAILS = 30, FAIL_WINDOW = 15 * 60_000;
 const IMMUTABLE = new Set(['sessions', 'answers', 'events', 'flags']);
 const LWW = new Set(['family', 'children', 'rewards', 'tasks', 'checks']);
 const TABLES = [...IMMUTABLE, ...LWW];
-const CHILD_SAFE = ['petName', 'kind', 'lang', 'sound', 'bigText', 'bestStreak', 'updatedAt'];
+const CHILD_SAFE = ['petName', 'kind', 'lang', 'sound', 'bigText', 'bestStreak', 'geoPick', 'updatedAt'];   // los temas que permite el padre (geoTopics) no
 const BY_CHILD = ['sessions', 'answers', 'events', 'flags', 'tasks', 'checks'];
 // Servicios de avisos de los navegadores: el servidor no envía nada a otras direcciones
 const PUSH_HOSTS = /(^|\.)(fcm\.googleapis\.com|push\.services\.mozilla\.com|push\.apple\.com|notify\.windows\.com)$/;

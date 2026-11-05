@@ -174,9 +174,11 @@ describe('teclado numérico', () => {
 
 describe('reglas de estrellas', () => {
   const R = { ...DEFAULT_RULES, passBonus: { 10: 2.5, 15: 3, 20: 4 }, perfect: 3, streakBonus: { 3: 3, 7: 7.5, 14: 15, 30: 40 } };
-  it('por defecto el test no da estrellas (los premios empiezan a 0)', () => {
-    expect(scoreTest(DEFAULT_RULES, { doneToday: false, streakToday: false, streak: 6 }, { correct: 20, total: 20, fast: false }).total).toBe(0);
-    expect(Object.values(DEFAULT_RULES.passBonus).concat(Object.values(DEFAULT_RULES.streakBonus), DEFAULT_RULES.perfect).every(v => v === 0)).toBe(true);
+  it('por defecto aprobar da 1 estrella y el resto de premios empieza a 0', () => {
+    expect(scoreTest(DEFAULT_RULES, { doneToday: false, streakToday: false, streak: 6 }, { correct: 20, total: 20, fast: false }).total).toBe(1);
+    expect(scoreTest(DEFAULT_RULES, { doneToday: false, streakToday: false, streak: 0 }, { correct: 5, total: 10, fast: false }).total).toBe(0);
+    expect(Object.values(DEFAULT_RULES.passBonus).every(v => v === 1)).toBe(true);
+    expect(Object.values(DEFAULT_RULES.streakBonus).concat(DEFAULT_RULES.perfect).every(v => v === 0)).toBe(true);
   });
   it('los aciertos no suman: 8 de 10 da solo el bonus de aprobar (con media estrella)', () => {
     const s = scoreTest(R, { doneToday: false, streakToday: false, streak: 0 }, { correct: 8, total: 10, fast: false });

@@ -2,7 +2,10 @@ import type { Rules } from '../engine';
 
 export type Lang = 'es' | 'en' | 'fr' | 'de';
 export const LANGS: Lang[] = ['es', 'en', 'fr', 'de'];
-export type Kind = 'zorro' | 'robot';
+export type Kind = 'zorro' | 'robot' | 'gato' | 'buho' | 'dragon';
+export const KINDS: Kind[] = ['zorro', 'robot', 'gato', 'buho', 'dragon'];
+/** Nombre de la mascota si no se elige otro */
+export const PET_NAMES: Record<Kind, string> = { zorro: 'Chispa', robot: 'Bip', gato: 'Misi', buho: 'Lechu', dragon: 'Draco' };
 export type Tone = 'young' | 'older';
 
 export interface SyncConfig {
@@ -39,6 +42,9 @@ export interface Child {
   petName: string;
   level: number;            // nivel de matemáticas (1-6)
   geoLevel?: number;        // nivel de geografía (1-3); sin valor = 1
+  geoTopics?: string[];     // temas de geografía que permite el padre (sin valor = todos)
+  geoTopicsFixed?: boolean; // el padre fija los temas: el niño no puede cambiarlos
+  geoPick?: string[];       // temas que eligió el niño la última vez (dentro de los permitidos)
   lang: Lang;
   tone: Tone;
   maxLen: 10 | 15 | 20;

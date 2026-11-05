@@ -29,7 +29,10 @@
   },
   "kind": {
     "zorro": "Renard",
-    "robot": "Robot"
+    "robot": "Robot",
+    "gato": "Chat",
+    "buho": "Hibou",
+    "dragon": "Dragon"
   },
   "praise": {
     "0": "Bien réfléchi !",
@@ -189,7 +192,9 @@
     "subjPractice": "Pour s’entraîner",
     "mapLabel": "Carte de l'Espagne",
     "okSayGeo": "{{pet}} : « Tu connais bien la carte ! »",
-    "miniOkSubGeo": "Tu sais le trouver sur la carte."
+    "miniOkSubGeo": "Tu sais le trouver sur la carte.",
+    "geoTopics": "Thèmes",
+    "geoTopicsFixed": "Thèmes choisis par ta famille"
   },
   "parent": {
     "title": "Mode parent",
@@ -279,7 +284,7 @@
     "addChild": "+ Ajouter un enfant",
     "deleteChild": "Supprimer {{name}}",
     "deleteChildConfirm": "Tous les tests et étoiles de {{name}} seront supprimés. Tu es sûr ?",
-    "starsLead": "Le test ne donne des étoiles qu'en bonus (réussite, test parfait et séries). Elles partent de 0 ; chaque + ajoute 0,5.",
+    "starsLead": "Le test ne donne des étoiles qu'en bonus (réussite, test parfait et séries). La réussite part de 1 et le reste de 0 ; chaque + ajoute 0,5.",
     "passPct": "Pour réussir",
     "passPctSub": "Pourcentage minimum de bonnes réponses",
     "pb": "Bonus de réussite ({{n}})",
@@ -420,7 +425,10 @@
     "geoLevel": "Niveau de géographie",
     "geoLevelSub": "1 : communautés, grands fleuves et montagnes · 2 : provinces et capitales · 3 : le plus difficile",
     "geo": "Géographie",
-    "mapCredit": "Carte de géographie : © Instituto Geográfico Nacional (IGN, Espagne), Natural Earth et relief de Terrain Tiles (Mapzen, SRTM)."
+    "mapCredit": "Carte de géographie : © Instituto Geográfico Nacional (IGN, Espagne), Natural Earth et relief de Terrain Tiles (Mapzen, SRTM).",
+    "geoTopics": "Thèmes de géographie",
+    "geoTopicsSub": "communautés et provinces sortent deux fois plus",
+    "geoKidChooses": "L'enfant choisit les thèmes"
   },
   "onb": {
     "welcome": "Bienvenue",
@@ -511,5 +519,12 @@
     "restoreBtn": "Restaurer",
     "restoreDone": "Copie restaurée.",
     "restoreOnb": "Tu as une copie exportée ? La restaurer"
+  },
+  "geoTopic": {
+    "ccaa": "Communautés",
+    "prov": "Provinces",
+    "caps": "Capitales",
+    "mount": "Montagnes",
+    "river": "Fleuves"
   }
 }

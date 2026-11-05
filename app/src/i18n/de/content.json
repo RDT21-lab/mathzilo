@@ -111,7 +111,9 @@
     "geo-river-city": "Flüsse und Städte",
     "geo-peak": "Gipfel und Gebirge",
     "geo-ccaa-count": "Wie viele Provinzen",
-    "geo-mount-ccaa": "Gebirge und Gemeinschaften"
+    "geo-mount-ccaa": "Gebirge und Gemeinschaften",
+    "geo-prov-map1": "Provinzen (leicht)",
+    "geo-capital-of1": "Hauptstädte (leicht)"
   },
   "tagName": {
     "cuenta-mal": "Kleiner Rechenfehler", "decena-mal": "Um zehn daneben", "resta-en-vez": "Rechnet minus statt anders",

@@ -3,7 +3,7 @@
 import { mulberry32, pickOptions, valKey, inputMatches, inputToVal, parseInput, valRat, rEq, type Question, type Val, type Option } from './core';
 import { BASIC } from './gens-basic';
 import { ADVANCED } from './gens-advanced';
-import { GEO, GEO_LEVEL_SKILLS, GEO_MAX_LEVEL, GEO_TAGS } from './geo';
+import { GEO, GEO_LEVEL_SKILLS, GEO_MAX_LEVEL, GEO_TAGS, GEO_TOPIC, GEO_TOPICS, TOPIC_WEIGHT, type GeoTopic } from './geo';
 import type { Explanation, Generator } from './types';
 
 export * from './core';
@@ -11,7 +11,8 @@ export type { Explanation, Step } from './types';
 
 /** Generadores de matemáticas (niveles 1-6). Los de geografía (niveles 1-3) van aparte: GEO */
 export const GENERATORS: Generator[] = [...BASIC, ...ADVANCED];
-export { GEO, GEO_LEVEL_SKILLS, GEO_MAX_LEVEL };
+export { GEO, GEO_LEVEL_SKILLS, GEO_MAX_LEVEL, GEO_TOPIC, GEO_TOPICS, TOPIC_WEIGHT };
+export { topicsFor, type GeoTopic } from './geo';
 export const GEN_BY_ID: Record<string, Generator> = Object.fromEntries([...GENERATORS, ...GEO].map(g => [g.id, g]));
 export type Subject = 'mates' | 'geo';
 export const isGeo = (genId: string) => genId.startsWith('geo-');
@@ -59,16 +60,18 @@ export function similar(q: Question, seed: number): Question {
 export interface TestContext {
   mastery?: Record<string, number>;   // 0-100 por habilidad
   review?: string[];                   // habilidades con errores recientes
+  topics?: GeoTopic[];                 // geografía: temas elegidos (sin valor = todos)
 }
 
-/** 70 % del nivel actual (más peso a las habilidades con menos dominio) y 30 % de repaso */
+/** Matemáticas: 70 % del nivel actual (más peso a las habilidades con menos dominio) y 30 % de repaso.
+    Geografía: por temas (ver makeGeoTest) */
 export function makeTest(level: number, n: number, seed: number, ctx: TestContext = {}, subject: Subject = 'mates'): Question[] {
+  if (subject === 'geo') return makeGeoTest(level, n, seed, ctx);
   const r = mulberry32(seed);
-  const geo = subject === 'geo';
-  const lv = Math.min(Math.max(level, 1), geo ? GEO_MAX_LEVEL : MAX_LEVEL);
-  const pool = (geo ? GEO_LEVEL_SKILLS : LEVEL_SKILLS)[lv];
-  const lowerAll = (geo ? GEO : GENERATORS).filter(g => g.level < lv && g.level >= lv - 2).map(g => g.id);
-  const review = (ctx.review ?? []).filter(id => GEN_BY_ID[id] && GEN_BY_ID[id].level <= lv && isGeo(id) === geo);
+  const lv = Math.min(Math.max(level, 1), MAX_LEVEL);
+  const pool = LEVEL_SKILLS[lv];
+  const lowerAll = GENERATORS.filter(g => g.level < lv && g.level >= lv - 2).map(g => g.id);
+  const review = (ctx.review ?? []).filter(id => GEN_BY_ID[id] && GEN_BY_ID[id].level <= lv && !isGeo(id));
   const reviewPool = review.length ? review : (lowerAll.length ? lowerAll : pool);
   const nReview = Math.round(n * 0.3);
   const weight = (id: string) => 1 + (100 - (ctx.mastery?.[id] ?? 40)) / 25;
@@ -86,6 +89,37 @@ export function makeTest(level: number, n: number, seed: number, ctx: TestContex
   return ids.map(id => {
     let q: Question, tries = 0;
     do { q = makeQuestion(id, Math.floor(r() * 1e9)); tries++; } while (seen.has(qKey(q)) && tries < 200);
+    seen.add(qKey(q));
+    return q;
+  });
+}
+
+/** Geografía: primero el tema (comunidades y provincias pesan el doble), luego la pregunta del tema.
+    Pesan más las del nivel del niño (×3), las de menos dominio y las falladas hace poco (×2); las de
+    niveles superiores solo salen para no repetir. */
+function makeGeoTest(level: number, n: number, seed: number, ctx: TestContext): Question[] {
+  const r = mulberry32(seed);
+  const lv = Math.min(Math.max(level, 1), GEO_MAX_LEVEL);
+  const topics = ctx.topics?.length ? ctx.topics : GEO_TOPICS;
+  const review = new Set(ctx.review ?? []);
+  const pickW = <T,>(items: T[], w: (x: T) => number): T => {
+    let x = r() * items.reduce((s, it) => s + w(it), 0);
+    for (const it of items) { x -= w(it); if (x <= 0) return it; }
+    return items[items.length - 1];
+  };
+  // preguntas del tema hasta el nivel del niño; las de niveles superiores solo entran si ya no queda ninguna sin
+  // repetir (un tema con pocas en nivel 1, como las 6 grandes cordilleras, en un test de 20)
+  const all = Object.fromEntries(topics.map(t => [t, GEO.filter(g => GEO_TOPIC[g.id] === t)])) as Record<GeoTopic, Generator[]>;
+  const upTo = Object.fromEntries(topics.map(t => [t, all[t].filter(g => g.level <= lv)])) as Record<GeoTopic, Generator[]>;
+  const weight = (g: Generator) => (g.level === lv ? 3 : 1) * (1 + (100 - (ctx.mastery?.[g.id] ?? 40)) / 25) * (review.has(g.id) ? 2 : 1);
+  const seen = new Set<string>();
+  return Array.from({ length: n }, () => {
+    let q: Question, tries = 0;
+    do {
+      const t = pickW(topics, x => TOPIC_WEIGHT[x]);                  // si sale repetida, se vuelve a sortear tema y pregunta
+      const g = pickW(tries < 50 && upTo[t].length ? upTo[t] : all[t], weight);
+      q = makeQuestion(g.id, Math.floor(r() * 1e9)); tries++;
+    } while (seen.has(qKey(q)) && tries < 80);
     seen.add(qKey(q));
     return q;
   });
@@ -129,7 +163,7 @@ export interface Rules {
   maxLen: number;
 }
 export const DEFAULT_RULES: Rules = {
-  passPct: 70, passBonus: { 10: 0, 15: 0, 20: 0 }, perfect: 0, streakBonus: { 3: 0, 7: 0, 14: 0, 30: 0 }, maxLen: 20
+  passPct: 70, passBonus: { 10: 1, 15: 1, 20: 1 }, perfect: 0, streakBonus: { 3: 0, 7: 0, 14: 0, 30: 0 }, maxLen: 20
 };
 export interface ScoreItem { id: 'superado' | 'perfecto' | 'racha'; days?: number; stars: number }
 export interface ScoreResult {

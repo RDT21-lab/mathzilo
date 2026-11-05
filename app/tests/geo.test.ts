@@ -1,7 +1,7 @@
 /* Geografía: cada pregunta tiene una sola respuesta correcta, los distractores son falsos de verdad,
    todo lo que se ilumina existe en el mapa y los datos (provincias, capitales, ríos…) cuadran.   */
 import { describe, expect, it } from 'vitest';
-import { GEO, GEO_LEVEL_SKILLS, makeQuestion, makeTest, explain, valKey, isGeo, type Question, type Val } from '../src/engine';
+import { GEO, GEO_LEVEL_SKILLS, GEO_TOPIC, GEO_TOPICS, makeQuestion, makeTest, explain, topicsFor, valKey, isGeo, type Question, type Val } from '../src/engine';
 import { geoRefs } from '../src/engine/geo';
 import { CCAA, PROVS, PROV_BY_ID, RIVERS, RIVER_BY_ID, MOUNTS, MOUNT_BY_ID, CITY_NAMES, PEAK_NAMES, provsOf } from '../src/geo/places';
 import { MAP } from '../src/geo/map-data';
@@ -18,8 +18,8 @@ function truth(q: Question, v: Val): boolean {
     case 'geo-river-map1': case 'geo-river-map': return id(v) === RIVERS[d.r].id;
     case 'geo-mount-map1': case 'geo-mount-map': return id(v) === MOUNTS[d.m].id;
     case 'geo-city-ccaa': case 'geo-prov-ccaa': return id(v) === PROV_BY_ID[pid].ccaa;
-    case 'geo-prov-map': case 'geo-prov-map-near': case 'geo-prov-of-capital': return id(v) === pid;
-    case 'geo-capital-of': case 'geo-capital-hard': return id(v) === PROV_BY_ID[pid].capital;
+    case 'geo-prov-map': case 'geo-prov-map1': case 'geo-prov-map-near': case 'geo-prov-of-capital': return id(v) === pid;
+    case 'geo-capital-of': case 'geo-capital-of1': case 'geo-capital-hard': return id(v) === PROV_BY_ID[pid].capital;
     case 'geo-ccaa-prov': return PROV_BY_ID[id(v)]?.ccaa === cid;
     case 'geo-river-ccaa': return RIVERS[d.r].ccaa.includes(id(v));
     case 'geo-river-mouth': { const m = RIVERS[d.r].mouth; return m === 'guadalquivir' ? v.k === 'geo' && v.t === 'river' && id(v) === 'guadalquivir' : v.k === 'geo' && v.t === 'sea' && id(v) === m; }
@@ -65,10 +65,12 @@ describe('geografía: ' + N + ' semillas por generador', () => {
         if (!truth(q, q.answer)) fail(label + ': la respuesta no es correcta ' + valKey(q.answer));
         for (const o of q.options) if (o.tag !== 'ok' && (truth(q, o.v) || doubtful(q, o.v))) fail(label + ': distractor válido o dudoso ' + valKey(o.v));
         for (const r of geoRefs(q.visual)) if (!onMap(r)) fail(label + ': no está en el mapa ' + r.t + ':' + r.id);
-        if (q.visual?.type !== 'map' || !q.visual.layers.length) fail(label + ': el mapa no dice qué capa enseñar');
-        // la capa tiene que ser la del tema preguntado
-        const need = q.gen.includes('river') ? 'river' : q.gen.includes('mount') || q.gen === 'geo-peak' ? 'mount' : q.gen.includes('ccaa-map') || q.gen === 'geo-city-ccaa' || q.gen === 'geo-prov-ccaa' ? 'ccaa' : 'prov';
-        if (q.visual?.type === 'map' && !q.visual.layers.includes(need as never)) fail(label + ': falta la capa ' + need);
+        {
+          if (q.visual?.type !== 'map' || !q.visual.layers.length) fail(label + ': el mapa no dice qué capa enseñar');
+          // la capa tiene que ser la del tema preguntado
+          const need = q.gen.includes('river') ? 'river' : q.gen.includes('mount') || q.gen === 'geo-peak' ? 'mount' : q.gen.includes('ccaa-map') || q.gen === 'geo-city-ccaa' || q.gen === 'geo-prov-ccaa' ? 'ccaa' : 'prov';
+          if (q.visual?.type === 'map' && !q.visual.layers.includes(need as never)) fail(label + ': falta la capa ' + need);
+        }
         for (const o of q.options) {
           if (o.tag === 'ok') continue;
           const x = explain(q, o.tag, o.v);
@@ -110,13 +112,46 @@ describe('geografía: datos', () => {
   });
 });
 
+describe('temas de geografía', () => {
+  it('cada generador tiene tema y cada tema tiene preguntas en los 3 niveles', () => {
+    for (const g of GEO) expect(GEO_TOPIC[g.id], g.id).toBeTruthy();
+    for (const t of GEO_TOPICS) for (const lv of [1, 2, 3]) expect(GEO.some(g => GEO_TOPIC[g.id] === t && g.level === lv), t + ' nivel ' + lv).toBe(true);
+  });
+  it('solo salen los temas elegidos, sin repetir, en cualquier nivel', () => {
+    for (const t of GEO_TOPICS) for (const lv of [1, 2, 3]) {
+      const qs = makeTest(lv, 20, 77 + lv, { topics: [t] }, 'geo');
+      expect(qs.every(q => GEO_TOPIC[q.gen] === t), t).toBe(true);
+      expect(new Set(qs.map(q => JSON.stringify([q.prompt, q.visual]))).size, t + ' ' + lv).toBe(20);
+    }
+    const mix = makeTest(2, 20, 5, { topics: ['mount', 'river'] }, 'geo');
+    expect(mix.every(q => ['mount', 'river'].includes(GEO_TOPIC[q.gen]))).toBe(true);
+  });
+  it('con todo elegido, comunidades y provincias salen más (el doble) que cada uno del resto', () => {
+    const count: Record<string, number> = {};
+    for (let s = 0; s < 200; s++) for (const q of makeTest(3, 20, 1000 + s, {}, 'geo')) count[GEO_TOPIC[q.gen]] = (count[GEO_TOPIC[q.gen]] ?? 0) + 1;
+    const total = Object.values(count).reduce((a, b) => a + b, 0);
+    expect(count.ccaa / total).toBeGreaterThan(0.24);
+    expect(count.prov / total).toBeGreaterThan(0.24);
+    for (const t of ['caps', 'mount', 'river']) { expect(count[t] / total).toBeGreaterThan(0.1); expect(count[t] / total).toBeLessThan(0.18); }
+  });
+  it('temas del padre y del niño', () => {
+    expect(topicsFor({})).toEqual(GEO_TOPICS);
+    expect(topicsFor({ geoPick: ['river'] })).toEqual(['river']);
+    expect(topicsFor({ geoTopics: ['ccaa', 'prov'], geoPick: ['river'] })).toEqual(['ccaa', 'prov']);          // lo del niño fuera de lo permitido no cuenta
+    expect(topicsFor({ geoTopics: ['ccaa', 'prov'], geoPick: ['prov', 'river'] })).toEqual(['prov']);
+    expect(topicsFor({ geoTopics: ['caps'], geoTopicsFixed: true, geoPick: ['river'] })).toEqual(['caps']);    // fijados por el padre
+    expect(topicsFor({ geoTopics: ['nada'] })).toEqual(GEO_TOPICS);
+  });
+});
+
 describe('test de geografía', () => {
   it('cada nivel tiene sus preguntas y el test no mezcla materias', () => {
     for (let lv = 1; lv <= 3; lv++) expect(GEO_LEVEL_SKILLS[lv].length).toBeGreaterThanOrEqual(4);
     for (const lv of [1, 2, 3]) for (const n of [10, 15, 20]) {
       const qs = makeTest(lv, n, 1234 + lv * n, {}, 'geo');
       expect(qs).toHaveLength(n);
-      expect(qs.every(q => isGeo(q.gen) && q.level <= lv)).toBe(true);
+      expect(qs.every(q => isGeo(q.gen))).toBe(true);
+      expect(qs.filter(q => q.level > lv).length, 'nivel ' + lv + ' con ' + n).toBeLessThanOrEqual(Math.ceil(n * 0.15));   // las de más nivel, solo de relleno
       expect(new Set(qs.map(q => JSON.stringify([q.prompt, q.visual]))).size).toBe(n);   // sin repetidas
     }
     expect(makeTest(3, 20, 7).some(q => isGeo(q.gen))).toBe(false);

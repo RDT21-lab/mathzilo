@@ -66,7 +66,12 @@ for (const lang of ['es', 'de'] as const) {
     // geografía: el test a medias se deja y se empieza uno de geografía
     await page.locator('.top .l .icon-btn').click();
     await page.getByRole('button', { name: L.newTest }).click();
+    await page.evaluate(async () => {                                  // con mapa: sin capitales
+      const sm = (window as unknown as { __sm: any }).__sm;
+      for (const c of await sm.db.children.toArray()) await sm.repo.updateChild(c.id, { geoPick: ['ccaa', 'prov', 'mount', 'river'] });
+    });
     await page.locator('.subjects .btn').nth(1).click();
+    await audit(page, 'longitud geo', found); await smallTargets(page, 'longitud geo', found);
     await page.locator('.lencard').first().click();
     await page.locator('.geomap:not(.ph)').first().waitFor();
     await audit(page, 'pregunta geo', found); await smallTargets(page, 'pregunta geo', found);

@@ -4,9 +4,9 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { db } from '../../data/db';
 import * as repo from '../../data/repo';
 import type { ActiveTest, Child, Family, Lang, Session } from '../../data/types';
-import { LANGS } from '../../data/types';
+import { KINDS, LANGS } from '../../data/types';
 import { balanceOf, computeStreak, addDays, doneSubject, roundStars, FAST_MS, FAST_RUN, type Subject } from '../../data/domain';
-import { explain, inputToVal, isCorrect, isGeo, makeQuestion, similar, tagFor, valKey, type Explanation, type Question, type Val } from '../../engine';
+import { explain, inputToVal, isCorrect, isGeo, makeQuestion, similar, tagFor, topicsFor, valKey, GEO_TOPICS, type Explanation, type GeoTopic, type Question, type Val } from '../../engine';
 import i18n, { useT, setLang, renderTpl, tplText, ValView, valText, noteText, fmtNum } from '../../i18n';
 import markUrl from '../../assets/mark.svg';
 import wordUrl from '../../assets/wordmark.svg';
@@ -274,6 +274,7 @@ function Length({ child, family, subject, onBack, onStart, onSheet }: { child: C
       <Top child={child} onSheet={onSheet} left={<BackBtn onClick={onBack} />} />
       <h1 className="ttl">{t('kid.howMany')}</h1>
       <p className="sub subjline"><Icon name={geo ? 'map' : 'calc'} size={22} />{t(geo ? 'kid.subjGeo' : 'kid.subjMates')} · {t('kid.level', { n: geo ? (child.geoLevel ?? 1) : child.level })}</p>
+      {geo && <TopicPicker child={child} />}
       <div className="lens">
         {[10, 15, 20].map((n, i) => {
           const dis = n > max;
@@ -291,6 +292,29 @@ function Length({ child, family, subject, onBack, onStart, onSheet }: { child: C
   );
 }
 
+/** Temas del test de geografía: el niño los marca o desmarca (siempre queda uno), salvo que el padre los haya fijado */
+const TOPIC_ICON: Record<GeoTopic, string> = { ccaa: 'map', prov: 'grid', caps: 'pin', mount: 'peak', river: 'wave' };
+function TopicPicker({ child }: { child: Child }) {
+  const t = useT();
+  const allowed = topicsFor({ geoTopics: child.geoTopics, geoTopicsFixed: true });
+  const on = topicsFor(child);
+  const fixed = !!child.geoTopicsFixed || allowed.length === 1;
+  const toggle = (k: GeoTopic) => {
+    const next = on.includes(k) ? on.filter(x => x !== k) : [...on, k];
+    if (next.length) repo.updateChild(child.id, { geoPick: GEO_TOPICS.filter(x => next.includes(x)) });
+  };
+  return (
+    <div className="topics" role="group" aria-label={t('kid.geoTopics')}>
+      {allowed.map(k => (
+        <button key={k} className="topic" aria-pressed={on.includes(k)} disabled={fixed} onClick={() => toggle(k)}>
+          <Icon name={TOPIC_ICON[k]} size={22} />{t('geoTopic.' + k)}
+        </button>
+      ))}
+      {fixed && <span className="muted small topicnote">{t('kid.geoTopicsFixed')}</span>}
+    </div>
+  );
+}
+
 /* ---------- Pregunta ---------- */
 type Phase = 'ask' | 'ok' | 'fail' | 'mini' | 'miniok' | 'minifail';
 const BIG_PROMPTS = /^(add|sub|mul|div|addN|subN|cmp|series|pow|sqrt|gcd|lcm|fracOf|fracEquiv|pct)$/;
@@ -300,7 +324,9 @@ export function PromptView({ q, reveal, hideAnswer }: { q: Question; reveal: boo
   const text = tplText('q.' + q.prompt.key, q.prompt.vars);
   const hasSlot = !isGeo(q.gen) && text.includes('?');          // en geografía la respuesta se enseña debajo
   const len = text.length;
-  const size = BIG_PROMPTS.test(q.prompt.key) ? (len <= 13 ? 70 : len <= 18 ? 58 : len <= 26 ? 44 : 34) : (len <= 30 ? 34 : len <= 70 ? 27 : 23);
+  const size = BIG_PROMPTS.test(q.prompt.key) ? (len <= 13 ? 70 : len <= 18 ? 58 : len <= 26 ? 44 : 34)
+    : isGeo(q.gen) && !q.visual ? (len <= 45 ? 46 : 38)                    // geografía sin mapa (capitales): letra grande
+    : (len <= 30 ? 34 : len <= 70 ? 27 : 23);
   const ans = <span className="ans"><ValView v={q.answer} /></span>;
   const ref = useRef<HTMLDivElement>(null);
   // Encoge el enunciado hasta que quepa en la tarjeta (los textos alemanes son los más largos)
@@ -480,7 +506,7 @@ function QuestionScreen({ child, active: initial, onPause, onDone, toast }: { ch
       </div>
       {isMini ? <div className="minibanner">{t('kid.miniBanner')}</div> : active.practice ? <div className="minibanner">{t('kid.practiceBanner')}</div> : null}
       <div className={'qgrid' + (geo ? ' geo' : '')}>
-        <div className={'qcard' + (geo ? ' geo' : '')}>
+        <div className={'qcard' + (geo ? ' geo' + (q.visual ? '' : ' nomap') : '')}>
           <span className="chip skill">{t('skill.' + q.gen)}</span>
           {/* en geografía, al fallar, el mapa grande pasa a enseñar la explicación (lo elegido con borde coral) */}
           {q.visual && <div className="qvis"><VisualView v={geo && phase === 'fail' && expl?.visual ? expl.visual : q.visual} /></div>}
@@ -602,7 +628,7 @@ function MascotScreen({ child, onBack, onSheet }: { child: Child; onBack: () => 
             })}
           </div>
           <div className="kindsel">{t('kid.companion')}
-            <span className="segs">{(['zorro', 'robot'] as const).map(k => <button key={k} aria-pressed={child.kind === k} onClick={() => repo.updateChild(child.id, { kind: k })}>{t('kind.' + k)}</button>)}</span>
+            <span className="segs">{KINDS.map(k => <button key={k} aria-pressed={child.kind === k} onClick={() => repo.updateChild(child.id, { kind: k })}>{t('kind.' + k)}</button>)}</span>
           </div>
         </div>
       </div>

@@ -29,7 +29,10 @@
   },
   "kind": {
     "zorro": "Fuchs",
-    "robot": "Roboter"
+    "robot": "Roboter",
+    "gato": "Katze",
+    "buho": "Eule",
+    "dragon": "Drache"
   },
   "praise": {
     "0": "Gut überlegt!",
@@ -189,7 +192,9 @@
     "subjPractice": "Zum Üben",
     "mapLabel": "Karte von Spanien",
     "okSayGeo": "{{pet}}: „Du kennst die Karte!“",
-    "miniOkSubGeo": "Du findest es jetzt auf der Karte."
+    "miniOkSubGeo": "Du findest es jetzt auf der Karte.",
+    "geoTopics": "Themen",
+    "geoTopicsFixed": "Themen von deiner Familie gewählt"
   },
   "parent": {
     "title": "Elternbereich",
@@ -279,7 +284,7 @@
     "addChild": "+ Kind hinzufügen",
     "deleteChild": "{{name}} löschen",
     "deleteChildConfirm": "Alle Tests und Sterne von {{name}} werden gelöscht. Sicher?",
-    "starsLead": "Der Test gibt Sterne nur als Bonus (bestanden, perfekter Test und Serien). Sie beginnen bei 0; jedes + gibt 0,5 dazu.",
+    "starsLead": "Der Test gibt Sterne nur als Bonus (bestanden, perfekter Test und Serien). Bestehen beginnt bei 1, der Rest bei 0; jedes + gibt 0,5 dazu.",
     "passPct": "Zum Bestehen",
     "passPctSub": "Mindestanteil richtiger Antworten",
     "pb": "Bonus fürs Bestehen ({{n}})",
@@ -420,7 +425,10 @@
     "geoLevel": "Erdkunde-Stufe",
     "geoLevelSub": "1: Gemeinschaften, große Flüsse und Gebirge · 2: Provinzen und Hauptstädte · 3: am schwersten",
     "geo": "Erdkunde",
-    "mapCredit": "Erdkunde-Karte: © Instituto Geográfico Nacional (IGN, Spanien), Natural Earth und Relief aus Terrain Tiles (Mapzen, SRTM)."
+    "mapCredit": "Erdkunde-Karte: © Instituto Geográfico Nacional (IGN, Spanien), Natural Earth und Relief aus Terrain Tiles (Mapzen, SRTM).",
+    "geoTopics": "Erdkunde-Themen",
+    "geoTopicsSub": "Gemeinschaften und Provinzen kommen doppelt so oft",
+    "geoKidChooses": "Kind wählt die Themen"
   },
   "onb": {
     "welcome": "Willkommen",
@@ -511,5 +519,12 @@
     "restoreBtn": "Wiederherstellen",
     "restoreDone": "Sicherung wiederhergestellt.",
     "restoreOnb": "Exportierte Sicherung vorhanden? Wiederherstellen"
+  },
+  "geoTopic": {
+    "ccaa": "Gemeinschaften",
+    "prov": "Provinzen",
+    "caps": "Hauptstädte",
+    "mount": "Gebirge",
+    "river": "Flüsse"
   }
 }

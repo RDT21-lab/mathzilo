@@ -111,7 +111,9 @@
     "geo-river-city": "Rivers and cities",
     "geo-peak": "Peaks and ranges",
     "geo-ccaa-count": "How many provinces",
-    "geo-mount-ccaa": "Ranges and communities"
+    "geo-mount-ccaa": "Ranges and communities",
+    "geo-prov-map1": "Provinces (easy)",
+    "geo-capital-of1": "Capitals (easy)"
   },
   "tagName": {
     "cuenta-mal": "Small counting slip", "decena-mal": "Off by ten", "resta-en-vez": "Subtracts by mistake",
