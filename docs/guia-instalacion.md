@@ -27,7 +27,7 @@ Qué queda en marcha:
 
 Errores: la app envía al servidor los errores técnicos **sin datos personales** (solo mensaje, pila y versión). Se guardan en el volumen de datos, en `errors.log`.
 
-Despliegue automático (opcional): en GitHub, añade los secretos `DEPLOY_HOST`, `DEPLOY_USER` y `DEPLOY_KEY` (clave SSH). Cada cambio en `main` se publica solo.
+Despliegue automático (opcional): en GitHub, añade los secretos `DEPLOY_HOST`, `DEPLOY_USER` y `DEPLOY_KEY` (clave SSH, mejor en base64; paso a paso en `docs/servidor-gratis-oracle.md`, «Despliegue automático desde GitHub»). Cada cambio en `main` se publica solo.
 
 ---
 

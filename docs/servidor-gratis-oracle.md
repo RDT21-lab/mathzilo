@@ -113,3 +113,22 @@ Ojo: la app de GitHub Pages y la del servidor son direcciones distintas, y el na
 ```bash
 cd ~/mathzilo && docker compose pull && docker compose up -d
 ```
+
+## Despliegue automático desde GitHub (cada cambio en `main` llega solo al servidor)
+Se usa una **clave solo para el despliegue**, creada en el propio servidor. Así no hay que copiar la clave de tu PC ni pelearse con los saltos de línea de Windows al pegarla en la web.
+
+1. Entra en el servidor (`ssh -i "$env:USERPROFILE\.ssh\mathzilo" ubuntu@82.70.94.81`) y ejecuta:
+   ```bash
+   ssh-keygen -t ed25519 -N "" -C github-deploy -f ~/.ssh/github_deploy      # clave nueva, sin contraseña
+   cat ~/.ssh/github_deploy.pub >> ~/.ssh/authorized_keys                     # el servidor la acepta
+   ssh-keygen -lf ~/.ssh/github_deploy                                         # apunta la huella (SHA256:…)
+   base64 -w0 ~/.ssh/github_deploy; echo                                       # una sola línea larga: cópiala entera
+   ```
+2. En GitHub: repositorio → **Settings → Secrets and variables → Actions**. Crea o edita (**Update**) estos tres secretos:
+   - `DEPLOY_HOST`: `82.70.94.81`
+   - `DEPLOY_USER`: `ubuntu`
+   - `DEPLOY_KEY`: la línea larga del paso 1 (sin espacios delante ni detrás).
+3. Repite el despliegue: **Actions → ci → la última ejecución de `main` → Re-run jobs → Re-run failed jobs**.
+4. En el registro del trabajo **deploy** sale «DEPLOY_KEY: clave OpenSSH en forma base64, 7 líneas» y una huella `SHA256:…`, que debe ser la del paso 1. Si algo no cuadra, el registro dice qué se pegó (la clave pública, una de PuTTY, una con contraseña, una cortada…) sin enseñar la clave.
+
+Cuando funcione, borra de tu PC cualquier copia de la línea en base64: es la clave. Para retirar el acceso de GitHub, quita la línea `github-deploy` de `~/.ssh/authorized_keys` en el servidor.

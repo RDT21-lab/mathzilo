@@ -68,14 +68,32 @@ jobs:
           KEY: ${{ secrets.DEPLOY_KEY }}
         run: |
           if [ -z "$HOST" ]; then echo "Sin DEPLOY_HOST: se omite el despliegue"; exit 0; fi
-          # la clave pegada en la web puede llegar con saltos de línea de Windows o sin el salto final
-          # también se admite la clave en una sola línea en base64 (lo más seguro al pegarla en la web)
+          [ -n "$KEY" ] || { echo "::error::DEPLOY_KEY está vacío"; exit 1; }
+          # La clave se admite tal cual (con sus líneas BEGIN/END) o en una sola línea en base64
+          # (lo más seguro al pegarla en la web: ver docs/guia-instalacion.md). Se limpian los
+          # saltos de línea de Windows y se asegura el salto final.
           mkdir -p ~/.ssh
-          if printf '%s' "$KEY" | grep -q 'BEGIN'; then printf '%s\n' "$KEY" | tr -d '\r' > ~/.ssh/id
-          else printf '%s' "$KEY" | tr -d '[:space:]' | base64 -d > ~/.ssh/id; fi
+          case "$(printf '%s' "$KEY" | tr -d '\r' | head -n1)" in
+            ssh-*|ecdsa-*) echo "::error::DEPLOY_KEY es la clave PÚBLICA (.pub). Ahí va la PRIVADA (el archivo sin .pub)"; exit 1 ;;
+            PuTTY*) echo "::error::DEPLOY_KEY es una clave de PuTTY (.ppk). Conviértela a OpenSSH con PuTTYgen (Conversions → Export OpenSSH key)"; exit 1 ;;
+          esac
+          if printf '%s' "$KEY" | grep -q 'BEGIN'; then printf '%s\n' "$KEY" | tr -d '\r' > ~/.ssh/id; FORM="texto"
+          else printf '%s' "$KEY" | tr -d '[:space:]' | base64 -d > ~/.ssh/id 2>/dev/null || { echo "::error::DEPLOY_KEY no tiene BEGIN y tampoco es base64 válido"; exit 1; }; FORM="base64"; fi
           chmod 600 ~/.ssh/id
+          # Diagnóstico sin revelar la clave: solo su forma, su tipo (por la cabecera) y el número de líneas
+          case "$(head -n1 ~/.ssh/id | tr -d '\000')" in
+            '-----BEGIN OPENSSH PRIVATE KEY-----') TYPE="OpenSSH" ;;
+            '-----BEGIN RSA PRIVATE KEY-----'|'-----BEGIN EC PRIVATE KEY-----'|'-----BEGIN PRIVATE KEY-----') TYPE="PEM" ;;
+            ssh-*|ecdsa-*) echo "::error::DEPLOY_KEY es la clave PÚBLICA (.pub). Ahí va la PRIVADA (el archivo sin .pub)"; exit 1 ;;
+            PuTTY*) echo "::error::DEPLOY_KEY es una clave de PuTTY (.ppk). Conviértela a OpenSSH con PuTTYgen (Conversions → Export OpenSSH key)"; exit 1 ;;
+            openssh-key-v1*) echo "::error::DEPLOY_KEY es el cuerpo de la clave sin las líneas «-----BEGIN/END OPENSSH PRIVATE KEY-----». Pégala entera o en base64 (ver la guía)"; exit 1 ;;
+            *) echo "::error::DEPLOY_KEY ($FORM) no es una clave privada SSH: la primera línea debe ser «-----BEGIN … PRIVATE KEY-----»"; exit 1 ;;
+          esac
+          echo "DEPLOY_KEY: clave $TYPE en forma $FORM, $(wc -l < ~/.ssh/id) líneas"
+          grep -q -- '-----END' ~/.ssh/id || { echo "::error::Falta la línea «-----END … PRIVATE KEY-----»: la clave está cortada"; exit 1; }
+          ssh-keygen -y -P '' -f ~/.ssh/id > /dev/null 2>&1 || { echo "::error::La clave tiene contraseña o está dañada. Usa una clave sin contraseña solo para el despliegue"; exit 1; }
+          # la huella no es secreta: compárala con «ssh-keygen -lf ~/.ssh/github_deploy» en el servidor
+          ssh-keygen -lf ~/.ssh/id
           HOST=$(printf '%s' "$HOST" | tr -d '[:space:]'); USER=$(printf '%s' "$USER" | tr -d '[:space:]')
-          # la huella no es secreta: sirve para ver en el registro qué clave se está usando
-          ssh-keygen -lf ~/.ssh/id || { echo "DEPLOY_KEY no es una clave privada válida (¿se pegó la .pub?)"; exit 1; }
-          ssh -i ~/.ssh/id -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new "$USER@$HOST" \
-            "cd ~/mathzilo && docker compose pull && docker compose up -d"
+          ssh -i ~/.ssh/id -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new -o ConnectTimeout=20 "$USER@$HOST" \
+            "cd ~/mathzilo && docker compose pull && docker compose up -d && docker image prune -f"
