@@ -1,7 +1,9 @@
 /* Genera el mapa de España de la geografía (se ejecuta a mano: `npm run geo`).
    - Provincias y comunidades autónomas: es-atlas (IGN, licencia MIT). Países vecinos: world-atlas
      (Natural Earth, dominio público). Se simplifican conservando las fronteras compartidas.
-   - Ríos, cordilleras, picos y ciudades: puntos (longitud, latitud) puestos a mano, abajo.
+   - Ríos: trazado real de Natural Earth 1:10m (dominio público; se descarga a scripts/.cache).
+   - Cordilleras (eje por donde van los símbolos de montaña), picos y ciudades: puntos puestos a mano.
+   - El relieve sombreado lo hace scripts/build-relief.mjs con la misma proyección.
    - Proyección sencilla: grados × coseno de 40° en horizontal; Canarias en un recuadro abajo a la izquierda.
    Escribe src/geo/map-data.ts (dibujo, se carga solo al hacer un test de geografía) y
    src/geo/neighbors.ts (provincias y comunidades vecinas, para elegir distractores).          */
@@ -13,6 +15,17 @@ import * as topo from 'topojson-client';
 import * as simp from 'topojson-simplify';
 
 const require = createRequire(import.meta.url);
+const cacheDir = path.join(path.dirname(fileURLToPath(import.meta.url)), '.cache');
+async function naturalEarth(name) {
+  const f = path.join(cacheDir, name + '.geojson');
+  if (!fs.existsSync(f)) {
+    fs.mkdirSync(cacheDir, { recursive: true });
+    const r = await fetch('https://raw.githubusercontent.com/nvkelso/natural-earth-vector/v5.1.2/geojson/' + name + '.geojson');
+    if (!r.ok) throw new Error(name + ': ' + r.status);
+    fs.writeFileSync(f, Buffer.from(await r.arrayBuffer()));
+  }
+  return JSON.parse(fs.readFileSync(f, 'utf8'));
+}
 const here = path.dirname(fileURLToPath(import.meta.url));
 const out = path.resolve(here, '..', 'src', 'geo');
 
@@ -82,7 +95,43 @@ const NEAR = ['Portugal', 'France', 'Andorra', 'Morocco', 'Algeria'];
 const land = w.objects.countries.geometries.filter(g => NEAR.includes(g.properties.name)).map(g => geomPath(topo.feature(w, g).geometry, false)).join('')
   + geomPath(topo.feature(es, gib).geometry);
 
-/* ---------- Ríos (de la fuente a la desembocadura) ---------- */
+/* ---------- Ríos: Natural Earth (nombre en sus datos → nuestro río) ---------- */
+const NE_RIVERS = {
+  ne_10m_rivers_lake_centerlines: { 'Mio': 'mino', 'Minho': 'mino', 'Ebro': 'ebro', 'Tajo': 'tajo', 'Tejo': 'tajo', 'Duero': 'duero', 'Guadiana': 'guadiana', 'Guadalquivir': 'guadalquivir' },
+  ne_10m_rivers_europe: { 'Júcar': 'jucar', 'Segura': 'segura', 'Turia': 'turia', 'Genil': 'genil' }
+};
+/** Tramos que faltan en Natural Earth (hasta la desembocadura) */
+const RIVER_EXTRA = { guadalquivir: [[[-6.19, 36.93], [-6.37, 36.79]]] };
+/** Douglas-Peucker en unidades del mapa */
+function simplifyLine(p, tol) {
+  if (p.length < 3) return p;
+  const [a, b] = [p[0], p[p.length - 1]];
+  let idx = -1, max = 0;
+  for (let i = 1; i < p.length - 1; i++) {
+    const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy) || 1;
+    const d = Math.abs(dy * p[i][0] - dx * p[i][1] + b[0] * a[1] - b[1] * a[0]) / L;
+    if (d > max) { max = d; idx = i; }
+  }
+  return max > tol ? [...simplifyLine(p.slice(0, idx + 1), tol).slice(0, -1), ...simplifyLine(p.slice(idx), tol)] : [a, b];
+}
+const riverLines = {};
+for (const [file, names] of Object.entries(NE_RIVERS)) {
+  const g = await naturalEarth(file);
+  for (const f of g.features) {
+    const id = names[f.properties.name];
+    if (!id) continue;
+    const parts = f.geometry.type === 'LineString' ? [f.geometry.coordinates] : f.geometry.coordinates;
+    for (const part of parts) {
+      if (part.some(([lon, lat]) => lon < -9.9 || lon > 3.5 || lat < 36.0 || lat > 44)) continue;       // solo la península
+      (riverLines[id] ||= []).push(part);
+    }
+  }
+}
+for (const [id, parts] of Object.entries(RIVER_EXTRA)) riverLines[id].push(...parts);
+const riverPath = parts => parts.map(part => simplifyLine(part.map(p => proj(p)), 1.2)).filter(l => l.length > 1)
+  .map(l => 'M' + l.map(p => p.join(' ')).join('L')).join('');
+
+/* ---------- Ríos a mano (ya no se dibujan: quedan como referencia del recorrido) ---------- */
 const RIVERS = {
   mino: [[-7.29, 43.21], [-7.56, 43.01], [-7.62, 42.81], [-7.71, 42.63], [-7.73, 42.45], [-7.87, 42.34], [-8.14, 42.29], [-8.50, 42.08], [-8.64, 42.05], [-8.87, 41.87]],
   duero: [[-2.88, 41.99], [-2.46, 41.77], [-2.53, 41.48], [-3.20, 41.58], [-3.69, 41.67], [-4.12, 41.60], [-5.00, 41.50], [-5.39, 41.52], [-5.75, 41.50],
@@ -136,6 +185,25 @@ const CITIES = {
   merida: [-6.34, 38.92], orihuela: [-0.94, 38.08], loja: [-4.15, 37.17], ecija: [-5.08, 37.54], tui: [-8.64, 42.05], alzira: [-0.43, 39.15], andujar: [-4.05, 38.04]
 };
 
+/* ---------- Símbolos de montaña: a lo largo del eje de cada cordillera, cada ~55 unidades ---------- */
+function along(pts, step) {
+  const p = pts.map(q => proj(q)), out = [];
+  let carry = step / 2;
+  for (let i = 0; i < p.length - 1; i++) {
+    const [a, b] = [p[i], p[i + 1]], L = Math.hypot(b[0] - a[0], b[1] - a[1]);
+    let t = carry;
+    while (t <= L) { out.push([r1(a[0] + (b[0] - a[0]) * t / L), r1(a[1] + (b[1] - a[1]) * t / L)]); t += step; }
+    carry = t - L;
+  }
+  return out.length ? out : [p[Math.floor(p.length / 2)]];
+}
+const mountIcons = Object.fromEntries(Object.entries(MOUNTS).map(([k, v]) => [k, along(v, 55)]));
+/* Contorno de España (costa y fronteras), para las capas de ríos y montañas */
+const outline = (() => {
+  const m = topo.mesh(es, { type: 'GeometryCollection', geometries: ccaaGeoms }, (a, b) => a === b);
+  return m.coordinates.map(line => 'M' + line.map(q => proj(q, isCanary(q)).join(' ')).join('L')).join('');
+})();
+
 /* ---------- Comprobación: cada provincia cae en su comunidad (por su punto medio) ---------- */
 const sz = d => { const b = bbox(d); return [b, (b[0] + b[2]) / 2, (b[1] + b[3]) / 2]; };
 const fmt = o => JSON.stringify(o);
@@ -144,8 +212,8 @@ const CMID = Object.fromEntries(Object.entries(CCAA).map(([k, d]) => [k, sz(d)[0
 const P = o => Object.fromEntries(Object.entries(o).map(([k, v]) => [k, proj(v, isCanary(v))]));
 const map = {
   view: VIEW, canaryBox: CANARY_BOX, land, prov: PROV, ccaa: CCAA, provBox: MID, ccaaBox: CMID,
-  rivers: Object.fromEntries(Object.entries(RIVERS).map(([k, v]) => [k, smooth(v)])),
-  mounts: Object.fromEntries(Object.entries(MOUNTS).map(([k, v]) => [k, smooth(v)])),
+  rivers: Object.fromEntries(Object.keys(RIVERS).map(k => [k, riverPath(riverLines[k] ?? [])])),
+  mounts: Object.fromEntries(Object.entries(MOUNTS).map(([k, v]) => [k, smooth(v)])), mountIcons, outline,
   peaks: P(PEAKS), cities: P(CITIES)
 };
 const head = '/* Generado por scripts/build-geo.mjs a partir de es-atlas (IGN, MIT) y world-atlas (Natural Earth). No editar a mano. */\n';

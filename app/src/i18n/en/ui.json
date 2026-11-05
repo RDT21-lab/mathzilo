@@ -420,7 +420,7 @@
     "geoLevel": "Geography level",
     "geoLevelSub": "1: communities, big rivers and mountains · 2: provinces and capitals · 3: the hardest",
     "geo": "Geography",
-    "mapCredit": "Geography map: © Instituto Geográfico Nacional (IGN, Spain) and Natural Earth."
+    "mapCredit": "Geography map: © Instituto Geográfico Nacional (IGN, Spain), Natural Earth and relief from Terrain Tiles (Mapzen, SRTM)."
   },
   "onb": {
     "welcome": "Welcome",

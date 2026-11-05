@@ -3,3 +3,5 @@ dist
 server/data
 *.local
 *.tsbuildinfo
+scripts/.cache/
+scripts/.tiles/

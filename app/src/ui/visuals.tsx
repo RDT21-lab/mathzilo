@@ -7,7 +7,7 @@ import { ValView, fmtNum, fmtDec, rawRes, valText, useT } from '../i18n';
 const MapView = lazy(() => import('../geo/MapView'));
 function GeoMap({ v, compact }: { v: Extract<Visual, { type: 'map' }>; compact?: boolean }) {
   const t = useT();
-  return <Suspense fallback={<div className={'geomap ph' + (compact ? ' sm' : '')} />}><MapView hi={v.hi} alt={v.alt} dot={v.dot} compact={compact} label={t('kid.mapLabel')} /></Suspense>;
+  return <Suspense fallback={<div className={'geomap ph' + (compact ? ' sm' : '')} />}><MapView layers={v.layers} hi={v.hi} alt={v.alt} dot={v.dot} compact={compact} label={t('kid.mapLabel')} /></Suspense>;
 }
 
 const GOLD = '#FFC933', LAV = '#9AA8FF', NAVY = '#0A1230', LINE = '#2A4390', BONE = '#F7F7FA', MUTED = '#A9B6E0', CARD = '#1B3680';

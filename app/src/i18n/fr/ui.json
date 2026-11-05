@@ -420,7 +420,7 @@
     "geoLevel": "Niveau de géographie",
     "geoLevelSub": "1 : communautés, grands fleuves et montagnes · 2 : provinces et capitales · 3 : le plus difficile",
     "geo": "Géographie",
-    "mapCredit": "Carte de géographie : © Instituto Geográfico Nacional (IGN, Espagne) et Natural Earth."
+    "mapCredit": "Carte de géographie : © Instituto Geográfico Nacional (IGN, Espagne), Natural Earth et relief de Terrain Tiles (Mapzen, SRTM)."
   },
   "onb": {
     "welcome": "Bienvenue",

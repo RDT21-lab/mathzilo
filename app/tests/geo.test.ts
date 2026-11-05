@@ -65,6 +65,10 @@ describe('geografía: ' + N + ' semillas por generador', () => {
         if (!truth(q, q.answer)) fail(label + ': la respuesta no es correcta ' + valKey(q.answer));
         for (const o of q.options) if (o.tag !== 'ok' && (truth(q, o.v) || doubtful(q, o.v))) fail(label + ': distractor válido o dudoso ' + valKey(o.v));
         for (const r of geoRefs(q.visual)) if (!onMap(r)) fail(label + ': no está en el mapa ' + r.t + ':' + r.id);
+        if (q.visual?.type !== 'map' || !q.visual.layers.length) fail(label + ': el mapa no dice qué capa enseñar');
+        // la capa tiene que ser la del tema preguntado
+        const need = q.gen.includes('river') ? 'river' : q.gen.includes('mount') || q.gen === 'geo-peak' ? 'mount' : q.gen.includes('ccaa-map') || q.gen === 'geo-city-ccaa' || q.gen === 'geo-prov-ccaa' ? 'ccaa' : 'prov';
+        if (q.visual?.type === 'map' && !q.visual.layers.includes(need as never)) fail(label + ': falta la capa ' + need);
         for (const o of q.options) {
           if (o.tag === 'ok') continue;
           const x = explain(q, o.tag, o.v);

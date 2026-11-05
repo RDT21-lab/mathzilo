@@ -76,6 +76,7 @@ Pedido por la familia piloto:
   - Padre: «Nivel de geografía» en Ajustes, «Geografía N» en la ficha del hijo y en sus últimos tests; la sugerencia de nivel y la caja Dificultad solo miran matemáticas. Hoja `#/revision` con geografía 1-3.
 - Tablet/móvil en vertical: el diseño vertical llega ahora hasta 1500 de alto (los móviles ya no dejan franjas).
 - Pruebas: `tests/geo.test.ts` (2.000 semillas por generador: una sola correcta, distractores falsos de verdad, todo dibujable; datos de provincias, capitales y vecinas), estrellas por materia en local y en el servidor, e2e de geografía y maquetación con un test de geografía entero en cada idioma y orientación.
+- **Mapa mejorado (v1.1.0, mismo día)**: cada pregunta pide sus capas (`Visual.layers`: `ccaa`, `prov`, `caps`, `river`, `mount`) y solo se dibujan esas: comunidades sin provincias, provincias sin comunidades (con un punto en cada capital), ríos y montañas sobre **relieve sombreado** (`src/geo/relief.jpg`, 74 KB, generado por `scripts/build-relief.mjs` / `npm run relief` con Terrain Tiles de AWS-Mapzen, SRTM). Ríos con su **trazado real** de Natural Earth 1:10m (`build-geo.mjs` los descarga a `scripts/.cache`). Cordilleras con **símbolos de montaña** a lo largo de su eje; la preguntada en dorado con un **foco** que oscurece el resto (también en los ríos). El mapa ocupa todo el hueco libre de la tarjeta.
 
 ## Cómo arrancar
 Desde `starmath-fase1/app` (en PowerShell o Git Bash):

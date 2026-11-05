@@ -294,7 +294,9 @@
 .geomap.ph { aspect-ratio: 1190 / 915; background: #0B1A44; border-radius: 14px; width: 100%; max-width: 430px; }
 .geomap.ph.sm { max-width: 270px; }
 .qcard.geo { justify-content: flex-start; padding-top: 46px; }
-.qcard.geo .qvis { margin-top: 0; width: 100%; }
+.qcard.geo .qvis { margin-top: 0; width: 100%; flex: 1 1 0; min-height: 0; display: flex; justify-content: center; align-items: center; }
+/* el mapa ocupa todo el sitio libre de la tarjeta (sin deformarse), en tablet y en móvil */
+.qcard.geo .qvis svg.geomap { width: 100%; height: 100%; max-height: none; }
 .qcard.geo .mascot { width: 64px; height: 64px; left: auto; right: 12px; top: 6px; bottom: auto; }
 .fbcard .vis .geomap { max-width: 100%; }
 @keyframes geopulse { 0%, 100% { stroke-opacity: 1; } 50% { stroke-opacity: .25; } }
@@ -302,9 +304,9 @@
 /* opciones con nombres de lugares */
 .opt.geo { font-size: 27px; line-height: 1.15; padding: 8px 12px; overflow-wrap: anywhere; hyphens: auto; }
 .opt.geo.glong { font-size: 22px; }
+.opts.geo.three { grid-template-columns: 1fr; }                /* «¿dónde desemboca?»: los mares, uno debajo de otro */
 .device.kid.big .opt.geo { font-size: 29px; }
 .device.kid.big .opt.geo.glong { font-size: 24px; }
 /* en vertical, el mapa se lleva más sitio y las respuestas menos */
 .portrait .qgrid.geo { grid-template-rows: minmax(0, 1.25fr) minmax(320px, 1fr); }
-.portrait .qcard.geo .qvis svg.geomap { max-height: 380px; width: 100%; }
 .portrait .qcard.geo .mascot { width: 60px; height: 60px; }

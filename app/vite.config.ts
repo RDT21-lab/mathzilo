@@ -31,7 +31,7 @@ export default defineConfig({
       },
       workbox: {
         // Precaché de todo: app, motor, fuentes, mascotas (son código) y los 4 idiomas
-        globPatterns: ['**/*.{js,css,html,svg,png,woff2,json}'],
+        globPatterns: ['**/*.{js,css,html,svg,png,jpg,woff2,json}'],
         navigateFallback: 'index.html',
         cleanupOutdatedCaches: true,
         // avisos al móvil del padre (tareas marcadas como hechas)

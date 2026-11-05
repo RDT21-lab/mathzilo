@@ -139,8 +139,10 @@ export type Visual =
   | { type: 'place'; n: number }
   | { type: 'decs'; a: Val; b: Val; op: '+' | '-'; ans: Val }
   | { type: 'bars'; values: number[] }
-  /** Mapa de España: `hi` se ilumina (en orden: comunidades, provincias, ríos, montañas), `alt` es lo que eligió el niño, `dot` marca una ciudad o un pico */
-  | { type: 'map'; hi: GeoRef[]; alt?: GeoRef; dot?: GeoRef };
+  /** Mapa de España con solo las capas de la pregunta (`layers`); `hi` se ilumina, `alt` es lo que eligió el niño, `dot` marca una ciudad o un pico */
+  | { type: 'map'; layers: MapLayer[]; hi: GeoRef[]; alt?: GeoRef; dot?: GeoRef };
+/** Capas del mapa: división en comunidades, en provincias, capitales de provincia, ríos o montañas (con relieve) */
+export type MapLayer = 'ccaa' | 'prov' | 'caps' | 'river' | 'mount';
 
 export interface Prompt { key: string; vars: Record<string, Val | string | number> }
 

@@ -462,7 +462,7 @@ function QuestionScreen({ child, active: initial, onPause, onDone, toast }: { ch
   } else {
     right = (
       <div className="answers">
-        <div className={'opts' + (q.options.length === 3 ? ' three' : '')}>
+        <div className={'opts' + (q.options.length === 3 ? ' three' : '') + (geo ? ' geo' : '')}>
           {q.options.map((o, i) => (
             <button key={i} className={'opt' + (geo ? ' geo' + (optGeoLong ? ' glong' : '') : optLong ? ' long' : '')} aria-pressed={sel === i} onClick={() => setSel(i)}><ValView v={o.v} /></button>
           ))}

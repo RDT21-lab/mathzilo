@@ -420,7 +420,7 @@
     "geoLevel": "Nivel de geografía",
     "geoLevelSub": "1: comunidades, grandes ríos y montañas · 2: provincias y capitales · 3: el más difícil",
     "geo": "Geografía",
-    "mapCredit": "Mapa de geografía: © Instituto Geográfico Nacional (IGN) y Natural Earth."
+    "mapCredit": "Mapa de geografía: © Instituto Geográfico Nacional (IGN), Natural Earth y relieve de Terrain Tiles (Mapzen, SRTM)."
   },
   "onb": {
     "welcome": "Te damos la bienvenida",

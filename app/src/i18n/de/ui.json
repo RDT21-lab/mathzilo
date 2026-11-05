@@ -420,7 +420,7 @@
     "geoLevel": "Erdkunde-Stufe",
     "geoLevelSub": "1: Gemeinschaften, große Flüsse und Gebirge · 2: Provinzen und Hauptstädte · 3: am schwersten",
     "geo": "Erdkunde",
-    "mapCredit": "Erdkunde-Karte: © Instituto Geográfico Nacional (IGN, Spanien) und Natural Earth."
+    "mapCredit": "Erdkunde-Karte: © Instituto Geográfico Nacional (IGN, Spanien), Natural Earth und Relief aus Terrain Tiles (Mapzen, SRTM)."
   },
   "onb": {
     "welcome": "Willkommen",

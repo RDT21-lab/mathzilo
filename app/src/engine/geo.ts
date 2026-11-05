@@ -7,7 +7,7 @@
    Cada pregunta trae 4 opciones (3 en «¿dónde desemboca?») con la etiqueta de su error:
    «geo-vecina» (la de al lado), «geo-ciudad-grande» (una ciudad grande que no es la capital)
    o «geo-confusion» (otra cualquiera).                                                        */
-import { I, pick, shuffle, type Draft, type GeoKind, type GeoRef, type Option, type Question, type Rng, type Val, type Visual } from './core';
+import { I, pick, shuffle, type Draft, type GeoKind, type GeoRef, type MapLayer, type Option, type Question, type Rng, type Val, type Visual } from './core';
 import { st, type Generator, type Step } from './types';
 import { CCAA, MOUNTS, PROVS, PROV_BY_ID, RIVERS, RIVER_BY_ID, provsOf } from '../geo/places';
 import { CCAA_NEIGHBORS, PROV_NEIGHBORS } from '../geo/neighbors';
@@ -17,7 +17,7 @@ const G = (t: GeoKind, id: string): Val => ({ k: 'geo', t, id });
 const GS = (t: GeoKind, ids: string[]): Val => ({ k: 'geos', t, ids });
 const R = (t: GeoKind, id: string): GeoRef => ({ t, id });
 const o = (v: Val, tag: string): Option => ({ v, tag });
-const map = (hi: GeoRef[], dot?: GeoRef): Visual => ({ type: 'map', hi, ...(dot ? { dot } : {}) });
+const map = (layers: MapLayer[], hi: GeoRef[], dot?: GeoRef): Visual => ({ type: 'map', layers, hi, ...(dot ? { dot } : {}) });
 const draft = (prompt: string, vars: Draft['prompt']['vars'], answer: Val, cands: Option[], visual?: Visual, data: Record<string, number> = {}): Draft =>
   ({ prompt: { key: prompt, vars }, answer, cands, expr: 0, mcOnly: true, data, ...(visual ? { visual } : {}) });
 
@@ -60,12 +60,12 @@ export const GEO: Generator[] = [
     make(r) {
       const c = pick(r, CCAA_IDS);
       const ds = distract(r, 3, [], CCAA_IDS, new Set([c]));
-      return draft('geoCcaaMap', {}, G('ccaa', c), ds.map(d => o(G('ccaa', d.id), d.tag)), map([R('ccaa', c)]), { c: +c });
+      return draft('geoCcaaMap', {}, G('ccaa', c), ds.map(d => o(G('ccaa', d.id), d.tag)), map(['ccaa'], [R('ccaa', c)]), { c: +c });
     },
     explain(q, _tag, given) {
       const c = (q.answer as { id: string }).id;
       return { steps: [...(provsOf(c).length > 1 ? [st('ex.geo.ccaaProvs', { c: q.answer, list: provsList(c) })] : [st('ex.geo.provIn', { p: G('prov', provsOf(c)[0].id), ans: q.answer })]), ...altStep(given)],
-               visual: withAlt(map([R('ccaa', c)]), given, q.answer) };
+               visual: withAlt(map(['ccaa'], [R('ccaa', c)]), given, q.answer) };
     }
   },
   {
@@ -83,12 +83,12 @@ export const GEO: Generator[] = [
     make(r) {
       const p = PROV_BY_ID[pick(r, PROV_IDS)], c = p.ccaa;
       const ds = distract(r, 3, CCAA_NEIGHBORS[c] ?? [], CCAA_IDS.filter(x => x !== '18' && x !== '19'), new Set([c]), 2);
-      return draft('geoCityCcaa', { c: G('city', p.capital) }, G('ccaa', c), ds.map(d => o(G('ccaa', d.id), d.tag)), map([], R('city', p.capital)), { p: +p.id });
+      return draft('geoCityCcaa', { c: G('city', p.capital) }, G('ccaa', c), ds.map(d => o(G('ccaa', d.id), d.tag)), map(['ccaa'], [], R('city', p.capital)), { p: +p.id });
     },
     explain(q, _tag, given) {
       const p = PROVS.find(x => +x.id === q.data.p)!;
       return { steps: [st('ex.geo.cityIn', { c: G('city', p.capital), ans: q.answer }), st('ex.geo.capitalOfProv', { c: G('city', p.capital), p: G('prov', p.id) }), ...altStep(given)],
-               visual: withAlt(map([R('ccaa', p.ccaa)], R('city', p.capital)), given, q.answer) };
+               visual: withAlt(map(['ccaa'], [R('ccaa', p.ccaa)], R('city', p.capital)), given, q.answer) };
     }
   },
 
@@ -98,7 +98,7 @@ export const GEO: Generator[] = [
     make(r) {
       const p = pick(r, PROV_IDS);
       const ds = distract(r, 3, PROV_NEIGHBORS[p] ?? [], PROV_IDS, new Set([p]), 1);
-      return draft('geoProvMap', {}, G('prov', p), ds.map(d => o(G('prov', d.id), d.tag)), map([R('prov', p)]), { p: +p });
+      return draft('geoProvMap', {}, G('prov', p), ds.map(d => o(G('prov', d.id), d.tag)), map(['prov'], [R('prov', p)]), { p: +p });
     },
     explain: provMapExplain
   },
@@ -107,7 +107,7 @@ export const GEO: Generator[] = [
     make(r) {
       const p = PROV_BY_ID[pick(r, PROV_IDS)];
       const ds = distract(r, 3, (PROV_NEIGHBORS[p.id] ?? []).map(id => PROV_BY_ID[id].capital), PROV_IDS.map(id => PROV_BY_ID[id].capital), new Set([p.capital]), 2);
-      return draft('geoCapitalOf', { p: G('prov', p.id) }, G('city', p.capital), ds.map(d => o(G('city', d.id), d.tag)), map([R('prov', p.id)]), { p: +p.id });
+      return draft('geoCapitalOf', { p: G('prov', p.id) }, G('city', p.capital), ds.map(d => o(G('city', d.id), d.tag)), map(['prov', 'caps'], [R('prov', p.id)]), { p: +p.id });
     },
     explain: capitalExplain
   },
@@ -116,12 +116,12 @@ export const GEO: Generator[] = [
     make(r) {
       const p = PROV_BY_ID[pick(r, PROV_IDS)];
       const ds = distract(r, 3, PROV_NEIGHBORS[p.id] ?? [], PROV_IDS, new Set([p.id]), 2);
-      return draft('geoProvOfCapital', { c: G('city', p.capital) }, G('prov', p.id), ds.map(d => o(G('prov', d.id), d.tag)), map([], R('city', p.capital)), { p: +p.id });
+      return draft('geoProvOfCapital', { c: G('city', p.capital) }, G('prov', p.id), ds.map(d => o(G('prov', d.id), d.tag)), map(['prov', 'caps'], [], R('city', p.capital)), { p: +p.id });
     },
     explain(q, _tag, given) {
       const p = PROVS.find(x => +x.id === q.data.p)!;
       return { steps: [st('ex.geo.capitalOfProv', { c: G('city', p.capital), p: q.answer }), st('ex.geo.provIn', { p: q.answer, ans: G('ccaa', p.ccaa) }), ...altStep(given)],
-               visual: withAlt(map([R('prov', p.id)], R('city', p.capital)), given, q.answer) };
+               visual: withAlt(map(['prov', 'caps'], [R('prov', p.id)], R('city', p.capital)), given, q.answer) };
     }
   },
   {
@@ -129,12 +129,12 @@ export const GEO: Generator[] = [
     make(r) {
       const p = PROV_BY_ID[pick(r, PROV_IDS)], c = p.ccaa;
       const ds = distract(r, 3, CCAA_NEIGHBORS[c] ?? [], CCAA_IDS.filter(x => x !== '18' && x !== '19'), new Set([c]), 2);
-      return draft('geoProvCcaa', { p: G('prov', p.id) }, G('ccaa', c), ds.map(d => o(G('ccaa', d.id), d.tag)), map([R('prov', p.id)]), { p: +p.id });
+      return draft('geoProvCcaa', { p: G('prov', p.id) }, G('ccaa', c), ds.map(d => o(G('ccaa', d.id), d.tag)), map(['ccaa'], [R('prov', p.id)]), { p: +p.id });
     },
     explain(q, _tag, given) {
       const p = PROVS.find(x => +x.id === q.data.p)!;
       return { steps: [st('ex.geo.provIn', { p: G('prov', p.id), ans: q.answer }), ...(provsOf(p.ccaa).length > 1 ? [st('ex.geo.ccaaProvs', { c: q.answer, list: provsList(p.ccaa) })] : []), ...altStep(given)],
-               visual: withAlt(map([R('ccaa', p.ccaa), R('prov', p.id)]), given, q.answer) };
+               visual: withAlt(map(['ccaa'], [R('ccaa', p.ccaa), R('prov', p.id)]), given, q.answer) };
     }
   },
   {
@@ -142,12 +142,12 @@ export const GEO: Generator[] = [
     make(r) {
       const c = pick(r, MULTI), p = pick(r, provsOf(c)).id;
       const ds = distract(r, 3, nearProvsOutside(c), PROV_IDS.filter(id => PROV_BY_ID[id].ccaa !== c), new Set([p]), 2);
-      return draft('geoCcaaProv', { c: G('ccaa', c) }, G('prov', p), ds.map(d => o(G('prov', d.id), d.tag)), map([R('ccaa', c)]), { c: +c, p: +p });
+      return draft('geoCcaaProv', { c: G('ccaa', c) }, G('prov', p), ds.map(d => o(G('prov', d.id), d.tag)), map(['prov'], [R('ccaa', c)]), { c: +c, p: +p });
     },
     explain(q, _tag, given) {
       const c = String(q.data.c).padStart(2, '0');
       return { steps: [st('ex.geo.provIn', { p: q.answer, ans: G('ccaa', c) }), st('ex.geo.ccaaProvs', { c: G('ccaa', c), list: provsList(c) }), ...altStep(given)],
-               visual: withAlt(map([R('ccaa', c), R('prov', (q.answer as { id: string }).id)]), given, q.answer) };
+               visual: withAlt(map(['prov'], [R('ccaa', c), R('prov', (q.answer as { id: string }).id)]), given, q.answer) };
     }
   },
   {
@@ -167,7 +167,7 @@ export const GEO: Generator[] = [
     make(r) {
       const p = pick(r, PROV_IDS.filter(id => (PROV_NEIGHBORS[id] ?? []).length >= 3));
       const ds = distract(r, 3, PROV_NEIGHBORS[p], PROV_IDS, new Set([p]));
-      return draft('geoProvMap', {}, G('prov', p), ds.map(d => o(G('prov', d.id), d.tag)), map([R('prov', p)]), { p: +p });
+      return draft('geoProvMap', {}, G('prov', p), ds.map(d => o(G('prov', d.id), d.tag)), map(['prov'], [R('prov', p)]), { p: +p });
     },
     explain: provMapExplain
   },
@@ -177,7 +177,7 @@ export const GEO: Generator[] = [
       const p = PROV_BY_ID[pick(r, PROV_IDS.filter(id => PROV_BY_ID[id].big?.length))];
       const bigs = shuffle(r, p.big!).slice(0, 2).map(id => ({ id, tag: 'geo-ciudad-grande' }));
       const rest = distract(r, 3 - bigs.length, (PROV_NEIGHBORS[p.id] ?? []).map(id => PROV_BY_ID[id].capital), PROV_IDS.map(id => PROV_BY_ID[id].capital), new Set([p.capital]));
-      return draft('geoCapitalOf', { p: G('prov', p.id) }, G('city', p.capital), [...bigs, ...rest].map(d => o(G('city', d.id), d.tag)), map([R('prov', p.id)]), { p: +p.id });
+      return draft('geoCapitalOf', { p: G('prov', p.id) }, G('city', p.capital), [...bigs, ...rest].map(d => o(G('city', d.id), d.tag)), map(['prov', 'caps'], [R('prov', p.id)]), { p: +p.id });
     },
     explain: capitalExplain
   },
@@ -186,12 +186,12 @@ export const GEO: Generator[] = [
     make(r) {
       const rv = pick(r, RIVERS), c = pick(r, rv.ccaa), skip = new Set([...rv.ccaa, ...(rv.near ?? []), '18', '19']);
       const ds = distract(r, 3, rv.ccaa.flatMap(x => CCAA_NEIGHBORS[x] ?? []), CCAA_IDS, skip, 2);
-      return draft('geoRiverCcaa', { r: G('river', rv.id) }, G('ccaa', c), ds.map(d => o(G('ccaa', d.id), d.tag)), map([R('river', rv.id)]), { r: RIVERS.indexOf(rv) });
+      return draft('geoRiverCcaa', { r: G('river', rv.id) }, G('ccaa', c), ds.map(d => o(G('ccaa', d.id), d.tag)), map(['ccaa', 'river'], [R('river', rv.id)]), { r: RIVERS.indexOf(rv) });
     },
     explain(q, _tag, given) {
       const rv = RIVERS[q.data.r];
       return { steps: [st('ex.geo.riverPasses', { r: G('river', rv.id), list: GS('ccaa', rv.ccaa) }), mouthStep(rv.id), ...altStep(given)],
-               visual: withAlt(map([...rv.ccaa.map(c => R('ccaa', c)), R('river', rv.id)]), given, q.answer) };
+               visual: withAlt(map(['ccaa', 'river'], [...rv.ccaa.map(c => R('ccaa', c)), R('river', rv.id)]), given, q.answer) };
     }
   },
   {
@@ -202,12 +202,12 @@ export const GEO: Generator[] = [
         ? [o(G('sea', 'atl'), 'geo-confusion'), o(G('sea', 'med'), 'geo-confusion'), o(G('river', 'ebro'), 'geo-confusion')]
         : (['atl', 'med', 'cant'] as const).filter(s => s !== rv.mouth).map(s => o(G('sea', s), 'geo-confusion'));
       const ans = rv.mouth === 'guadalquivir' ? G('river', 'guadalquivir') : G('sea', rv.mouth);
-      return draft('geoRiverMouth', { r: G('river', rv.id) }, ans, cands, map([R('river', rv.id)]), { r: RIVERS.indexOf(rv) });
+      return draft('geoRiverMouth', { r: G('river', rv.id) }, ans, cands, map(['river'], [R('river', rv.id)]), { r: RIVERS.indexOf(rv) });
     },
     explain(q) {
       const rv = RIVERS[q.data.r];
       return { steps: [mouthStep(rv.id), st('ex.geo.riverCities', { r: G('river', rv.id), list: GS('city', rv.cities) })],
-               visual: map(rv.mouth === 'guadalquivir' ? [R('river', 'guadalquivir'), R('river', rv.id)] : [R('river', rv.id)]) };
+               visual: map(['river'], rv.mouth === 'guadalquivir' ? [R('river', 'guadalquivir'), R('river', rv.id)] : [R('river', rv.id)]) };
     }
   },
   {
@@ -215,13 +215,13 @@ export const GEO: Generator[] = [
     make(r) {
       const rv = pick(r, RIVERS), city = pick(r, rv.cities);
       const ds = distract(r, 3, [], RIVERS.map(x => x.id), new Set([rv.id]));
-      return draft('geoRiverCity', { c: G('city', city) }, G('river', rv.id), ds.map(d => o(G('river', d.id), d.tag)), map([], R('city', city)),
+      return draft('geoRiverCity', { c: G('city', city) }, G('river', rv.id), ds.map(d => o(G('river', d.id), d.tag)), map(['river'], [], R('city', city)),
                    { r: RIVERS.indexOf(rv), c: rv.cities.indexOf(city) });
     },
     explain(q, _tag, given) {
       const rv = RIVERS[q.data.r], city = rv.cities[q.data.c];
       return { steps: [st('ex.geo.cityRiver', { c: G('city', city), ans: q.answer }), st('ex.geo.riverCities', { r: q.answer, list: GS('city', rv.cities) }), ...altStep(given)],
-               visual: withAlt(map([R('river', rv.id)], R('city', city)), given, q.answer) };
+               visual: withAlt(map(['river'], [R('river', rv.id)], R('city', city)), given, q.answer) };
     }
   },
   {
@@ -229,13 +229,13 @@ export const GEO: Generator[] = [
     make(r) {
       const m = pick(r, MOUNTS.filter(x => x.id !== 'teide')), peak = pick(r, m.peaks);
       const ds = distract(r, 3, [], MOUNTS.filter(x => x.id !== 'teide').map(x => x.id), new Set([m.id]));
-      return draft('geoPeak', { k: G('peak', peak) }, G('mount', m.id), ds.map(d => o(G('mount', d.id), d.tag)), map([], R('peak', peak)),
+      return draft('geoPeak', { k: G('peak', peak) }, G('mount', m.id), ds.map(d => o(G('mount', d.id), d.tag)), map(['mount'], [], R('peak', peak)),
                    { m: MOUNTS.indexOf(m), k: m.peaks.indexOf(peak) });
     },
     explain(q, _tag, given) {
       const m = MOUNTS[q.data.m], peak = m.peaks[q.data.k];
       return { steps: [st('ex.geo.peakIn', { k: G('peak', peak), ans: q.answer }), st('ex.geo.mountIn', { m: q.answer, list: GS('ccaa', m.ccaa) }), ...altStep(given)],
-               visual: withAlt(map([R('mount', m.id)], R('peak', peak)), given, q.answer) };
+               visual: withAlt(map(['mount'], [R('mount', m.id)], R('peak', peak)), given, q.answer) };
     }
   },
   {
@@ -243,11 +243,11 @@ export const GEO: Generator[] = [
     make(r) {
       const c = pick(r, MULTI), n = provsOf(c).length;
       const cands = [n - 1, n + 1, n + 2, n - 2, n + 3].filter(x => x >= 1).map(x => o(I(x), 'geo-confusion'));
-      return draft('geoCcaaCount', { c: G('ccaa', c) }, I(n), cands, map([R('ccaa', c)]), { c: +c });
+      return draft('geoCcaaCount', { c: G('ccaa', c) }, I(n), cands, map(['prov'], [R('ccaa', c)]), { c: +c });
     },
     explain(q) {
       const c = String(q.data.c).padStart(2, '0');
-      return { steps: [st('ex.geo.ccaaProvs', { c: G('ccaa', c), list: provsList(c) })], visual: map([R('ccaa', c), ...provsOf(c).map(p => R('prov', p.id))]) };
+      return { steps: [st('ex.geo.ccaaProvs', { c: G('ccaa', c), list: provsList(c) })], visual: map(['prov'], [R('ccaa', c)]) };
     }
   },
   {
@@ -255,12 +255,12 @@ export const GEO: Generator[] = [
     make(r) {
       const m = pick(r, MOUNTS), c = pick(r, m.ccaa), skip = new Set([...m.ccaa, ...(m.near ?? []), '18', '19']);
       const ds = distract(r, 3, m.ccaa.flatMap(x => CCAA_NEIGHBORS[x] ?? []), CCAA_IDS, skip, 2);
-      return draft('geoMountCcaa', { m: G('mount', m.id) }, G('ccaa', c), ds.map(d => o(G('ccaa', d.id), d.tag)), map([R('mount', m.id)]), { m: MOUNTS.indexOf(m) });
+      return draft('geoMountCcaa', { m: G('mount', m.id) }, G('ccaa', c), ds.map(d => o(G('ccaa', d.id), d.tag)), map(['ccaa', 'mount'], [R('mount', m.id)]), { m: MOUNTS.indexOf(m) });
     },
     explain(q, _tag, given) {
       const m = MOUNTS[q.data.m];
       return { steps: [st('ex.geo.mountIn', { m: G('mount', m.id), list: GS('ccaa', m.ccaa) }), ...altStep(given)],
-               visual: withAlt(map([...m.ccaa.map(c => R('ccaa', c)), R('mount', m.id)]), given, q.answer) };
+               visual: withAlt(map(['ccaa', 'mount'], [...m.ccaa.map(c => R('ccaa', c)), R('mount', m.id)]), given, q.answer) };
     }
   }
 ];
@@ -269,33 +269,33 @@ export const GEO: Generator[] = [
 function riverMap(r: Rng, ids: string[]): Draft {
   const rv = pick(r, ids);
   const ds = distract(r, 3, [], RIVERS.map(x => x.id), new Set([rv]));
-  return draft('geoRiverMap', {}, G('river', rv), ds.map(d => o(G('river', d.id), d.tag)), map([R('river', rv)]), { r: RIVERS.findIndex(x => x.id === rv) });
+  return draft('geoRiverMap', {}, G('river', rv), ds.map(d => o(G('river', d.id), d.tag)), map(['river'], [R('river', rv)]), { r: RIVERS.findIndex(x => x.id === rv) });
 }
 function riverMapExplain(q: Question, _tag: string, given: Val | null) {
   const rv = RIVERS[q.data.r];
   return { steps: [mouthStep(rv.id), st('ex.geo.riverCities', { r: q.answer, list: GS('city', rv.cities) }), ...altStep(given)],
-           visual: withAlt(map([R('river', rv.id)]), given, q.answer) };
+           visual: withAlt(map(['river'], [R('river', rv.id)]), given, q.answer) };
 }
 function mountMap(r: Rng, ids: string[]): Draft {
   const m = pick(r, ids);
   const ds = distract(r, 3, [], MOUNTS.map(x => x.id), new Set([m]));
-  return draft('geoMountMap', {}, G('mount', m), ds.map(d => o(G('mount', d.id), d.tag)), map([R('mount', m)]), { m: MOUNTS.findIndex(x => x.id === m) });
+  return draft('geoMountMap', {}, G('mount', m), ds.map(d => o(G('mount', d.id), d.tag)), map(['mount'], [R('mount', m)]), { m: MOUNTS.findIndex(x => x.id === m) });
 }
 function mountMapExplain(q: Question, _tag: string, given: Val | null) {
   const m = MOUNTS[q.data.m];
   return { steps: [st('ex.geo.mountIn', { m: q.answer, list: GS('ccaa', m.ccaa) }), m.id === 'teide' ? st('ex.geo.teide') : st('ex.geo.peakOf', { m: q.answer, k: G('peak', m.peaks[0]) }), ...altStep(given)],
-           visual: withAlt(map([R('mount', m.id)]), given, q.answer) };
+           visual: withAlt(map(['mount'], [R('mount', m.id)]), given, q.answer) };
 }
 function provMapExplain(q: Question, _tag: string, given: Val | null) {
   const p = PROVS.find(x => +x.id === q.data.p)!;
   return { steps: [st('ex.geo.provIn', { p: q.answer, ans: G('ccaa', p.ccaa) }), st('ex.geo.capitalOfProv', { c: G('city', p.capital), p: q.answer }), ...altStep(given)],
-           visual: withAlt(map([R('prov', p.id)]), given, q.answer) };
+           visual: withAlt(map(['prov'], [R('prov', p.id)]), given, q.answer) };
 }
 function capitalExplain(q: Question, tag: string, given: Val | null) {
   const p = PROVS.find(x => +x.id === q.data.p)!;
   return { steps: [st('ex.geo.capitalOfProv', { c: q.answer, p: G('prov', p.id) }), ...(tag === 'geo-ciudad-grande' && given ? [st('ex.geo.bigCity', { given, p: G('prov', p.id) })] : []),
                    st('ex.geo.provIn', { p: G('prov', p.id), ans: G('ccaa', p.ccaa) })],
-           visual: map([R('prov', p.id)], R('city', p.capital)) };
+           visual: map(['prov', 'caps'], [R('prov', p.id)], R('city', p.capital)) };
 }
 
 /* ---------- Test de geografía ---------- */
