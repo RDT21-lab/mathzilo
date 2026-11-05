@@ -182,7 +182,14 @@
     "taskDone": "Je l'ai fait !",
     "taskSent": "Super ! On l'a dit à ta famille.",
     "bonusInfo": "{{a}} sur {{n}} tâches pour le prix",
-    "bonusOk": "Prix gagné !"
+    "bonusOk": "Prix gagné !",
+    "subjMates": "Maths",
+    "subjGeo": "Géographie",
+    "subjToday": "Test du jour",
+    "subjPractice": "Pour s’entraîner",
+    "mapLabel": "Carte de l'Espagne",
+    "okSayGeo": "{{pet}} : « Tu connais bien la carte ! »",
+    "miniOkSubGeo": "Tu sais le trouver sur la carte."
   },
   "parent": {
     "title": "Mode parent",
@@ -409,7 +416,11 @@
         "push-fallo": "La notification de test n'a pas pu être envoyée.",
         "offline": "Pas de connexion au serveur."
       }
-    }
+    },
+    "geoLevel": "Niveau de géographie",
+    "geoLevelSub": "1 : communautés, grands fleuves et montagnes · 2 : provinces et capitales · 3 : le plus difficile",
+    "geo": "Géographie",
+    "mapCredit": "Carte de géographie : © Instituto Geográfico Nacional (IGN, Espagne) et Natural Earth."
   },
   "onb": {
     "welcome": "Bienvenue",

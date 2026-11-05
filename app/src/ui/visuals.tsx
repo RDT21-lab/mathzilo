@@ -1,6 +1,14 @@
 /* Apoyos visuales de preguntas y explicaciones. Formas planas, sin degradados. */
+import { lazy, Suspense } from 'react';
 import type { Visual, Val } from '../engine';
-import { ValView, fmtNum, fmtDec, rawRes, valText } from '../i18n';
+import { ValView, fmtNum, fmtDec, rawRes, valText, useT } from '../i18n';
+
+/** El mapa de España pesa: se descarga solo cuando hace falta (y queda guardado para usarlo sin conexión) */
+const MapView = lazy(() => import('../geo/MapView'));
+function GeoMap({ v, compact }: { v: Extract<Visual, { type: 'map' }>; compact?: boolean }) {
+  const t = useT();
+  return <Suspense fallback={<div className={'geomap ph' + (compact ? ' sm' : '')} />}><MapView hi={v.hi} alt={v.alt} dot={v.dot} compact={compact} label={t('kid.mapLabel')} /></Suspense>;
+}
 
 const GOLD = '#FFC933', LAV = '#9AA8FF', NAVY = '#0A1230', LINE = '#2A4390', BONE = '#F7F7FA', MUTED = '#A9B6E0', CARD = '#1B3680';
 
@@ -28,6 +36,7 @@ export function VisualView({ v, size = 'md' }: { v?: Visual; size?: 'sm' | 'md' 
     case 'place': return <Place n={v.n} />;
     case 'decs': return <Decs a={v.a} b={v.b} op={v.op} ans={v.ans} />;
     case 'bars': return <Bars values={v.values} />;
+    case 'map': return <GeoMap v={v} compact={size === 'sm'} />;
   }
 }
 

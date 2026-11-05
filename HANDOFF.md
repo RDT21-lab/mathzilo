@@ -65,6 +65,18 @@ Pedido por la familia piloto:
 - App: el historial de tests del panel muestra las medias estrellas con coma.
 - Pruebas: 108 unitarias y 33 de punta a punta en verde.
 
+## Estado (05-11-2026): geografía de España y tareas de un día para otro (v1.1.0)
+- **Tareas**: con la app abierta de un día para otro (tablet o móvil que no se cierra), seguía enseñando las tareas, la racha y el panel del día anterior. Ahora el «hoy» se actualiza solo (`useToday` en `ui/common.tsx`: cada 30 s y al volver a la app). Una tarea nueva «Varios días» viene marcada todos los días (antes, de lunes a viernes). Prueba `e2e/tasks-days.spec.ts` (aprobada sigue saliendo, vuelve al día siguiente, borrar o pausar la quita).
+- **Geografía** (materia nueva, niveles 1-3 propios por hijo: `Child.geoLevel`):
+  - Mapa: `scripts/build-geo.mjs` (`npm run geo`) genera `src/geo/map-data.ts` (provincias y comunidades de es-atlas/IGN, MIT; países vecinos de world-atlas/Natural Earth; ríos, cordilleras, picos y ciudades por puntos puestos a mano; Canarias en recuadro) y `src/geo/neighbors.ts` (vecinas). El dibujo (`src/geo/MapView.tsx`, 28 KB comprimido) se descarga solo al hacer un test de geografía.
+  - Datos: `src/geo/places.ts` (19 comunidades y ciudades autónomas, 52 provincias con capital y ciudades grandes, 10 ríos con comunidades, desembocadura y ciudades, 12 cordilleras con comunidades y picos; nombres en 4 idiomas).
+  - Motor: `src/engine/geo.ts`, 19 generadores de opción múltiple con el mapa iluminado (`Visual` `map`) y explicaciones; valores `geo`/`geos` (nombre de un lugar o lista con la conjunción de cada idioma). Etiquetas de error `geo-vecina`, `geo-ciudad-grande`, `geo-confusion`. `makeTest(…, 'geo')`.
+  - Niño: dos botones en el inicio (Matemáticas / Geografía). Al fallar, el mapa grande enseña la explicación con lo elegido en coral.
+  - Estrellas: un test con estrellas al día **por materia** (`Session.subject = 'geo'`); la racha cuenta con cualquiera. El servidor aplica la misma regla: **hay que actualizar el servidor** (`docker compose pull && docker compose up -d`), si no rechaza las estrellas del segundo test del día aunque sea de otra materia.
+  - Padre: «Nivel de geografía» en Ajustes, «Geografía N» en la ficha del hijo y en sus últimos tests; la sugerencia de nivel y la caja Dificultad solo miran matemáticas. Hoja `#/revision` con geografía 1-3.
+- Tablet/móvil en vertical: el diseño vertical llega ahora hasta 1500 de alto (los móviles ya no dejan franjas).
+- Pruebas: `tests/geo.test.ts` (2.000 semillas por generador: una sola correcta, distractores falsos de verdad, todo dibujable; datos de provincias, capitales y vecinas), estrellas por materia en local y en el servidor, e2e de geografía y maquetación con un test de geografía entero en cada idioma y orientación.
+
 ## Cómo arrancar
 Desde `starmath-fase1/app` (en PowerShell o Git Bash):
 ```

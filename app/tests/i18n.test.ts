@@ -3,7 +3,7 @@
 import { describe, expect, it } from 'vitest';
 import i18n, { tplText, valText } from '../src/i18n';
 import { resources } from '../src/i18n/all';
-import { GENERATORS, makeQuestion, explain, ERROR_TAGS } from '../src/engine';
+import { GENERATORS, GEO, makeQuestion, explain, ERROR_TAGS } from '../src/engine';
 import type { Lang } from '../src/data/types';
 
 const LANGS: Lang[] = ['es', 'en', 'fr', 'de'];
@@ -42,7 +42,7 @@ describe('el motor se pinta completo en cada idioma', () => {
         if (typeof i18n.getResource(l, 'translation', key) !== 'string' && typeof i18n.getResource(l, 'translation', key + '_f') !== 'string') bad.push(what + ': falta ' + key);
         else if (/\{\{|undefined|NaN|@/.test(s)) bad.push(what + ': ' + s);
       };
-      for (const g of GENERATORS) {
+      for (const g of [...GENERATORS, ...GEO]) {
         for (let seed = 1; seed <= SEEDS; seed++) {
           const q = makeQuestion(g.id, seed);
           check(g.id, 'q.' + q.prompt.key, tplText('q.' + q.prompt.key, q.prompt.vars, '?', l));

@@ -54,7 +54,22 @@
       "change": "{{name}} compra {{n}} {{item}} a {{p}} cada uno y paga con {{bill}}. ¿Cuánto le devuelven?",
       "change_f": "{{name}} compra {{n}} {{item}} a {{p}} cada una y paga con {{bill}}. ¿Cuánto le devuelven?",
       "prop": "{{n1}} {{item}} cuestan {{p1}}. ¿Cuánto cuestan {{n2}}?"
-    }
+    },
+    "geoCcaaMap": "¿Qué comunidad autónoma está iluminada?",
+    "geoRiverMap": "¿Qué río está iluminado?",
+    "geoMountMap": "¿Qué cordillera o montaña está iluminada?",
+    "geoCityCcaa": "¿En qué comunidad autónoma está {{c}}?",
+    "geoProvMap": "¿Qué provincia está iluminada?",
+    "geoCapitalOf": "¿Cuál es la capital de la provincia de {{p}}?",
+    "geoProvOfCapital": "¿De qué provincia es capital {{c}}?",
+    "geoProvCcaa": "¿En qué comunidad autónoma está la provincia de {{p}}?",
+    "geoCcaaProv": "¿Cuál de estas provincias está en {{c}}?",
+    "geoRiverCcaa": "¿Por qué comunidad autónoma pasa el río {{r}}?",
+    "geoRiverMouth": "¿Dónde desemboca el río {{r}}?",
+    "geoRiverCity": "¿Qué río pasa por {{c}}?",
+    "geoPeak": "¿En qué cordillera está el pico {{k}}?",
+    "geoCcaaCount": "¿Cuántas provincias tiene {{c}}?",
+    "geoMountCcaa": "¿En qué comunidad autónoma está {{m}}?"
   },
   "words": {
     "items": {
@@ -90,7 +105,26 @@
     "dec-ops": "Operaciones con decimales", "frac-add-same": "Fracciones de igual denominador", "frac-equiv": "Fracciones equivalentes",
     "percent-simple": "Porcentajes sencillos", "mult-div": "Múltiplos y divisores", "area-tri": "Área del triángulo", "digit-value": "Números hasta millones",
     "frac-add-diff": "Fracciones con distinto denominador", "dec-mult": "Multiplicar decimales", "percent": "Porcentajes", "proportion": "Proporcionalidad",
-    "power-root": "Potencias y raíces", "negatives": "Números negativos", "gcd-lcm": "mcd y mcm", "mean": "La media", "volume": "Volumen"
+    "power-root": "Potencias y raíces", "negatives": "Números negativos", "gcd-lcm": "mcd y mcm", "mean": "La media", "volume": "Volumen",
+    "geo-ccaa-map": "Comunidades en el mapa",
+    "geo-river-map1": "Grandes ríos",
+    "geo-mount-map1": "Grandes cordilleras",
+    "geo-city-ccaa": "Ciudades y comunidades",
+    "geo-prov-map": "Provincias en el mapa",
+    "geo-capital-of": "Capitales de provincia",
+    "geo-prov-of-capital": "¿De qué provincia es?",
+    "geo-prov-ccaa": "Provincias y comunidades",
+    "geo-ccaa-prov": "Provincias de cada comunidad",
+    "geo-river-map": "Ríos de España",
+    "geo-mount-map": "Cordilleras de España",
+    "geo-prov-map-near": "Provincias vecinas",
+    "geo-capital-hard": "Capitales (difícil)",
+    "geo-river-ccaa": "Por dónde pasa un río",
+    "geo-river-mouth": "Desembocaduras",
+    "geo-river-city": "Ríos y ciudades",
+    "geo-peak": "Picos y cordilleras",
+    "geo-ccaa-count": "Cuántas provincias",
+    "geo-mount-ccaa": "Cordilleras y comunidades"
   },
   "tagName": {
     "cuenta-mal": "Se equivoca por poco al contar", "decena-mal": "Se equivoca en una decena", "resta-en-vez": "Resta cuando no toca",
@@ -109,7 +143,10 @@
     "area-triangulo": "Olvida dividir entre 2 en el triángulo", "frac-den-distinto": "Suma fracciones sin igualar denominadores", "signo-mal": "Se equivoca con el signo",
     "potencia-por": "Multiplica base por exponente", "raiz-mitad": "Confunde raíz y mitad", "mcd-mcm": "Confunde mcd y mcm", "divisor-comun": "No elige el mayor divisor común",
     "multiplo-comun": "No elige el menor múltiplo común", "media-sin-dividir": "Olvida dividir en la media", "media-mal-contar": "Cuenta mal los datos de la media",
-    "proporcion-sumar": "Suma en una proporción", "volumen-area": "Confunde volumen y área", "sin-simplificar": "No simplifica la fracción"
+    "proporcion-sumar": "Suma en una proporción", "volumen-area": "Confunde volumen y área", "sin-simplificar": "No simplifica la fracción",
+    "geo-vecina": "Confunde lugares vecinos",
+    "geo-ciudad-grande": "Confunde la capital con una ciudad grande",
+    "geo-confusion": "Confunde lugares"
   },
   "tag": {
     "young": {
@@ -166,7 +203,10 @@
       "media-mal-contar": "Casi. Cuenta bien cuántos números hay.",
       "proporcion-sumar": "Casi. Aquí no se suma: se multiplica.",
       "volumen-area": "Casi. El volumen usa las tres medidas.",
-      "sin-simplificar": "Casi. Esa fracción se puede simplificar."
+      "sin-simplificar": "Casi. Esa fracción se puede simplificar.",
+      "geo-vecina": "¡Casi! {{given}} está justo al lado.",
+      "geo-ciudad-grande": "¡Casi! {{given}} es una ciudad grande, pero no es la capital.",
+      "geo-confusion": "¡Ups! Era {{ans}}. Míralo en el mapa."
     },
     "older": {
       "cuenta-mal": "Por poco. Repasemos el cálculo.",
@@ -222,7 +262,10 @@
       "media-mal-contar": "Divide entre el número de datos correcto.",
       "proporcion-sumar": "Es proporcional: se multiplica.",
       "volumen-area": "Volumen: largo × ancho × alto.",
-      "sin-simplificar": "Bien, pero falta simplificar."
+      "sin-simplificar": "Bien, pero falta simplificar.",
+      "geo-vecina": "Cerca: {{given}} es vecina, pero la respuesta es {{ans}}.",
+      "geo-ciudad-grande": "{{given}} es importante, pero la capital es {{ans}}.",
+      "geo-confusion": "No es {{given}}: la respuesta es {{ans}}."
     }
   },
   "ex": {
@@ -275,6 +318,23 @@
     "gcd": { "s1": "Escribe los divisores de {{a}} y de {{b}}.", "s2": "El mayor que comparten es {{g}}." },
     "lcm": { "s1": "Escribe los múltiplos de {{a}} y de {{b}}.", "s2": "El menor que comparten es {{l}}." },
     "mean": { "s1": "Suma todos los datos: {{sum}}.", "s2": "Divide entre cuántos hay: {{sum}} ÷ {{k}} = {{ans}}." },
-    "vol": { "s1": "Base: {{w}} × {{d}} = {{base}} cubitos.", "s2": "Por la altura: {{base}} × {{h}} = {{ans}} cm³." }
+    "vol": { "s1": "Base: {{w}} × {{d}} = {{base}} cubitos.", "s2": "Por la altura: {{base}} × {{h}} = {{ans}} cm³." },
+    "geo": {
+      "alt": "Lo que elegiste, {{given}}, está marcado en el mapa con borde naranja.",
+      "ccaaProvs": "{{c}} tiene estas provincias: {{list}}.",
+      "cityIn": "{{c}} está en {{ans}}.",
+      "capitalOfProv": "{{c}} es la capital de la provincia de {{p}}.",
+      "provIn": "La provincia de {{p}} está en {{ans}}.",
+      "riverMouth": "El {{r}} desemboca en el {{sea}}.",
+      "riverInto": "El {{r}} desemboca en el río {{into}}.",
+      "riverCities": "El {{r}} pasa por {{list}}.",
+      "riverPasses": "El {{r}} pasa por {{list}}.",
+      "cityRiver": "Por {{c}} pasa el río {{ans}}.",
+      "mountIn": "{{m}} está en {{list}}.",
+      "peakOf": "Uno de sus picos más altos es el {{k}}.",
+      "teide": "El Teide, en Tenerife, es la montaña más alta de España (3.715 m).",
+      "peakIn": "El pico {{k}} está en {{ans}}.",
+      "bigCity": "{{given}} es una ciudad de la provincia de {{p}}, pero no es su capital."
+    }
   }
 }

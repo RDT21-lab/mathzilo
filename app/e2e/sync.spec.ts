@@ -32,7 +32,7 @@ test('test sin conexión en la tablet + canje del padre → mismo saldo en los d
   // Modo avión: test perfecto
   await tabletCtx.setOffline(true);
   await tablet.getByRole('button', { name: 'Jugar como Sara' }).click();
-  await tablet.getByRole('button', { name: 'Empezar' }).click();
+  await tablet.getByRole('button', { name: 'Matemáticas' }).click();
   await tablet.locator('.lencard').first().click();
   await playTest(tablet, true);
   await expect(tablet.locator('.tot b')).toHaveText('+15 ★');

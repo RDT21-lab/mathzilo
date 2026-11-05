@@ -6,6 +6,7 @@ import { initReactI18next, useTranslation } from 'react-i18next';
 import type { ReactNode } from 'react';
 import type { Val } from '../engine';
 import type { Lang } from '../data/types';
+import { geoName } from '../geo/places';
 /* Cada idioma es un archivo aparte que se descarga al usarlo (el service worker los guarda
    todos para trabajar sin conexión). */
 const LOADERS: Record<Lang, () => Promise<Record<string, unknown>>> = {
@@ -67,7 +68,14 @@ export function valText(v: Val, lang = curLang()): string {
     case 'money': return fmtMoney(v.c, lang);
     case 'time': return fmtTime(v.h, v.m, lang);
     case 'sym': return v.s;
+    case 'geo': return geoName(v.t, v.id, lang);
+    case 'geos': return listFmt(v.ids.map(id => geoName(v.t, id, lang)), lang);
   }
+}
+/** «Aragón, Navarra y Cataluña» con la conjunción de cada idioma */
+function listFmt(items: string[], lang: Lang): string {
+  try { return new Intl.ListFormat(LOCALE[lang], { type: 'conjunction' }).format(items); }
+  catch { return items.join(', '); }
 }
 export function ValView({ v, paren }: { v: Val; paren?: boolean }) {
   if (v.k === 'frac') return <span className="frac" aria-label={v.n + '/' + v.d}><span>{v.n}</span><span>{v.d}</span></span>;

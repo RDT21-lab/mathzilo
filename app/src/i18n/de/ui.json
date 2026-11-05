@@ -182,7 +182,14 @@
     "taskDone": "Hab ich gemacht!",
     "taskSent": "Super! Wir haben es deiner Familie gesagt.",
     "bonusInfo": "{{a}} von {{n}} Aufgaben für den Preis",
-    "bonusOk": "Preis geschafft!"
+    "bonusOk": "Preis geschafft!",
+    "subjMates": "Mathe",
+    "subjGeo": "Erdkunde",
+    "subjToday": "Test von heute",
+    "subjPractice": "Zum Üben",
+    "mapLabel": "Karte von Spanien",
+    "okSayGeo": "{{pet}}: „Du kennst die Karte!“",
+    "miniOkSubGeo": "Du findest es jetzt auf der Karte."
   },
   "parent": {
     "title": "Elternbereich",
@@ -409,7 +416,11 @@
         "push-fallo": "Die Testbenachrichtigung konnte nicht gesendet werden.",
         "offline": "Keine Verbindung zum Server."
       }
-    }
+    },
+    "geoLevel": "Erdkunde-Stufe",
+    "geoLevelSub": "1: Gemeinschaften, große Flüsse und Gebirge · 2: Provinzen und Hauptstädte · 3: am schwersten",
+    "geo": "Erdkunde",
+    "mapCredit": "Erdkunde-Karte: © Instituto Geográfico Nacional (IGN, Spanien) und Natural Earth."
   },
   "onb": {
     "welcome": "Willkommen",

@@ -61,7 +61,7 @@ for (const view of VIEWS) for (const big of [false, true]) {
         await page.locator('.top .r .icon-btn').first().click(); await check('ajustes niño'); await page.locator('.overlay').click({ position: { x: 5, y: 5 } });
         await page.locator('.nametag').click(); await check('mascota');
         await page.locator('.top .icon-btn').first().click();
-        await page.locator('.cta .btn').last().click(); await check('longitud');
+        await page.locator('.subjects .btn').first().click(); await check('longitud');
         await page.locator('.lencard').first().click();
         for (let i = 0; i < 200 && !(await page.locator('.res').isVisible()); i++) {
           if (process.env.DEBUG_LAYOUT) console.log(i, Date.now() % 100000, await page.locator('.count').textContent({ timeout: 300 }).catch(() => '-'));
@@ -79,6 +79,26 @@ for (const view of VIEWS) for (const big of [false, true]) {
         }
         if (process.env.DEBUG_LAYOUT) console.log('fin del bucle');
         await check('resultado');
+        // y un test de geografía entero (nivel 3: el de textos más largos)
+        await page.evaluate(async () => { const sm = (window as unknown as { __sm: any }).__sm; for (const c of await sm.db.children.toArray()) await sm.repo.updateChild(c.id, { geoLevel: 3 }); });
+        await page.locator('.resbtns .btn-gold').click();
+        await page.locator('.subjects .btn').nth(1).click(); await check('longitud geo');
+        await page.locator('.lencard').first().click();
+        for (let i = 0; i < 200 && !(await page.locator('.res').isVisible()); i++) {
+          if (await page.locator('.geomap.ph').count()) { await page.waitForTimeout(100); continue; }
+          await check('geo ' + (await page.locator('.qtext').textContent({ timeout: 300 }).catch(() => '')));
+          let clicked = false;
+          for (const name of L[lang].next) {
+            const b = page.getByRole('button', { name, exact: true }).first();
+            if (await b.isVisible().catch(() => false) && await b.isEnabled().catch(() => false)) { await b.click(); clicked = true; break; }
+          }
+          if (clicked) continue;
+          if (!(await page.locator('.answers').isVisible())) { await page.waitForTimeout(100); continue; }
+          await page.locator('.opt').nth(i % (await page.locator('.opt').count())).click();
+          await page.getByRole('button', { name: L[lang].check }).click();
+          await page.locator('.fbcard').waitFor();
+        }
+        await check('resultado geo');
         if (process.env.DEBUG_LAYOUT) console.log('resultado comprobado');
         await ctx.close();
         if (process.env.DEBUG_LAYOUT) console.log('cerrado');

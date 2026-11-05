@@ -1,7 +1,7 @@
-/* Hoja de revisión a mano (criterio de la fase 3): 50 preguntas por nivel, en cualquier idioma,
+/* Hoja de revisión a mano (criterio de la fase 3): 50 preguntas por nivel (matemáticas 1-6, geografía 1-3), en cualquier idioma,
    con la respuesta, los distractores y la etiqueta de error de cada uno. Ruta: #/revision   */
 import { useMemo, useState } from 'react';
-import { makeTest, explain, type Question } from '../engine';
+import { makeTest, explain, type Question, type Subject } from '../engine';
 import { LANGS, type Lang } from '../data/types';
 import { useT, setLang, renderTpl, valText, ValView, rawRes } from '../i18n';
 import { VisualView } from './visuals';
@@ -9,16 +9,18 @@ import { VisualView } from './visuals';
 export function Review() {
   const t = useT();
   const [level, setLevel] = useState(1);
+  const [subject, setSubject] = useState<Subject>('mates');
   const [lang, setL] = useState<Lang>('es');
   const [seed, setSeed] = useState(1);
   const [open, setOpen] = useState<number | null>(null);
-  const qs = useMemo(() => makeTest(level, 50, seed * 1000 + level), [level, seed]);
+  const qs = useMemo(() => makeTest(level, 50, seed * 1000 + level, {}, subject), [level, seed, subject]);
   return (
     <div className="review">
       <h1>{t('review.title')}</h1>
       <p className="muted">{t('review.lead')}</p>
       <div className="rvbar">
-        <span className="segs">{[1, 2, 3, 4, 5, 6].map(l => <button key={l} aria-pressed={level === l} onClick={() => setLevel(l)}>{t('kid.level', { n: l })}</button>)}</span>
+        <span className="segs">{[1, 2, 3, 4, 5, 6].map(l => <button key={l} aria-pressed={subject === 'mates' && level === l} onClick={() => { setSubject('mates'); setLevel(l); }}>{t('kid.level', { n: l })}</button>)}</span>
+        <span className="segs">{[1, 2, 3].map(l => <button key={l} aria-pressed={subject === 'geo' && level === l} onClick={() => { setSubject('geo'); setLevel(l); }}>{t('kid.subjGeo')} {l}</button>)}</span>
         <span className="segs">{LANGS.map(l => <button key={l} aria-pressed={lang === l} onClick={() => { setL(l); setLang(l); }}>{l.toUpperCase()}</button>)}</span>
         <button className="pbtn line" onClick={() => setSeed(seed + 1)}>{t('review.other')}</button>
         <a className="pbtn line" href="#/">{t('common.back')}</a>

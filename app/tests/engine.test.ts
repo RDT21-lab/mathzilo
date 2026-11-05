@@ -46,6 +46,7 @@ function valBR(v: Val): BR | string {
     case 'money': return norm(BigInt(v.c), 100n);
     case 'time': return { n: BigInt(v.h * 60 + v.m), d: 1n };
     case 'sym': return v.s;
+    default: return '?';
   }
 }
 const same = (x: BR | string, y: BR | string) => typeof x === 'string' || typeof y === 'string' ? x === y : x.n === y.n && x.d === y.d;

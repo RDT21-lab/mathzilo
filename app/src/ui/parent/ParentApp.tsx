@@ -5,7 +5,7 @@ import { db } from '../../data/db';
 import * as repo from '../../data/repo';
 import type { Child, Family, Lang, Reward, StarEvent } from '../../data/types';
 import { LANGS } from '../../data/types';
-import { addDays, balanceOf, computeStreak, levelSuggestion, roundStars } from '../../data/domain';
+import { addDays, balanceOf, computeStreak, levelSuggestion, roundStars, subjectOf } from '../../data/domain';
 import { IDLE_MS, validPin } from '../../data/pin';
 import * as sync from '../../sync/client';
 import { useT, setLang, noteText, fmtNum, rawRes } from '../../i18n';
@@ -167,7 +167,7 @@ function useKids(family: Family) {
         .forEach(f => { const k = f.gen + '|' + f.tag; flagCount[k] = (flagCount[k] ?? 0) + 1; });
       const flags = Object.entries(flagCount).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([k, n]) => ({ gen: k.split('|')[0], tag: k.split('|')[1], n }));
       const dismissed = await db.meta.get('sugDismiss:' + c.id);
-      const sug = levelSuggestion(sessions.filter(s => s.endedAt > ((dismissed?.value as number) ?? 0)), c.level);
+      const sug = levelSuggestion(sessions.filter(s => s.endedAt > ((dismissed?.value as number) ?? 0) && subjectOf(s) === 'mates'), c.level);
       return { c, streak, bal: balanceOf(events), mastery, errors, flags, avg, lastTest, sug, sessions, today, board: await repo.taskBoard(c, today) };
     }));
   }, [family, today], []);
@@ -193,7 +193,7 @@ function Panel({ family, toast }: { family: Family; toast: (m: string) => void }
                onKeyDown={e => { if (e.key === 'Enter') setOpen(isOpen ? null : k.c.id); }}>
             <div className="hd">
               <Mascot child={k.c} />
-              <div><div className="nm">{k.c.name}</div><div className="muted" style={{ fontSize: 14 }}>{t('kid.level', { n: k.c.level })} · {k.streak.streak ? t('parent.streakN', { n: k.streak.streak }) : t('parent.streakRest')}</div></div>
+              <div><div className="nm">{k.c.name}</div><div className="muted" style={{ fontSize: 14 }}>{t('kid.level', { n: k.c.level })} · {t('parent.geo')} {k.c.geoLevel ?? 1} · {k.streak.streak ? t('parent.streakN', { n: k.streak.streak }) : t('parent.streakRest')}</div></div>
               <div className="bal">{fmtNum(k.bal)} ★</div>
             </div>
             <div className="chips2">
@@ -216,7 +216,7 @@ function Panel({ family, toast }: { family: Family; toast: (m: string) => void }
             )}
             {isOpen && (
               <>
-                <LevelBox child={k.c} sessions={k.sessions} toast={toast} />
+                <LevelBox child={k.c} sessions={k.sessions.filter(s => subjectOf(s) === 'mates')} toast={toast} />
                 <div className="caps">{t('parent.mastery')}</div>
                 <div className="mast">
                   {mastery.length ? mastery.map(m => (
@@ -237,7 +237,7 @@ function Panel({ family, toast }: { family: Family; toast: (m: string) => void }
                 <div className="caps">{t('parent.lastTests')}</div>
                 <div className="hist">
                   {k.sessions.sort((a, b) => b.endedAt - a.endedAt).slice(0, 5).map(s => (
-                    <div className="led" key={s.id}><span>{new Date(s.endedAt).toLocaleDateString(family.settings.lang, { day: 'numeric', month: 'short' })} · {t('kid.level', { n: s.level })} · {s.correct}/{s.length}{s.practice ? ' · ' + t('parent.practice') : ''}{s.fast ? ' · ' + t('parent.fast') : ''}</span><b className="gold">+{fmtNum(s.stars)} ★</b></div>
+                    <div className="led" key={s.id}><span>{new Date(s.endedAt).toLocaleDateString(family.settings.lang, { day: 'numeric', month: 'short' })} · {t('kid.level', { n: s.level })} · {s.correct}/{s.length}{s.subject === 'geo' ? ' · ' + t('parent.geo') : ''}{s.practice ? ' · ' + t('parent.practice') : ''}{s.fast ? ' · ' + t('parent.fast') : ''}</span><b className="gold">+{fmtNum(s.stars)} ★</b></div>
                   ))}
                 </div>
               </>
@@ -431,6 +431,7 @@ function SettingsScreen({ family, toast, onExit }: { family: Family; toast: (m: 
           <div key={k.id} className="kidset">
             <div className="kidhd"><Mascot child={k} /><b>{k.name}</b></div>
             <Stepper label={t('parent.level')} value={k.level} min={1} max={6} onChange={v => repo.updateChild(k.id, { level: v })} />
+            <Stepper label={t('parent.geoLevel')} sub={t('parent.geoLevelSub')} value={k.geoLevel ?? 1} min={1} max={3} onChange={v => repo.updateChild(k.id, { geoLevel: v })} />
             <div className="srow"><span className="lb">{t('parent.maxLen')}<small>{t('parent.maxLenSub')}</small></span>
               <Segs value={k.maxLen} options={[[10, '10'], [15, '15'], [20, '20']]} onChange={v => repo.updateChild(k.id, { maxLen: v as 10 | 15 | 20 })} /></div>
             <div className="srow"><span className="lb">{t('parent.childLang')}</span>
@@ -486,6 +487,7 @@ function SettingsScreen({ family, toast, onExit }: { family: Family; toast: (m: 
           {confirmDel === '*' ? <DeleteAll onCancel={() => setConfirmDel(null)} pinLen={family.pinLength} />
             : <button className="pbtn line danger" onClick={() => setConfirmDel('*')}>{t('parent.deleteAll')}</button>}
         </div>
+        <p className="muted small" style={{ margin: '6px 0 0' }}>{t('parent.mapCredit')}</p>
       </section>
       <RestoreBackup onDone={() => toast(t('extra.restoreDone'))} />
       <button className="pbtn line" onClick={onExit}>{t('parent.logout')}</button>

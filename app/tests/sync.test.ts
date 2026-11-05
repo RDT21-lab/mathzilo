@@ -118,6 +118,19 @@ describe('sincronización entre móvil y tablet', () => {
     expect(res.rejected.map((r: { error: string }) => r.error)).toEqual(['segundo-test']);
   });
 
+  it('el servidor deja un test con estrellas al día por materia (matemáticas y geografía)', async () => {
+    const token = await cfgToken(tablet);
+    const childId = await on(tablet, async () => (await db.children.toArray())[0].id);
+    const now = Date.now() - 5 * 86400_000, day = new Date(now - 4 * 3600_000).toISOString().slice(0, 10);
+    const ses = (id: string, geo: boolean) => ({ id, childId, startedAt: now, endedAt: now, day, length: 10, level: 2, correct: 10, stars: 4.5, passed: true, practice: false, fast: false, device: 'x', ...(geo ? { subject: 'geo' } : {}) });
+    const ev = (id: string, sid: string) => ({ id, childId, ts: now, day, type: 'test', amount: 4.5, note: '', by: 'child', device: 'x', sessionId: sid });
+    const res = await rawSync(token, { since: 0, tz: 0, dayStart: 4, push: [
+      { table: 'sessions', op: 'put', row: ses('m-1', false) }, { table: 'events', op: 'put', row: ev('em-1', 'm-1') },
+      { table: 'sessions', op: 'put', row: ses('g-1', true) }, { table: 'events', op: 'put', row: ev('eg-1', 'g-1') },
+      { table: 'sessions', op: 'put', row: ses('g-2', true) }, { table: 'events', op: 'put', row: ev('eg-2', 'g-2') }] });
+    expect(res.rejected.map((r: { id: string; error: string }) => r.id + ':' + r.error)).toEqual(['eg-2:segundo-test']);
+  });
+
   it('los aciertos ya no dan estrellas aunque la tablet antigua lo intente', async () => {
     const token = await cfgToken(tablet);
     const childId = await on(tablet, async () => (await db.children.toArray())[0].id);

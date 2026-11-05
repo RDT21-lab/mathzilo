@@ -37,7 +37,8 @@ export interface Child {
   name: string;
   kind: Kind;
   petName: string;
-  level: number;
+  level: number;            // nivel de matemáticas (1-6)
+  geoLevel?: number;        // nivel de geografía (1-3); sin valor = 1
   lang: Lang;
   tone: Tone;
   maxLen: 10 | 15 | 20;
@@ -64,6 +65,7 @@ export interface Session {
   fast: boolean;
   device: string;
   serverDay?: string;       // fecha validada por el servidor al sincronizar
+  subject?: 'geo';          // test de geografía (sin valor = matemáticas)
 }
 
 export interface Answer {
@@ -122,6 +124,7 @@ export interface ActiveTest {
   startedAt: number;
   quick: number;
   fast: boolean;
+  subject?: 'geo';          // test de geografía (sin valor = matemáticas)
 }
 
 /** Tarea que pone el padre, o premio por cumplir un conjunto de tareas (kind 'bonus') */

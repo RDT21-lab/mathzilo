@@ -1,12 +1,12 @@
-/* Modo niño (tablet en horizontal o en vertical): perfiles → inicio → longitud → preguntas → resultado.
+/* Modo niño (tablet en horizontal o en vertical): perfiles → inicio (matemáticas o geografía) → longitud → preguntas → resultado.
    Un solo objetivo por pantalla, botones de 56 px o más, sin rojo ni sonido de fallo.     */
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { db } from '../../data/db';
 import * as repo from '../../data/repo';
 import type { ActiveTest, Child, Family, Lang, Session } from '../../data/types';
 import { LANGS } from '../../data/types';
-import { balanceOf, computeStreak, addDays, roundStars, FAST_MS, FAST_RUN } from '../../data/domain';
-import { explain, inputToVal, isCorrect, makeQuestion, similar, tagFor, valKey, type Explanation, type Question, type Val } from '../../engine';
+import { balanceOf, computeStreak, addDays, doneSubject, roundStars, FAST_MS, FAST_RUN, type Subject } from '../../data/domain';
+import { explain, inputToVal, isCorrect, isGeo, makeQuestion, similar, tagFor, valKey, type Explanation, type Question, type Val } from '../../engine';
 import i18n, { useT, setLang, renderTpl, tplText, ValView, valText, noteText, fmtNum } from '../../i18n';
 import markUrl from '../../assets/mark.svg';
 import wordUrl from '../../assets/wordmark.svg';
@@ -22,6 +22,7 @@ export function KidApp({ family, onParent, needRefresh, onRefresh }: { family: F
   const [sheet, setSheet] = useState<null | 'stars' | 'settings'>(null);
   const [active, setActive] = useState<ActiveTest | null>(null);
   const [result, setResult] = useState<repo.FinishResult | null>(null);
+  const [subject, setSubject] = useState<Subject>('mates');
   const [toast, setToast] = useToast();
   const children = useLive(() => db.children.toCollection().sortBy('createdAt'), [], [] as Child[]);
   const child = children.find(c => c.id === childId) ?? null;
@@ -33,16 +34,18 @@ export function KidApp({ family, onParent, needRefresh, onRefresh }: { family: F
 
   let body;
   if (!child || screen === 'profiles') body = <Profiles children={children} family={family} onPick={c => { setChildId(c.id); go('home'); }} onParent={onParent} needRefresh={needRefresh} onRefresh={onRefresh} />;
-  else if (screen === 'home') body = <Home child={child} family={family} onStart={go} onSheet={setSheet} onResume={a => { setActive(a); go('question'); }} />;
-  else if (screen === 'length') body = <Length child={child} family={family} onBack={() => go('home')} onSheet={setSheet}
-                                   onStart={async n => { setActive(await repo.startTest(child, n)); go('question'); }} />;
+  else if (screen === 'home') body = <Home child={child} family={family} onStart={go} onSheet={setSheet} onResume={a => { setActive(a); go('question'); }}
+                                   onSubject={s => { setSubject(s); go('length'); }} />;
+  else if (screen === 'length') body = <Length child={child} family={family} subject={subject} onBack={() => go('home')} onSheet={setSheet}
+                                   onStart={async n => { setActive(await repo.startTest(child, n, subject)); go('question'); }} />;
   else if (screen === 'question' && active) body = <QuestionScreen child={child} active={active} toast={setToast}
                                    onPause={() => { setToast(i18n.t('kid.paused')); go('home'); }}
                                    onDone={r => { setResult(r); if (child.sound && r.score.passed) playWin(); go('result'); }} />;
   else if (screen === 'result' && result) body = <Result child={child} family={family} r={result} onGo={go} onSheet={setSheet} />;
   else if (screen === 'mascot') body = <MascotScreen child={child} onBack={() => go('home')} onSheet={setSheet} />;
   else if (screen === 'tasks') body = <TasksScreen child={child} family={family} onBack={() => go('home')} onSheet={setSheet} toast={setToast} />;
-  else body = <Home child={child} family={family} onStart={go} onSheet={setSheet} onResume={a => { setActive(a); go('question'); }} />;
+  else body = <Home child={child} family={family} onStart={go} onSheet={setSheet} onResume={a => { setActive(a); go('question'); }}
+                    onSubject={s => { setSubject(s); go('length'); }} />;
 
   return (
     <KidStage big={!!child?.bigText}>
@@ -160,7 +163,7 @@ function useChildState(child: Child, family: Family) {
     const bal = balanceOf(await db.events.where('childId').equals(child.id).toArray());
     const rewards = (await db.rewards.toArray()).filter(r => r.active).sort((a, b) => a.cost - b.cost);
     const active = await repo.getActive(child.id);
-    return { streak, bal, rewards, active, today };
+    return { streak, bal, rewards, active, today, done: { mates: doneSubject(sessions, today, 'mates'), geo: doneSubject(sessions, today, 'geo') } };
   }, [child.id, child.bestStreak, family, today], null);
 }
 function WeekDots({ states, today, small }: { states: Record<string, string>; today: string; small?: boolean }) {
@@ -188,7 +191,8 @@ function WeekDots({ states, today, small }: { states: Record<string, string>; to
 }
 export { WeekDots };
 
-function Home({ child, family, onStart, onSheet, onResume }: { child: Child; family: Family; onStart: (s: Screen) => void; onSheet: (s: 'stars' | 'settings') => void; onResume: (a: ActiveTest) => void }) {
+function Home({ child, family, onStart, onSheet, onResume, onSubject }: { child: Child; family: Family; onStart: (s: Screen) => void; onSheet: (s: 'stars' | 'settings') => void;
+                                                    onResume: (a: ActiveTest) => void; onSubject: (s: Subject) => void }) {
   const t = useT();
   const st = useChildState(child, family);
   if (!st) return <div className="tscr" />;
@@ -236,13 +240,20 @@ function Home({ child, family, onStart, onSheet, onResume }: { child: Child; fam
               <div className="resume">
                 <span className="muted">{t('kid.resumeInfo', { i: active.i + 1, n: active.n })}</span>
                 <div className="resbtns">
-                  <button className="btn btn-line" onClick={async () => { await repo.dropActive(child.id); onStart('length'); }}>{t('kid.newTest')}</button>
+                  <button className="btn btn-line" onClick={async () => { await repo.dropActive(child.id); onStart('home'); }}>{t('kid.newTest')}</button>
                   <button className="btn btn-gold" onClick={() => onResume(active)}><Icon name="play" size={26} />{t('kid.resume')}</button>
                 </div>
               </div>
-            ) : streak.doneToday
-              ? <button className="btn btn-line" onClick={() => onStart('length')}>{t('kid.practice')}</button>
-              : <button className="btn btn-gold" onClick={() => onStart('length')}><Icon name="play" size={30} />{t('kid.start')}</button>}
+            ) : (
+              <div className="subjects">
+                {(['mates', 'geo'] as const).map(s => (
+                  <button key={s} className={'btn subj ' + (st.done[s] ? 'btn-line' : 'btn-gold')} onClick={() => onSubject(s)}>
+                    <Icon name={s === 'geo' ? 'map' : 'calc'} size={30} />
+                    <span className="sl"><b>{t(s === 'geo' ? 'kid.subjGeo' : 'kid.subjMates')}</b><small>{t(st.done[s] ? 'kid.subjPractice' : 'kid.subjToday')}</small></span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -251,15 +262,18 @@ function Home({ child, family, onStart, onSheet, onResume }: { child: Child; fam
 }
 
 /* ---------- Longitud ---------- */
-function Length({ child, family, onBack, onStart, onSheet }: { child: Child; family: Family; onBack: () => void; onStart: (n: number) => void; onSheet: (s: 'stars' | 'settings') => void }) {
+function Length({ child, family, subject, onBack, onStart, onSheet }: { child: Child; family: Family; subject: Subject; onBack: () => void; onStart: (n: number) => void;
+                                                                       onSheet: (s: 'stars' | 'settings') => void }) {
   const t = useT();
   const st = useChildState(child, family);
-  const practice = !!st?.streak.doneToday;
+  const practice = !!st?.done[subject];
+  const geo = subject === 'geo';
   const max = Math.min(child.maxLen, family.settings.rules.maxLen);
   return (
     <div className="tscr">
       <Top child={child} onSheet={onSheet} left={<BackBtn onClick={onBack} />} />
       <h1 className="ttl">{t('kid.howMany')}</h1>
+      <p className="sub subjline"><Icon name={geo ? 'map' : 'calc'} size={22} />{t(geo ? 'kid.subjGeo' : 'kid.subjMates')} · {t('kid.level', { n: geo ? (child.geoLevel ?? 1) : child.level })}</p>
       <div className="lens">
         {[10, 15, 20].map((n, i) => {
           const dis = n > max;
@@ -281,10 +295,10 @@ function Length({ child, family, onBack, onStart, onSheet }: { child: Child; fam
 type Phase = 'ask' | 'ok' | 'fail' | 'mini' | 'miniok' | 'minifail';
 const BIG_PROMPTS = /^(add|sub|mul|div|addN|subN|cmp|series|pow|sqrt|gcd|lcm|fracOf|fracEquiv|pct)$/;
 
-export function PromptView({ q, reveal }: { q: Question; reveal: boolean }) {
+export function PromptView({ q, reveal, hideAnswer }: { q: Question; reveal: boolean; hideAnswer?: boolean }) {
   const t = useT();
   const text = tplText('q.' + q.prompt.key, q.prompt.vars);
-  const hasSlot = text.includes('?');
+  const hasSlot = !isGeo(q.gen) && text.includes('?');          // en geografía la respuesta se enseña debajo
   const len = text.length;
   const size = BIG_PROMPTS.test(q.prompt.key) ? (len <= 13 ? 70 : len <= 18 ? 58 : len <= 26 ? 44 : 34) : (len <= 30 ? 34 : len <= 70 ? 27 : 23);
   const ans = <span className="ans"><ValView v={q.answer} /></span>;
@@ -302,7 +316,7 @@ export function PromptView({ q, reveal }: { q: Question; reveal: boolean }) {
       <div ref={ref} className={'qtext' + (BIG_PROMPTS.test(q.prompt.key) ? '' : ' wrap')} style={{ fontSize: size }} aria-live="polite">
         {renderTpl('q.' + q.prompt.key, q.prompt.vars, reveal ? ans : '?')}
       </div>
-      {!hasSlot && reveal && <div className="qanswer">{t('kid.answerIs')}{ans}</div>}
+      {!hasSlot && reveal && !hideAnswer && <div className="qanswer">{t('kid.answerIs')}{ans}</div>}
       {q.prompt.key.startsWith('place') && <div className="legend">{t('q.pvLegend')}</div>}
     </>
   );
@@ -396,6 +410,8 @@ function QuestionScreen({ child, active: initial, onPause, onDone, toast }: { ch
   const wrongShown = phase === 'fail' || phase === 'minifail';
   const last = active.i >= active.n;
   const optLong = q.options.some(o => valText(o.v).length > 5);
+  const geo = isGeo(q.gen);
+  const optGeoLong = geo && q.options.some(o => valText(o.v).length > 16);
 
   let right;
   if (phase === 'ok') {
@@ -403,7 +419,7 @@ function QuestionScreen({ child, active: initial, onPause, onDone, toast }: { ch
       <div className="fbcard ok">
         <div className="big"><Icon name="check" size={44} /> {t('praise.' + (shown % 6))}</div>
         {active.practice && <p className="muted">{t('kid.practiceOk')}</p>}
-        <p>{t('kid.okSay', { pet: child.petName })}</p>
+        <p>{t(geo ? 'kid.okSayGeo' : 'kid.okSay', { pet: child.petName })}</p>
         <button className="btn btn-gold" onClick={next} disabled={busy}>{last ? t('kid.seeResult') : t('kid.next')}<Icon name="arrow" size={26} /></button>
       </div>
     );
@@ -413,7 +429,7 @@ function QuestionScreen({ child, active: initial, onPause, onDone, toast }: { ch
       <div className="fbcard">
         <h3>{t('kid.lead')}</h3>
         <p>{renderTpl('tag.' + child.tone + '.' + expl.tag + vkey, expl.tagVars)}</p>
-        {expl.visual && <div className="vis"><VisualView v={expl.visual} size="sm" /></div>}
+        {expl.visual && !geo && <div className="vis"><VisualView v={expl.visual} size="sm" /></div>}
         <ol className="steps">{expl.steps.map((s, i) => <li key={i}><span>{renderTpl(s.k, s.v)}</span></li>)}</ol>
         <div className="fbbtns">
           <button className="btn btn-line" disabled={flagged} onClick={async () => { setFlagged(true); await repo.addFlag(child, q.gen, expl.tag); toast(t('kid.flagThanks')); }}>{flagged ? '✓ ' : ''}{t('kid.dontGet')}</button>
@@ -424,7 +440,7 @@ function QuestionScreen({ child, active: initial, onPause, onDone, toast }: { ch
   } else if (phase === 'miniok' || phase === 'minifail') {
     right = (
       <div className="fbcard ok">
-        {phase === 'miniok' ? <><div className="big"><Icon name="check" size={44} /> {t('kid.miniOk')}</div><p>{t('kid.miniOkSub')}</p></>
+        {phase === 'miniok' ? <><div className="big"><Icon name="check" size={44} /> {t('kid.miniOk')}</div><p>{t(geo ? 'kid.miniOkSubGeo' : 'kid.miniOkSub')}</p></>
           : <><h3>{t('kid.miniFail')}</h3><p>{t('kid.miniFailSub', { v: valText(q.answer) })}</p></>}
         <button className="btn btn-gold" onClick={next} disabled={busy}>{last ? t('kid.seeResult') : t('kid.goOn')}<Icon name="arrow" size={26} /></button>
       </div>
@@ -448,7 +464,7 @@ function QuestionScreen({ child, active: initial, onPause, onDone, toast }: { ch
       <div className="answers">
         <div className={'opts' + (q.options.length === 3 ? ' three' : '')}>
           {q.options.map((o, i) => (
-            <button key={i} className={'opt' + (optLong ? ' long' : '')} aria-pressed={sel === i} onClick={() => setSel(i)}><ValView v={o.v} /></button>
+            <button key={i} className={'opt' + (geo ? ' geo' + (optGeoLong ? ' glong' : '') : optLong ? ' long' : '')} aria-pressed={sel === i} onClick={() => setSel(i)}><ValView v={o.v} /></button>
           ))}
         </div>
         <button className="btn btn-gold" onClick={check} disabled={sel === null}>{t('kid.check')}</button>
@@ -463,11 +479,12 @@ function QuestionScreen({ child, active: initial, onPause, onDone, toast }: { ch
         <div className="count">{t('kid.qOf', { i: Math.min(shown + 1, active.n), n: active.n })}</div>
       </div>
       {isMini ? <div className="minibanner">{t('kid.miniBanner')}</div> : active.practice ? <div className="minibanner">{t('kid.practiceBanner')}</div> : null}
-      <div className="qgrid">
-        <div className="qcard">
+      <div className={'qgrid' + (geo ? ' geo' : '')}>
+        <div className={'qcard' + (geo ? ' geo' : '')}>
           <span className="chip skill">{t('skill.' + q.gen)}</span>
-          {q.visual && <div className="qvis"><VisualView v={q.visual} /></div>}
-          <PromptView q={q} reveal={feedback} />
+          {/* en geografía, al fallar, el mapa grande pasa a enseñar la explicación (lo elegido con borde coral) */}
+          {q.visual && <div className="qvis"><VisualView v={geo && phase === 'fail' && expl?.visual ? expl.visual : q.visual} /></div>}
+          <PromptView q={q} reveal={feedback} hideAnswer={geo && wrongShown} />
           {wrongShown && given !== null && (
             <div className="gave cmp">
               <span className="chip bad">{t('kid.yourAnswer', { v: typeof given === 'string' ? given.replace('.', decSym).replace('-', '−') : valText(given) })}</span>

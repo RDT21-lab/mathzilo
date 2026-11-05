@@ -50,7 +50,22 @@
       "change": "{{name}} achète {{n}} {{item}} à {{p}} chacun et paie avec {{bill}}. Combien rend-on à {{name}} ?",
       "change_f": "{{name}} achète {{n}} {{item}} à {{p}} chacune et paie avec {{bill}}. Combien rend-on à {{name}} ?",
       "prop": "{{n1}} {{item}} coûtent {{p1}}. Combien coûtent {{n2}} ?"
-    }
+    },
+    "geoCcaaMap": "Quelle communauté autonome est en surbrillance ?",
+    "geoRiverMap": "Quel fleuve est en surbrillance ?",
+    "geoMountMap": "Quelle chaîne ou montagne est en surbrillance ?",
+    "geoCityCcaa": "Dans quelle communauté autonome se trouve {{c}} ?",
+    "geoProvMap": "Quelle province est en surbrillance ?",
+    "geoCapitalOf": "Quelle est la capitale de la province de {{p}} ?",
+    "geoProvOfCapital": "{{c}} est la capitale de quelle province ?",
+    "geoProvCcaa": "Dans quelle communauté autonome se trouve la province de {{p}} ?",
+    "geoCcaaProv": "Laquelle de ces provinces fait partie de : {{c}} ?",
+    "geoRiverCcaa": "Quelle communauté autonome le fleuve {{r}} traverse-t-il ?",
+    "geoRiverMouth": "Où se jette le fleuve {{r}} ?",
+    "geoRiverCity": "Quel fleuve traverse {{c}} ?",
+    "geoPeak": "Dans quelle chaîne se trouve le sommet {{k}} ?",
+    "geoCcaaCount": "Combien de provinces compte {{c}} ?",
+    "geoMountCcaa": "Dans quelle communauté autonome se trouve : {{m}} ?"
   },
   "words": {
     "items": {
@@ -78,7 +93,26 @@
     "dec-ops": "Calculs avec des décimaux", "frac-add-same": "Fractions de même dénominateur", "frac-equiv": "Fractions égales",
     "percent-simple": "Pourcentages simples", "mult-div": "Multiples et diviseurs", "area-tri": "Aire du triangle", "digit-value": "Nombres jusqu'aux millions",
     "frac-add-diff": "Fractions de dénominateurs différents", "dec-mult": "Multiplier des décimaux", "percent": "Pourcentages", "proportion": "Proportionnalité",
-    "power-root": "Puissances et racines", "negatives": "Nombres négatifs", "gcd-lcm": "PGCD et PPCM", "mean": "La moyenne", "volume": "Volume"
+    "power-root": "Puissances et racines", "negatives": "Nombres négatifs", "gcd-lcm": "PGCD et PPCM", "mean": "La moyenne", "volume": "Volume",
+    "geo-ccaa-map": "Communautés sur la carte",
+    "geo-river-map1": "Grands fleuves",
+    "geo-mount-map1": "Grandes chaînes de montagnes",
+    "geo-city-ccaa": "Villes et communautés",
+    "geo-prov-map": "Provinces sur la carte",
+    "geo-capital-of": "Capitales de province",
+    "geo-prov-of-capital": "De quelle province ?",
+    "geo-prov-ccaa": "Provinces et communautés",
+    "geo-ccaa-prov": "Provinces de chaque communauté",
+    "geo-river-map": "Fleuves d'Espagne",
+    "geo-mount-map": "Montagnes d'Espagne",
+    "geo-prov-map-near": "Provinces voisines",
+    "geo-capital-hard": "Capitales (difficile)",
+    "geo-river-ccaa": "Où passe un fleuve",
+    "geo-river-mouth": "Embouchures",
+    "geo-river-city": "Fleuves et villes",
+    "geo-peak": "Sommets et chaînes",
+    "geo-ccaa-count": "Combien de provinces",
+    "geo-mount-ccaa": "Montagnes et communautés"
   },
   "tagName": {
     "cuenta-mal": "Petite erreur de calcul", "decena-mal": "Erreur d'une dizaine", "resta-en-vez": "Soustrait par erreur",
@@ -97,7 +131,10 @@
     "area-triangulo": "Oublie de diviser par 2", "frac-den-distinto": "Additionne sans dénominateur commun", "signo-mal": "Erreur de signe",
     "potencia-por": "Multiplie la base par l'exposant", "raiz-mitad": "Confond racine et moitié", "mcd-mcm": "Confond PGCD et PPCM", "divisor-comun": "Diviseur commun, mais pas le plus grand",
     "multiplo-comun": "Multiple commun, mais pas le plus petit", "media-sin-dividir": "Oublie de diviser pour la moyenne", "media-mal-contar": "Compte mal les valeurs",
-    "proporcion-sumar": "Additionne dans une proportion", "volumen-area": "Confond volume et aire", "sin-simplificar": "Ne simplifie pas"
+    "proporcion-sumar": "Additionne dans une proportion", "volumen-area": "Confond volume et aire", "sin-simplificar": "Ne simplifie pas",
+    "geo-vecina": "Confond des lieux voisins",
+    "geo-ciudad-grande": "Confond la capitale et une grande ville",
+    "geo-confusion": "Confond des lieux"
   },
   "tag": {
     "young": {
@@ -154,7 +191,10 @@
       "media-mal-contar": "Presque ! Compte bien combien il y a de nombres.",
       "proporcion-sumar": "Presque ! Ici on n'additionne pas : on multiplie.",
       "volumen-area": "Presque ! Le volume utilise les trois mesures.",
-      "sin-simplificar": "Presque ! Cette fraction peut se simplifier."
+      "sin-simplificar": "Presque ! Cette fraction peut se simplifier.",
+      "geo-vecina": "Presque ! {{given}} est juste à côté.",
+      "geo-ciudad-grande": "Presque ! {{given}} est une grande ville, mais ce n'est pas la capitale.",
+      "geo-confusion": "Oups ! C'était {{ans}}. Regarde la carte."
     },
     "older": {
       "cuenta-mal": "Pas loin. Vérifions le calcul.",
@@ -210,7 +250,10 @@
       "media-mal-contar": "Divise par le bon nombre de valeurs.",
       "proporcion-sumar": "C'est proportionnel : on multiplie.",
       "volumen-area": "Volume = longueur × largeur × hauteur.",
-      "sin-simplificar": "Juste, mais il faut simplifier."
+      "sin-simplificar": "Juste, mais il faut simplifier.",
+      "geo-vecina": "Pas loin : {{given}} est voisine, mais la réponse est {{ans}}.",
+      "geo-ciudad-grande": "{{given}} est importante, mais la capitale est {{ans}}.",
+      "geo-confusion": "Ce n'est pas {{given}} : la réponse est {{ans}}."
     }
   },
   "ex": {
@@ -263,6 +306,23 @@
     "gcd": { "s1": "Écris les diviseurs de {{a}} et de {{b}}.", "s2": "Le plus grand qu'ils ont en commun est {{g}}." },
     "lcm": { "s1": "Écris les multiples de {{a}} et de {{b}}.", "s2": "Le plus petit qu'ils ont en commun est {{l}}." },
     "mean": { "s1": "Additionne toutes les valeurs : {{sum}}.", "s2": "Divise par leur nombre : {{sum}} : {{k}} = {{ans}}." },
-    "vol": { "s1": "Base : {{w}} × {{d}} = {{base}} petits cubes.", "s2": "Fois la hauteur : {{base}} × {{h}} = {{ans}} cm³." }
+    "vol": { "s1": "Base : {{w}} × {{d}} = {{base}} petits cubes.", "s2": "Fois la hauteur : {{base}} × {{h}} = {{ans}} cm³." },
+    "geo": {
+      "alt": "Ton choix, {{given}}, est entouré en orange sur la carte.",
+      "ccaaProvs": "{{c}} compte ces provinces : {{list}}.",
+      "cityIn": "{{c}} fait partie de : {{ans}}.",
+      "capitalOfProv": "{{c}} est la capitale de la province de {{p}}.",
+      "provIn": "La province de {{p}} fait partie de : {{ans}}.",
+      "riverMouth": "Le {{r}} se jette dans : {{sea}}.",
+      "riverInto": "Le {{r}} se jette dans le {{into}}.",
+      "riverCities": "Le {{r}} passe par {{list}}.",
+      "riverPasses": "Le {{r}} traverse : {{list}}.",
+      "cityRiver": "Le {{ans}} traverse {{c}}.",
+      "mountIn": "{{m}} se trouve en : {{list}}.",
+      "peakOf": "L'un de ses plus hauts sommets est le {{k}}.",
+      "teide": "Le Teide, à Tenerife, est la plus haute montagne d'Espagne (3 715 m).",
+      "peakIn": "Le sommet {{k}} se trouve dans : {{ans}}.",
+      "bigCity": "{{given}} est une ville de la province de {{p}}, mais ce n'est pas sa capitale."
+    }
   }
 }

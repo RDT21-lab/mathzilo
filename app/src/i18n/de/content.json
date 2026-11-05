@@ -49,7 +49,22 @@
       "share": "{{name}} verteilt {{a}} {{item}} gerecht auf {{b}} Kinder. Wie viele bekommt jedes Kind?",
       "change": "{{name}} kauft {{n}} {{item}} zu je {{p}} und bezahlt mit {{bill}}. Wie viel Rückgeld bekommt {{name}}?",
       "prop": "{{n1}} {{item}} kosten {{p1}}. Wie viel kosten {{n2}}?"
-    }
+    },
+    "geoCcaaMap": "Welche autonome Gemeinschaft ist markiert?",
+    "geoRiverMap": "Welcher Fluss ist markiert?",
+    "geoMountMap": "Welches Gebirge oder welcher Berg ist markiert?",
+    "geoCityCcaa": "In welcher autonomen Gemeinschaft liegt {{c}}?",
+    "geoProvMap": "Welche Provinz ist markiert?",
+    "geoCapitalOf": "Wie heißt die Hauptstadt der Provinz {{p}}?",
+    "geoProvOfCapital": "{{c}} ist die Hauptstadt welcher Provinz?",
+    "geoProvCcaa": "In welcher autonomen Gemeinschaft liegt die Provinz {{p}}?",
+    "geoCcaaProv": "Welche dieser Provinzen liegt in {{c}}?",
+    "geoRiverCcaa": "Durch welche autonome Gemeinschaft fließt der {{r}}?",
+    "geoRiverMouth": "Wo mündet der {{r}}?",
+    "geoRiverCity": "Welcher Fluss fließt durch {{c}}?",
+    "geoPeak": "In welchem Gebirge liegt der Gipfel {{k}}?",
+    "geoCcaaCount": "Wie viele Provinzen hat {{c}}?",
+    "geoMountCcaa": "In welcher autonomen Gemeinschaft liegt: {{m}}?"
   },
   "words": {
     "items": {
@@ -77,7 +92,26 @@
     "dec-ops": "Rechnen mit Dezimalzahlen", "frac-add-same": "Gleichnamige Brüche", "frac-equiv": "Brüche erweitern",
     "percent-simple": "Einfache Prozente", "mult-div": "Vielfache und Teiler", "area-tri": "Fläche des Dreiecks", "digit-value": "Zahlen bis Millionen",
     "frac-add-diff": "Ungleichnamige Brüche", "dec-mult": "Dezimalzahlen multiplizieren", "percent": "Prozente", "proportion": "Dreisatz",
-    "power-root": "Potenzen und Wurzeln", "negatives": "Negative Zahlen", "gcd-lcm": "ggT und kgV", "mean": "Der Mittelwert", "volume": "Volumen"
+    "power-root": "Potenzen und Wurzeln", "negatives": "Negative Zahlen", "gcd-lcm": "ggT und kgV", "mean": "Der Mittelwert", "volume": "Volumen",
+    "geo-ccaa-map": "Gemeinschaften auf der Karte",
+    "geo-river-map1": "Große Flüsse",
+    "geo-mount-map1": "Große Gebirge",
+    "geo-city-ccaa": "Städte und Gemeinschaften",
+    "geo-prov-map": "Provinzen auf der Karte",
+    "geo-capital-of": "Provinzhauptstädte",
+    "geo-prov-of-capital": "Welche Provinz?",
+    "geo-prov-ccaa": "Provinzen und Gemeinschaften",
+    "geo-ccaa-prov": "Provinzen jeder Gemeinschaft",
+    "geo-river-map": "Flüsse Spaniens",
+    "geo-mount-map": "Gebirge Spaniens",
+    "geo-prov-map-near": "Nachbarprovinzen",
+    "geo-capital-hard": "Hauptstädte (schwer)",
+    "geo-river-ccaa": "Wo ein Fluss fließt",
+    "geo-river-mouth": "Mündungen",
+    "geo-river-city": "Flüsse und Städte",
+    "geo-peak": "Gipfel und Gebirge",
+    "geo-ccaa-count": "Wie viele Provinzen",
+    "geo-mount-ccaa": "Gebirge und Gemeinschaften"
   },
   "tagName": {
     "cuenta-mal": "Kleiner Rechenfehler", "decena-mal": "Um zehn daneben", "resta-en-vez": "Rechnet minus statt anders",
@@ -96,7 +130,10 @@
     "area-triangulo": "Vergisst das Halbieren beim Dreieck", "frac-den-distinto": "Addiert ohne gemeinsamen Nenner", "signo-mal": "Vorzeichenfehler",
     "potencia-por": "Rechnet Basis mal Exponent", "raiz-mitad": "Verwechselt Wurzel und Hälfte", "mcd-mcm": "Verwechselt ggT und kgV", "divisor-comun": "Gemeinsamer, aber nicht größter Teiler",
     "multiplo-comun": "Gemeinsames, aber nicht kleinstes Vielfaches", "media-sin-dividir": "Vergisst das Teilen beim Mittelwert", "media-mal-contar": "Zählt die Werte falsch",
-    "proporcion-sumar": "Addiert beim Dreisatz", "volumen-area": "Verwechselt Volumen und Fläche", "sin-simplificar": "Kürzt nicht"
+    "proporcion-sumar": "Addiert beim Dreisatz", "volumen-area": "Verwechselt Volumen und Fläche", "sin-simplificar": "Kürzt nicht",
+    "geo-vecina": "Verwechselt benachbarte Orte",
+    "geo-ciudad-grande": "Verwechselt die Hauptstadt mit einer großen Stadt",
+    "geo-confusion": "Verwechselt Orte"
   },
   "tag": {
     "young": {
@@ -153,7 +190,10 @@
       "media-mal-contar": "Fast! Zähl genau, wie viele Zahlen es sind.",
       "proporcion-sumar": "Fast! Hier wird nicht addiert, sondern malgenommen.",
       "volumen-area": "Fast! Das Volumen braucht alle drei Maße.",
-      "sin-simplificar": "Fast! Diesen Bruch kann man kürzen."
+      "sin-simplificar": "Fast! Diesen Bruch kann man kürzen.",
+      "geo-vecina": "Fast! {{given}} liegt direkt daneben.",
+      "geo-ciudad-grande": "Fast! {{given}} ist eine große Stadt, aber nicht die Hauptstadt.",
+      "geo-confusion": "Hoppla! Es war {{ans}}. Schau auf die Karte."
     },
     "older": {
       "cuenta-mal": "Knapp daneben. Prüfen wir die Rechnung.",
@@ -209,7 +249,10 @@
       "media-mal-contar": "Teile durch die richtige Anzahl der Werte.",
       "proporcion-sumar": "Es ist proportional: malnehmen.",
       "volumen-area": "Volumen = Länge · Breite · Höhe.",
-      "sin-simplificar": "Richtig, aber noch kürzen."
+      "sin-simplificar": "Richtig, aber noch kürzen.",
+      "geo-vecina": "Knapp: {{given}} ist ein Nachbar, aber die Antwort ist {{ans}}.",
+      "geo-ciudad-grande": "{{given}} ist wichtig, aber die Hauptstadt ist {{ans}}.",
+      "geo-confusion": "Nicht {{given}}: Die Antwort ist {{ans}}."
     }
   },
   "ex": {
@@ -262,6 +305,23 @@
     "gcd": { "s1": "Schreib die Teiler von {{a}} und von {{b}} auf.", "s2": "Der größte gemeinsame ist {{g}}." },
     "lcm": { "s1": "Schreib die Vielfachen von {{a}} und von {{b}} auf.", "s2": "Das kleinste gemeinsame ist {{l}}." },
     "mean": { "s1": "Addiere alle Werte: {{sum}}.", "s2": "Teile durch ihre Anzahl: {{sum}} : {{k}} = {{ans}}." },
-    "vol": { "s1": "Grundfläche: {{w}} · {{d}} = {{base}} Würfel.", "s2": "Mal die Höhe: {{base}} · {{h}} = {{ans}} cm³." }
+    "vol": { "s1": "Grundfläche: {{w}} · {{d}} = {{base}} Würfel.", "s2": "Mal die Höhe: {{base}} · {{h}} = {{ans}} cm³." },
+    "geo": {
+      "alt": "Deine Wahl, {{given}}, ist auf der Karte orange umrandet.",
+      "ccaaProvs": "{{c}} hat diese Provinzen: {{list}}.",
+      "cityIn": "{{c}} liegt in {{ans}}.",
+      "capitalOfProv": "{{c}} ist die Hauptstadt der Provinz {{p}}.",
+      "provIn": "Die Provinz {{p}} liegt in {{ans}}.",
+      "riverMouth": "Der {{r}} mündet in: {{sea}}.",
+      "riverInto": "Der {{r}} mündet in den {{into}}.",
+      "riverCities": "Der {{r}} fließt durch {{list}}.",
+      "riverPasses": "Der {{r}} fließt durch {{list}}.",
+      "cityRiver": "Durch {{c}} fließt der {{ans}}.",
+      "mountIn": "{{m}} liegt in: {{list}}.",
+      "peakOf": "Einer der höchsten Gipfel ist der {{k}}.",
+      "teide": "Der Teide auf Teneriffa ist der höchste Berg Spaniens (3715 m).",
+      "peakIn": "Der Gipfel {{k}} liegt hier: {{ans}}.",
+      "bigCity": "{{given}} ist eine Stadt in der Provinz {{p}}, aber nicht ihre Hauptstadt."
+    }
   }
 }

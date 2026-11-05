@@ -50,12 +50,12 @@ function useStage() {
 }
 
 /** Tablet del niño. En horizontal: diseño 1024×680 escalado para caber entero (bandas si sobra).
- *  En vertical: 680 de ancho y el alto que tenga la pantalla (entre 860 y 1240), con las columnas apiladas. */
+ *  En vertical: 680 de ancho y el alto que tenga la pantalla (entre 860 y 1500, para tablets y móviles), con las columnas apiladas. */
 export function KidStage({ children, big }: { children: ReactNode; big?: boolean }) {
   const { ref, w, h } = useStage();
   const portrait = h > w * 1.05;
   const W = portrait ? 680 : 1024;
-  const H = portrait ? Math.round(Math.min(1240, Math.max(860, (W * h) / w))) : 680;
+  const H = portrait ? Math.round(Math.min(1500, Math.max(860, (W * h) / w))) : 680;
   const s = Math.min(w / W, h / H);
   return (
     <div className="stage" ref={ref}>
@@ -99,6 +99,8 @@ const ICONS: Record<string, string> = {
   list: '<rect x="4.5" y="3.5" width="15" height="17" rx="3" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M8 9l1.5 1.5L12 8M8 15l1.5 1.5L12 14M14.5 9.5h2M14.5 15.5h2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>',
   clock: '<circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M12 7.5V12l3 2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>',
   bell: '<path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><path d="M10 20.5a2 2 0 0 0 4 0" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>',
+  map: '<path d="M3.5 6.5l5.5-2.5 6 2.5 5.5-2.5v13.5L15 20l-6-2.5-5.5 2.5z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><path d="M9 4v13.5M15 6.5V20" fill="none" stroke="currentColor" stroke-width="2.2"/>',
+  calc: '<rect x="4.5" y="3" width="15" height="18" rx="3" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M8 7.5h8M8.5 12h1M14.5 12h1M8.5 16.5h1M14.5 16.5h1" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>',
   sound: '<path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>'
 };
 export function Icon({ name, size = 24, className }: { name: string; size?: number; className?: string }) {

@@ -62,9 +62,9 @@ describe('rachas y escudos', () => {
 describe('saldo: tests y canjes en local', () => {
   beforeEach(async () => { await repo.wipeAll(); });
 
-  async function playTest(childId: string, n: number, correct: number): Promise<repo.FinishResult> {
+  async function playTest(childId: string, n: number, correct: number, subject: 'mates' | 'geo' = 'mates'): Promise<repo.FinishResult> {
     const child = (await db.children.get(childId))!;
-    const a: ActiveTest = await repo.startTest(child, n);
+    const a: ActiveTest = await repo.startTest(child, n, subject);
     a.answers = a.qs.map((q, i) => ({ skill: q.gen, seed: q.seed, given: '', ok: i < correct, ms: 5000, tag: i < correct ? 'ok' : 'cuenta-mal' }));
     return repo.finishTest(a);
   }
@@ -91,6 +91,31 @@ describe('saldo: tests y canjes en local', () => {
     expect(evs.length).toBe(3);                                 // aprobado, canje, ajuste
     // cada escritura está en la cola de sincronización
     expect(await db.outbox.count()).toBeGreaterThan(5);
+  });
+
+  it('matemáticas y geografía: un test con estrellas al día por materia; la racha cuenta con cualquiera', async () => {
+    await repo.createFamily({ lang: 'es', pin: '1234', children: [{ name: 'Lucía', kind: 'zorro', petName: 'Chispa', level: 1, lang: 'es' }] });
+    await repo.updateSettings({ rules: { ...DEFAULT_RULES, passBonus: { 10: 1.5, 15: 2, 20: 3 }, streakBonus: { 3: 0, 7: 0, 14: 0, 30: 0 } } });
+    const [lucia] = await db.children.toArray();
+    await repo.updateChild(lucia.id, { geoLevel: 3 });
+    const g1 = await playTest(lucia.id, 10, 9, 'geo');
+    expect(g1.session.subject).toBe('geo');
+    expect(g1.session.level).toBe(3);
+    expect(g1.score.practice).toBe(false);
+    expect(g1.score.total).toBe(1.5);
+    expect(g1.score.streakExtended).toBe(true);
+    const m1 = await playTest(lucia.id, 10, 9);                 // matemáticas: también da estrellas
+    expect(m1.session.subject).toBeUndefined();
+    expect(m1.score.practice).toBe(false);
+    expect(m1.score.total).toBe(1.5);
+    expect(m1.score.streakExtended).toBe(false);                 // la racha ya contó hoy
+    const g2 = await playTest(lucia.id, 10, 10, 'geo');          // segundo de geografía: práctica
+    expect(g2.score.practice).toBe(true);
+    expect(g2.score.total).toBe(0);
+    expect(await repo.balance(lucia.id)).toBe(3);
+    const a = await repo.startTest(lucia, 15, 'geo');
+    expect(a.qs.every(q => q.gen.startsWith('geo-'))).toBe(true);
+    expect(a.practice).toBe(true);
   });
 
   it('exportar → borrar todo → restaurar deja los datos exactamente igual', async () => {

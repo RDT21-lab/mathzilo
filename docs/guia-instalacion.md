@@ -56,6 +56,12 @@ Despliegue automático (opcional): en GitHub, añade los secretos `DEPLOY_HOST`,
 
 - El niño elige su perfil, pulsa **Empezar** y hace el test (10, 15 o 20 preguntas). El test da estrellas solo como bonus (al aprobar, test perfecto y rachas), y solo el primero del día. Esos premios empiezan en 0: el adulto los sube en **Ajustes → Estrellas** de 0,5 en 0,5.
 - La tablet se puede usar **en horizontal o en vertical**: en vertical, los perfiles de los niños salen uno debajo de otro.
+- **Geografía de España**: en el inicio hay dos botones, **Matemáticas** y **Geografía**. El de geografía hace un test de 10, 15 o 20 preguntas con el mapa de España iluminado y 4 opciones. Cada materia tiene su test del día (con estrellas, si están activadas) y el resto son de práctica; la racha cuenta con cualquiera de los dos.
+- Niveles de geografía (Modo padre → **Ajustes** → cada hijo → **Nivel de geografía**):
+  - **1**: comunidades autónomas en el mapa, los 5 grandes ríos, las 6 grandes cordilleras y en qué comunidad está una capital.
+  - **2**: provincias en el mapa, capitales de provincia (y al revés), en qué comunidad está cada provincia, qué provincias tiene una comunidad, y los 10 ríos y 12 cordilleras.
+  - **3**: provincias vecinas entre sí, capitales con ciudades grandes de distractor (Vigo, Gijón, Jerez…), por qué comunidades pasa un río, dónde desemboca, qué río pasa por una ciudad, en qué cordillera está un pico y cuántas provincias tiene una comunidad.
+  Cada test mezcla un 70 % del nivel elegido y un 30 % de repaso de los anteriores.
 - **Tareas**: Modo padre → **Tareas** → elige hijo → **+ Añadir tarea** (nombre, estrellas, que pueden llevar un decimal como 1,5, y los días de la semana o un día concreto). En **Premios por cumplir tareas** se dan estrellas extra por hacerlas todas o un grupo. En **Días con tareas** se desconectan días enteros, como el fin de semana.
 - El niño ve sus tareas en el botón **Tareas** de su pantalla y pulsa **¡Ya la he hecho!**. Al adulto le llega el aviso y la ve en el panel, en **Tareas por revisar**: **Sí, está hecha** suma las estrellas; **Aún no** se la devuelve al niño para que lo intente de nuevo.
 - **Dificultad**: en el panel, toca la tarjeta del hijo → **Dificultad** muestra sus últimos tests en el nivel actual; tú decides si sube o baja.

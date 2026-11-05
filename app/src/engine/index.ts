@@ -3,13 +3,18 @@
 import { mulberry32, pickOptions, valKey, inputMatches, inputToVal, parseInput, valRat, rEq, type Question, type Val, type Option } from './core';
 import { BASIC } from './gens-basic';
 import { ADVANCED } from './gens-advanced';
+import { GEO, GEO_LEVEL_SKILLS, GEO_MAX_LEVEL, GEO_TAGS } from './geo';
 import type { Explanation, Generator } from './types';
 
 export * from './core';
 export type { Explanation, Step } from './types';
 
+/** Generadores de matemáticas (niveles 1-6). Los de geografía (niveles 1-3) van aparte: GEO */
 export const GENERATORS: Generator[] = [...BASIC, ...ADVANCED];
-export const GEN_BY_ID: Record<string, Generator> = Object.fromEntries(GENERATORS.map(g => [g.id, g]));
+export { GEO, GEO_LEVEL_SKILLS, GEO_MAX_LEVEL };
+export const GEN_BY_ID: Record<string, Generator> = Object.fromEntries([...GENERATORS, ...GEO].map(g => [g.id, g]));
+export type Subject = 'mates' | 'geo';
+export const isGeo = (genId: string) => genId.startsWith('geo-');
 export const MAX_LEVEL = 6;
 export const LEVEL_SKILLS: Record<number, string[]> = {};
 for (const g of GENERATORS) (LEVEL_SKILLS[g.level] ||= []).push(g.id);
@@ -22,7 +27,7 @@ export const ERROR_TAGS = [
   'perimetro-lados', 'area-perimetro', 'mult-parcial', 'resto-cociente', 'resto-mal', 'cociente-mal', 'frac-mayor-denominador',
   'coma-mal-puesta', 'paso-olvidado', 'redondeo-mal', 'frac-suma-den', 'frac-equiv-sumar', 'porcentaje-mal', 'porcentaje-resto',
   'multiplo-divisor', 'area-triangulo', 'frac-den-distinto', 'signo-mal', 'potencia-por', 'raiz-mitad', 'mcd-mcm', 'divisor-comun',
-  'multiplo-comun', 'media-sin-dividir', 'media-mal-contar', 'proporcion-sumar', 'volumen-area', 'sin-simplificar'
+  'multiplo-comun', 'media-sin-dividir', 'media-mal-contar', 'proporcion-sumar', 'volumen-area', 'sin-simplificar', ...GEO_TAGS
 ] as const;
 
 export function makeQuestion(genId: string, seed: number): Question {
@@ -57,12 +62,13 @@ export interface TestContext {
 }
 
 /** 70 % del nivel actual (más peso a las habilidades con menos dominio) y 30 % de repaso */
-export function makeTest(level: number, n: number, seed: number, ctx: TestContext = {}): Question[] {
+export function makeTest(level: number, n: number, seed: number, ctx: TestContext = {}, subject: Subject = 'mates'): Question[] {
   const r = mulberry32(seed);
-  const lv = Math.min(Math.max(level, 1), MAX_LEVEL);
-  const pool = LEVEL_SKILLS[lv];
-  const lowerAll = GENERATORS.filter(g => g.level < lv && g.level >= lv - 2).map(g => g.id);
-  const review = (ctx.review ?? []).filter(id => GEN_BY_ID[id] && GEN_BY_ID[id].level <= lv);
+  const geo = subject === 'geo';
+  const lv = Math.min(Math.max(level, 1), geo ? GEO_MAX_LEVEL : MAX_LEVEL);
+  const pool = (geo ? GEO_LEVEL_SKILLS : LEVEL_SKILLS)[lv];
+  const lowerAll = (geo ? GEO : GENERATORS).filter(g => g.level < lv && g.level >= lv - 2).map(g => g.id);
+  const review = (ctx.review ?? []).filter(id => GEN_BY_ID[id] && GEN_BY_ID[id].level <= lv && isGeo(id) === geo);
   const reviewPool = review.length ? review : (lowerAll.length ? lowerAll : pool);
   const nReview = Math.round(n * 0.3);
   const weight = (id: string) => 1 + (100 - (ctx.mastery?.[id] ?? 40)) / 25;

@@ -1,7 +1,7 @@
 /* Acciones sobre los datos. Cada escritura sincronizable deja un aviso en la cola `outbox`:
    la app escribe primero en el dispositivo y la sincronización envía después.              */
 import { db, deviceId, getMeta, setMeta } from './db';
-import { balanceOf, bonusesForDay, checkId, computeStreak, dayOf, nextMastery, roundStars, taskEventId, tasksForDay, type BonusState, type StreakInfo } from './domain';
+import { balanceOf, bonusesForDay, checkId, computeStreak, dayOf, doneSubject, type Subject, nextMastery, roundStars, taskEventId, tasksForDay, type BonusState, type StreakInfo } from './domain';
 import { hashPin, newSalt, LOCK_MS, MAX_TRIES } from './pin';
 import { DEFAULT_RULES, makeTest, scoreTest, LEVEL_SKILLS, type ScoreResult } from '../engine';
 import M from '../mascots/mascots.js';
@@ -126,17 +126,21 @@ export async function getActive(childId: string): Promise<ActiveTest | null> { r
 export async function saveActive(a: ActiveTest) { await setMeta('active:' + a.childId, a); }
 export async function dropActive(childId: string) { await db.meta.delete('active:' + childId); }
 
-export async function startTest(child: Child, n: number): Promise<ActiveTest> {
-  const info = await streakOf(child);
+export async function startTest(child: Child, n: number, subject: Subject = 'mates'): Promise<ActiveTest> {
+  const geo = subject === 'geo';
+  const fam = await getFamily();
+  const sessions = await db.sessions.where('childId').equals(child.id).toArray();
+  const done = doneSubject(sessions, dayOf(Date.now(), fam?.settings.dayStartHour ?? 4), subject);
   const mastery = Object.fromEntries((await db.mastery.where('childId').equals(child.id).toArray()).map(m => [m.skill, m.value]));
   // repaso: habilidades con fallos en los últimos 14 días
   const since = Date.now() - 14 * 86400_000;
   const recentWrong = await db.answers.where('childId').equals(child.id).filter(a => !a.ok).toArray();
-  const sessionsById = new Map((await db.sessions.where('childId').equals(child.id).toArray()).map(s => [s.id, s]));
+  const sessionsById = new Map(sessions.map(s => [s.id, s]));
   const review = [...new Set(recentWrong.filter(a => (sessionsById.get(a.sessionId)?.endedAt ?? 0) > since).map(a => a.skill))];
   const seed = Math.floor(Math.random() * 1e9);
-  const qs = makeTest(child.level, n, seed, { mastery, review }).map(q => ({ gen: q.gen, seed: q.seed }));
-  const a: ActiveTest = { childId: child.id, n, level: child.level, practice: info.doneToday, qs, i: 0, answers: [], startedAt: Date.now(), quick: 0, fast: false };
+  const level = geo ? Math.min(3, Math.max(1, child.geoLevel ?? 1)) : child.level;
+  const qs = makeTest(level, n, seed, { mastery, review }, subject).map(q => ({ gen: q.gen, seed: q.seed }));
+  const a: ActiveTest = { childId: child.id, n, level, practice: done, qs, i: 0, answers: [], startedAt: Date.now(), quick: 0, fast: false, ...(geo ? { subject: 'geo' as const } : {}) };
   await saveActive(a);
   return a;
 }
@@ -157,11 +161,14 @@ export async function finishTest(a: ActiveTest): Promise<FinishResult> {
   const now = Date.now();
   const day = dayOf(now, fam.settings.dayStartHour);
   const before = await streakOf(child, fam);
+  const sessionsBefore = await db.sessions.where('childId').equals(child.id).toArray();
+  const subject: Subject = a.subject === 'geo' ? 'geo' : 'mates';
   const correct = a.answers.filter(x => x.ok).length;
-  const score = scoreTest(fam.settings.rules, { doneToday: before.doneToday, streakToday: before.passedToday, streak: before.streak },
+  // un test con estrellas al día por materia; la racha cuenta con cualquiera
+  const score = scoreTest(fam.settings.rules, { doneToday: doneSubject(sessionsBefore, day, subject), streakToday: before.passedToday, streak: before.streak },
                           { correct, total: a.n, fast: a.fast });
   const session: Session = { id: uid(), childId: child.id, startedAt: a.startedAt, endedAt: now, day, length: a.n, level: a.level, correct,
-    stars: score.total, passed: score.passed, practice: score.practice, fast: a.fast, device: dev };
+    stars: score.total, passed: score.passed, practice: score.practice, fast: a.fast, device: dev, ...(a.subject === 'geo' ? { subject: 'geo' as const } : {}) };
   const answers: Answer[] = a.answers.map(x => ({ ...x, id: uid(), sessionId: session.id, childId: child.id }));
   const events: StarEvent[] = score.items.filter(it => it.stars > 0).map(it => ({
     id: uid(), childId: child.id, ts: now, day, type: it.id === 'racha' ? 'racha' : 'test', amount: it.stars,

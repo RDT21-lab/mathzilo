@@ -279,3 +279,32 @@
 /* hojas */
 .portrait .sheetbox { width: 616px; max-height: 88%; }
 .portrait .langs { grid-template-columns: repeat(2, 1fr); }
+
+/* ---------- Geografía (v1.1) ---------- */
+/* inicio: dos botones, matemáticas y geografía */
+.subjects { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.cta .subjects .btn.subj { min-height: 78px; font-size: 24px; padding: 0 16px; justify-content: flex-start; gap: 12px; }
+.btn.subj .sl { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.1; text-align: left; min-width: 0; }
+.btn.subj .sl b { font-size: 24px; }
+.btn.subj .sl small { font-size: 15px; font-weight: 500; opacity: .85; margin-top: 4px; }
+.subjline { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: -2px; }
+/* mapa */
+.geomap { display: block; width: 100%; height: auto; max-height: 300px; }
+.geomap.sm { max-height: 210px; }
+.geomap.ph { aspect-ratio: 1190 / 915; background: #0B1A44; border-radius: 14px; width: 100%; max-width: 430px; }
+.geomap.ph.sm { max-width: 270px; }
+.qcard.geo { justify-content: flex-start; padding-top: 46px; }
+.qcard.geo .qvis { margin-top: 0; width: 100%; }
+.qcard.geo .mascot { width: 64px; height: 64px; left: auto; right: 12px; top: 6px; bottom: auto; }
+.fbcard .vis .geomap { max-width: 100%; }
+@keyframes geopulse { 0%, 100% { stroke-opacity: 1; } 50% { stroke-opacity: .25; } }
+.geopulse { animation: geopulse 1.4s ease-in-out infinite; }
+/* opciones con nombres de lugares */
+.opt.geo { font-size: 27px; line-height: 1.15; padding: 8px 12px; overflow-wrap: anywhere; hyphens: auto; }
+.opt.geo.glong { font-size: 22px; }
+.device.kid.big .opt.geo { font-size: 29px; }
+.device.kid.big .opt.geo.glong { font-size: 24px; }
+/* en vertical, el mapa se lleva más sitio y las respuestas menos */
+.portrait .qgrid.geo { grid-template-rows: minmax(0, 1.25fr) minmax(320px, 1fr); }
+.portrait .qcard.geo .qvis svg.geomap { max-height: 380px; width: 100%; }
+.portrait .qcard.geo .mascot { width: 60px; height: 60px; }

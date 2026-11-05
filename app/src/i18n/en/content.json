@@ -49,7 +49,22 @@
       "share": "{{name}} shares {{a}} {{item}} equally between {{b}} friends. How many does each friend get?",
       "change": "{{name}} buys {{n}} {{item}} at {{p}} each and pays with {{bill}}. How much change does {{name}} get?",
       "prop": "{{n1}} {{item}} cost {{p1}}. How much do {{n2}} cost?"
-    }
+    },
+    "geoCcaaMap": "Which autonomous community is highlighted?",
+    "geoRiverMap": "Which river is highlighted?",
+    "geoMountMap": "Which mountain range or mountain is highlighted?",
+    "geoCityCcaa": "Which autonomous community is {{c}} in?",
+    "geoProvMap": "Which province is highlighted?",
+    "geoCapitalOf": "What is the capital of the province of {{p}}?",
+    "geoProvOfCapital": "{{c}} is the capital of which province?",
+    "geoProvCcaa": "Which autonomous community is the province of {{p}} in?",
+    "geoCcaaProv": "Which of these provinces is in {{c}}?",
+    "geoRiverCcaa": "Which autonomous community does the {{r}} river flow through?",
+    "geoRiverMouth": "Where does the {{r}} river flow into?",
+    "geoRiverCity": "Which river flows through {{c}}?",
+    "geoPeak": "Which mountain range is the peak {{k}} in?",
+    "geoCcaaCount": "How many provinces does {{c}} have?",
+    "geoMountCcaa": "Which autonomous community is {{m}} in?"
   },
   "words": {
     "items": {
@@ -77,7 +92,26 @@
     "dec-ops": "Decimal calculations", "frac-add-same": "Fractions with the same denominator", "frac-equiv": "Equivalent fractions",
     "percent-simple": "Simple percentages", "mult-div": "Multiples and factors", "area-tri": "Area of triangles", "digit-value": "Numbers to millions",
     "frac-add-diff": "Fractions with different denominators", "dec-mult": "Multiplying decimals", "percent": "Percentages", "proportion": "Proportion",
-    "power-root": "Powers and roots", "negatives": "Negative numbers", "gcd-lcm": "HCF and LCM", "mean": "The mean", "volume": "Volume"
+    "power-root": "Powers and roots", "negatives": "Negative numbers", "gcd-lcm": "HCF and LCM", "mean": "The mean", "volume": "Volume",
+    "geo-ccaa-map": "Communities on the map",
+    "geo-river-map1": "Big rivers",
+    "geo-mount-map1": "Big mountain ranges",
+    "geo-city-ccaa": "Cities and communities",
+    "geo-prov-map": "Provinces on the map",
+    "geo-capital-of": "Provincial capitals",
+    "geo-prov-of-capital": "Which province is it?",
+    "geo-prov-ccaa": "Provinces and communities",
+    "geo-ccaa-prov": "Provinces of each community",
+    "geo-river-map": "Rivers of Spain",
+    "geo-mount-map": "Mountain ranges of Spain",
+    "geo-prov-map-near": "Neighbouring provinces",
+    "geo-capital-hard": "Capitals (hard)",
+    "geo-river-ccaa": "Where a river flows",
+    "geo-river-mouth": "River mouths",
+    "geo-river-city": "Rivers and cities",
+    "geo-peak": "Peaks and ranges",
+    "geo-ccaa-count": "How many provinces",
+    "geo-mount-ccaa": "Ranges and communities"
   },
   "tagName": {
     "cuenta-mal": "Small counting slip", "decena-mal": "Off by ten", "resta-en-vez": "Subtracts by mistake",
@@ -96,7 +130,10 @@
     "area-triangulo": "Forgets to halve for a triangle", "frac-den-distinto": "Adds fractions without a common denominator", "signo-mal": "Sign mistakes",
     "potencia-por": "Multiplies base by exponent", "raiz-mitad": "Mixes up square root and half", "mcd-mcm": "Mixes up HCF and LCM", "divisor-comun": "Common factor, but not the highest",
     "multiplo-comun": "Common multiple, but not the lowest", "media-sin-dividir": "Forgets to divide for the mean", "media-mal-contar": "Miscounts the values",
-    "proporcion-sumar": "Adds in a proportion", "volumen-area": "Mixes up volume and area", "sin-simplificar": "Does not simplify"
+    "proporcion-sumar": "Adds in a proportion", "volumen-area": "Mixes up volume and area", "sin-simplificar": "Does not simplify",
+    "geo-vecina": "Mixes up neighbouring places",
+    "geo-ciudad-grande": "Mixes up the capital and a big city",
+    "geo-confusion": "Mixes up places"
   },
   "tag": {
     "young": {
@@ -153,7 +190,10 @@
       "media-mal-contar": "Nearly! Count how many numbers there are.",
       "proporcion-sumar": "Nearly! Don't add here: multiply.",
       "volumen-area": "Nearly! Volume uses all three measurements.",
-      "sin-simplificar": "Nearly! That fraction can be simplified."
+      "sin-simplificar": "Nearly! That fraction can be simplified.",
+      "geo-vecina": "Nearly! {{given}} is right next to it.",
+      "geo-ciudad-grande": "Nearly! {{given}} is a big city, but it isn't the capital.",
+      "geo-confusion": "Oops! It was {{ans}}. Look at the map."
     },
     "older": {
       "cuenta-mal": "Close. Let's check the calculation.",
@@ -209,7 +249,10 @@
       "media-mal-contar": "Divide by the correct number of values.",
       "proporcion-sumar": "It's proportional: multiply.",
       "volumen-area": "Volume = length × width × height.",
-      "sin-simplificar": "Right, but simplify it."
+      "sin-simplificar": "Right, but simplify it.",
+      "geo-vecina": "Close: {{given}} is a neighbour, but the answer is {{ans}}.",
+      "geo-ciudad-grande": "{{given}} is important, but the capital is {{ans}}.",
+      "geo-confusion": "It isn't {{given}}: the answer is {{ans}}."
     }
   },
   "ex": {
@@ -262,6 +305,23 @@
     "gcd": { "s1": "List the factors of {{a}} and of {{b}}.", "s2": "The highest one they share is {{g}}." },
     "lcm": { "s1": "List the multiples of {{a}} and of {{b}}.", "s2": "The lowest one they share is {{l}}." },
     "mean": { "s1": "Add all the values: {{sum}}.", "s2": "Divide by how many there are: {{sum}} ÷ {{k}} = {{ans}}." },
-    "vol": { "s1": "Base: {{w}} × {{d}} = {{base}} cubes.", "s2": "Times the height: {{base}} × {{h}} = {{ans}} cm³." }
+    "vol": { "s1": "Base: {{w}} × {{d}} = {{base}} cubes.", "s2": "Times the height: {{base}} × {{h}} = {{ans}} cm³." },
+    "geo": {
+      "alt": "Your choice, {{given}}, has an orange border on the map.",
+      "ccaaProvs": "{{c}} has these provinces: {{list}}.",
+      "cityIn": "{{c}} is in {{ans}}.",
+      "capitalOfProv": "{{c}} is the capital of the province of {{p}}.",
+      "provIn": "The province of {{p}} is in {{ans}}.",
+      "riverMouth": "The {{r}} flows into the {{sea}}.",
+      "riverInto": "The {{r}} flows into the {{into}} river.",
+      "riverCities": "The {{r}} flows through {{list}}.",
+      "riverPasses": "The {{r}} flows through {{list}}.",
+      "cityRiver": "The {{ans}} river flows through {{c}}.",
+      "mountIn": "{{m}} is in {{list}}.",
+      "peakOf": "One of its highest peaks is {{k}}.",
+      "teide": "Mount Teide, on Tenerife, is the highest mountain in Spain (3,715 m).",
+      "peakIn": "The peak {{k}} is in {{ans}}.",
+      "bigCity": "{{given}} is a city in the province of {{p}}, but it isn't the capital."
+    }
   }
 }

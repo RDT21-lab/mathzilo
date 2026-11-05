@@ -1,7 +1,7 @@
 {
   "name": "starmath",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,7 +10,8 @@
     "test": "vitest run",
     "typecheck": "tsc -b --noEmit",
     "sync-server": "node server/sync-server.mjs",
-    "e2e": "playwright test"
+    "e2e": "playwright test",
+    "geo": "node scripts/build-geo.mjs"
   },
   "dependencies": {
     "@fontsource/lexend": "^5.3.0",
@@ -28,15 +29,19 @@
     "@vitejs/plugin-react": "^6.1.2",
     "autoprefixer": "^10.6.1",
     "axe-core": "^4.14.0",
+    "es-atlas": "^0.6.0",
     "fake-indexeddb": "^6.2.6",
     "lighthouse": "^13.5.0",
     "postcss": "^8.5.31",
     "tailwindcss": "^3.4.19",
+    "topojson-client": "^3.1.0",
+    "topojson-simplify": "^3.0.3",
     "typescript": "^7.0.2",
     "vite": "^8.3.4",
     "vite-plugin-pwa": "^2.0.0",
     "vitest": "^5.0.5",
     "workbox-build": "^7.4.1",
-    "workbox-window": "^7.4.1"
+    "workbox-window": "^7.4.1",
+    "world-atlas": "^2.0.2"
   }
 }

@@ -1,6 +1,7 @@
 /* Reglas puras (sin base de datos): fecha del día, racha y escudos, saldo, dominio y sugerencias
    de nivel. El saldo nunca se guarda: es siempre la suma de los apuntes.                      */
 import type { Session, StarEvent, Task } from './types';
+import type { Subject } from '../engine';
 
 /** Día local AAAA-MM-DD; antes de `dayStartHour` cuenta como el día anterior */
 export function dayOf(ts: number, dayStartHour: number): string {
@@ -69,6 +70,13 @@ export const roundStars = (n: number) => Math.round(n * 10) / 10;
 export function balanceOf(events: Pick<StarEvent, 'amount'>[]): number {
   return roundStars(events.reduce((s, e) => s + e.amount, 0));
 }
+
+/* ---------- Materias ---------- */
+/** Cada materia tiene su test con estrellas al día (el primero); la racha cuenta con cualquiera */
+export type { Subject };
+export const subjectOf = (s: { subject?: 'geo' }): Subject => s.subject === 'geo' ? 'geo' : 'mates';
+export const doneSubject = (sessions: Pick<Session, 'day' | 'serverDay' | 'subject'>[], today: string, subject: Subject) =>
+  sessions.some(s => (s.serverDay ?? s.day) === today && subjectOf(s) === subject);
 
 /* ---------- Tareas ---------- */
 /** Día de la semana de una fecha AAAA-MM-DD (0 = domingo) */

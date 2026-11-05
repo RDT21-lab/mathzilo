@@ -182,7 +182,14 @@
     "taskDone": "¡Ya la he hecho!",
     "taskSent": "¡Genial! Se lo hemos dicho a tu familia.",
     "bonusInfo": "{{a}} de {{n}} tareas para el premio",
-    "bonusOk": "¡Premio conseguido!"
+    "bonusOk": "¡Premio conseguido!",
+    "subjMates": "Matemáticas",
+    "subjGeo": "Geografía",
+    "subjToday": "Test de hoy",
+    "subjPractice": "Para practicar",
+    "mapLabel": "Mapa de España",
+    "okSayGeo": "{{pet}}: «¡Te sabes el mapa!»",
+    "miniOkSubGeo": "Ya sabes encontrarlo en el mapa."
   },
   "parent": {
     "title": "Modo padre",
@@ -409,7 +416,11 @@
         "push-fallo": "No se pudo enviar el aviso de prueba.",
         "offline": "Sin conexión con el servidor."
       }
-    }
+    },
+    "geoLevel": "Nivel de geografía",
+    "geoLevelSub": "1: comunidades, grandes ríos y montañas · 2: provincias y capitales · 3: el más difícil",
+    "geo": "Geografía",
+    "mapCredit": "Mapa de geografía: © Instituto Geográfico Nacional (IGN) y Natural Earth."
   },
   "onb": {
     "welcome": "Te damos la bienvenida",

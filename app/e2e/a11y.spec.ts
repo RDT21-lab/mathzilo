@@ -44,8 +44,8 @@ for (const lang of ['es', 'de'] as const) {
       await sm.repo.updateSettings({ lang: 'de' });
     });
     const L = lang === 'es'
-      ? { play: 'Jugar como Lucía', start: 'Empezar', check: 'Comprobar', got: '¡Entendido!', stars: 'Mis estrellas', home: 'Volver al inicio', mascot: 'Ver a Chispa', redeem: 'Canjear', settings: 'Ajustes' }
-      : { play: 'Spielen als Lucía', start: 'Los geht', check: 'Prüfen', got: 'Verstanden!', stars: 'Meine Sterne', home: 'Zur Startseite', mascot: 'Chispa ansehen', redeem: 'Einlösen', settings: 'Einstellungen' };
+      ? { play: 'Jugar como Lucía', start: 'Matemáticas', newTest: 'Empezar otro', check: 'Comprobar', got: '¡Entendido!', stars: 'Mis estrellas', home: 'Volver al inicio', mascot: 'Ver a Chispa', redeem: 'Canjear', settings: 'Ajustes' }
+      : { play: 'Spielen als Lucía', start: 'Mathe', newTest: 'Neu anfangen', check: 'Prüfen', got: 'Verstanden!', stars: 'Meine Sterne', home: 'Zur Startseite', mascot: 'Chispa ansehen', redeem: 'Einlösen', settings: 'Einstellungen' };
     await audit(page, 'perfiles', found); await smallTargets(page, 'perfiles', found);
     await page.getByRole('button', { name: L.play }).click();
     await audit(page, 'inicio', found); await smallTargets(page, 'inicio', found);
@@ -63,6 +63,17 @@ for (const lang of ['es', 'de'] as const) {
     await page.getByRole('button', { name: L.check }).click();
     await page.locator('.fbcard').waitFor();
     await audit(page, 'respuesta', found); await smallTargets(page, 'respuesta', found);
+    // geografía: el test a medias se deja y se empieza uno de geografía
+    await page.locator('.top .l .icon-btn').click();
+    await page.getByRole('button', { name: L.newTest }).click();
+    await page.locator('.subjects .btn').nth(1).click();
+    await page.locator('.lencard').first().click();
+    await page.locator('.geomap:not(.ph)').first().waitFor();
+    await audit(page, 'pregunta geo', found); await smallTargets(page, 'pregunta geo', found);
+    await page.locator('.opt').first().click();
+    await page.getByRole('button', { name: L.check }).click();
+    await page.locator('.fbcard').waitFor();
+    await audit(page, 'respuesta geo', found); await smallTargets(page, 'respuesta geo', found);
     await page.goto('/#/padre');
     await audit(page, 'PIN', found);
     await page.setViewportSize({ width: 390, height: 800 });

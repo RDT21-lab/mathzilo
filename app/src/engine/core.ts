@@ -53,7 +53,11 @@ export type Val =
   | { k: 'frac'; n: number; d: number }          // tal cual se muestra (puede no estar simplificada)
   | { k: 'sym'; s: '<' | '>' | '=' }
   | { k: 'time'; h: number; m: number }
-  | { k: 'money'; c: number };                   // céntimos de euro
+  | { k: 'money'; c: number }                    // céntimos de euro
+  | { k: 'geo'; t: GeoKind; id: string }         // lugar de España (comunidad, provincia, río…): se muestra su nombre
+  | { k: 'geos'; t: GeoKind; ids: string[] };    // lista de lugares («Aragón, Navarra y Cataluña»)
+export type GeoKind = 'ccaa' | 'prov' | 'city' | 'river' | 'mount' | 'peak' | 'sea';
+export interface GeoRef { t: GeoKind; id: string }
 
 export const I = (v: number): Val => ({ k: 'int', v });
 export const D = (u: number, p: number): Val => ({ k: 'dec', u, p });
@@ -89,6 +93,8 @@ export function valKey(v: Val): string {
   if (q) return 'n' + q.n + '/' + q.d;
   if (v.k === 'sym') return 's' + v.s;
   if (v.k === 'time') return 't' + v.h + ':' + v.m;
+  if (v.k === 'geo') return 'g' + v.t + ':' + v.id;
+  if (v.k === 'geos') return 'G' + v.t + ':' + v.ids.join(',');
   return '?';
 }
 export function sameVal(a: Val, b: Val): boolean { return valKey(a) === valKey(b); }
@@ -101,7 +107,7 @@ export function valOk(v: Val, allowNeg: boolean): boolean {
     case 'frac': return Number.isInteger(v.n) && Number.isInteger(v.d) && v.d > 1 && v.n > 0 && v.d <= 100;
     case 'money': return Number.isInteger(v.c) && v.c >= 0;
     case 'time': return v.h >= 1 && v.h <= 12 && [0, 15, 30, 45].includes(v.m);
-    case 'sym': return true;
+    case 'sym': case 'geo': case 'geos': return true;
   }
 }
 
@@ -132,7 +138,9 @@ export type Visual =
   | { type: 'line'; from: number; to: number; marks: number[]; hi: number }
   | { type: 'place'; n: number }
   | { type: 'decs'; a: Val; b: Val; op: '+' | '-'; ans: Val }
-  | { type: 'bars'; values: number[] };
+  | { type: 'bars'; values: number[] }
+  /** Mapa de España: `hi` se ilumina (en orden: comunidades, provincias, ríos, montañas), `alt` es lo que eligió el niño, `dot` marca una ciudad o un pico */
+  | { type: 'map'; hi: GeoRef[]; alt?: GeoRef; dot?: GeoRef };
 
 export interface Prompt { key: string; vars: Record<string, Val | string | number> }
 
@@ -196,7 +204,7 @@ function neighbour(v: Val, s: number): Val | null {
     case 'money': return EUR(v.c + s * 10);
     case 'frac': return v.n + s > 0 && v.n + s !== v.d ? F(v.n + s, v.d) : null;
     case 'time': { const t = (((v.h % 12) * 60 + v.m + 15 * s) % 720 + 720) % 720; return T(Math.floor(t / 60) || 12, t % 60); }
-    case 'sym': return null;
+    case 'sym': case 'geo': case 'geos': return null;
   }
 }
 

@@ -175,10 +175,12 @@ export function createApp({ dataDir, staticDir = null, now = () => Date.now(), f
           const cap = Math.max(0, ...Object.values(rules.passBonus)) + (rules.perfect ?? 0);
           const already = Object.values(st.rows.events).filter(e => e.row.sessionId === ses.id && e.row.type === 'test').reduce((s, e) => s + e.row.amount, 0);
           if (already + row.amount > cap) return 'tope';
-          // un solo test con estrellas por hijo y día
-          const day = ses.serverDay ?? ses.day;
-          const other = Object.values(st.rows.events).find(e => e.row.type === 'test' && e.row.childId === row.childId && e.row.sessionId !== ses.id &&
-            ((st.rows.sessions[e.row.sessionId]?.row.serverDay ?? st.rows.sessions[e.row.sessionId]?.row.day) === day));
+          // un solo test con estrellas por hijo, día y materia (matemáticas o geografía)
+          const day = ses.serverDay ?? ses.day, subj = s => s?.subject === 'geo' ? 'geo' : 'mates';
+          const other = Object.values(st.rows.events).find(e => {
+            const os = e.row.type === 'test' && e.row.childId === row.childId && e.row.sessionId !== ses.id && st.rows.sessions[e.row.sessionId]?.row;
+            return os && (os.serverDay ?? os.day) === day && subj(os) === subj(ses);
+          });
           if (other) return 'segundo-test';
         }
       }

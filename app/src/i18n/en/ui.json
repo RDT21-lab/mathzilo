@@ -182,7 +182,14 @@
     "taskDone": "I've done it!",
     "taskSent": "Great! We've told your family.",
     "bonusInfo": "{{a}} of {{n}} tasks for the prize",
-    "bonusOk": "Prize earned!"
+    "bonusOk": "Prize earned!",
+    "subjMates": "Maths",
+    "subjGeo": "Geography",
+    "subjToday": "Today's test",
+    "subjPractice": "For practice",
+    "mapLabel": "Map of Spain",
+    "okSayGeo": "{{pet}}: “You know your map!”",
+    "miniOkSubGeo": "Now you can find it on the map."
   },
   "parent": {
     "title": "Parent mode",
@@ -409,7 +416,11 @@
         "push-fallo": "The test notification could not be sent.",
         "offline": "No connection to the server."
       }
-    }
+    },
+    "geoLevel": "Geography level",
+    "geoLevelSub": "1: communities, big rivers and mountains · 2: provinces and capitals · 3: the hardest",
+    "geo": "Geography",
+    "mapCredit": "Geography map: © Instituto Geográfico Nacional (IGN, Spain) and Natural Earth."
   },
   "onb": {
     "welcome": "Welcome",
