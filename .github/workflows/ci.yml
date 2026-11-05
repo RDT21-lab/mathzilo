@@ -68,6 +68,10 @@ jobs:
           KEY: ${{ secrets.DEPLOY_KEY }}
         run: |
           if [ -z "$HOST" ]; then echo "Sin DEPLOY_HOST: se omite el despliegue"; exit 0; fi
-          mkdir -p ~/.ssh && echo "$KEY" > ~/.ssh/id && chmod 600 ~/.ssh/id
-          ssh -i ~/.ssh/id -o StrictHostKeyChecking=accept-new "$USER@$HOST" \
+          # la clave pegada en la web puede llegar con saltos de línea de Windows o sin el salto final
+          mkdir -p ~/.ssh && printf '%s\n' "$KEY" | tr -d '\r' > ~/.ssh/id && chmod 600 ~/.ssh/id
+          HOST=$(printf '%s' "$HOST" | tr -d '[:space:]'); USER=$(printf '%s' "$USER" | tr -d '[:space:]')
+          # la huella no es secreta: sirve para ver en el registro qué clave se está usando
+          ssh-keygen -lf ~/.ssh/id || { echo "DEPLOY_KEY no es una clave privada válida (¿se pegó la .pub?)"; exit 1; }
+          ssh -i ~/.ssh/id -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new "$USER@$HOST" \
             "cd ~/mathzilo && docker compose pull && docker compose up -d"
