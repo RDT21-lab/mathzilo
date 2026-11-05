@@ -69,7 +69,11 @@ jobs:
         run: |
           if [ -z "$HOST" ]; then echo "Sin DEPLOY_HOST: se omite el despliegue"; exit 0; fi
           # la clave pegada en la web puede llegar con saltos de línea de Windows o sin el salto final
-          mkdir -p ~/.ssh && printf '%s\n' "$KEY" | tr -d '\r' > ~/.ssh/id && chmod 600 ~/.ssh/id
+          # también se admite la clave en una sola línea en base64 (lo más seguro al pegarla en la web)
+          mkdir -p ~/.ssh
+          if printf '%s' "$KEY" | grep -q 'BEGIN'; then printf '%s\n' "$KEY" | tr -d '\r' > ~/.ssh/id
+          else printf '%s' "$KEY" | tr -d '[:space:]' | base64 -d > ~/.ssh/id; fi
+          chmod 600 ~/.ssh/id
           HOST=$(printf '%s' "$HOST" | tr -d '[:space:]'); USER=$(printf '%s' "$USER" | tr -d '[:space:]')
           # la huella no es secreta: sirve para ver en el registro qué clave se está usando
           ssh-keygen -lf ~/.ssh/id || { echo "DEPLOY_KEY no es una clave privada válida (¿se pegó la .pub?)"; exit 1; }
