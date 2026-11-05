@@ -328,8 +328,13 @@
 .topicnote { flex-basis: 100%; text-align: center; }
 .device.kid.big .topic { font-size: 20px; }
 .portrait .topics { gap: 8px; }
-.topicsP { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
-.topicsP button { min-height: 44px; border-radius: 10px; border: 2px solid var(--line); background: transparent; color: var(--muted); font: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer; padding: 0 2px; }
+.topicsP { display: flex; flex-wrap: wrap; gap: 6px; }                    /* en un móvil estrecho, en dos filas */
+.topicsP button { flex: 1 1 auto; min-height: 44px; border-radius: 10px; border: 2px solid var(--line); background: transparent; color: var(--muted); font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; padding: 0 12px; }
 .topicsP button[aria-pressed="true"] { background: var(--gold); border-color: var(--gold); color: var(--gold-ink); }
 .qcard.geo.nomap { justify-content: center; padding-top: 20px; }
 .qcard.geo.nomap .qanswer { font-size: 32px; }
+
+/* El modo padre se comporta como una app: solo se desliza arriba y abajo, nunca de lado */
+.pbody { overflow-x: hidden; overscroll-behavior: contain; touch-action: pan-y; }
+.pbody > *, .sect > *, .kidset > * { min-width: 0; max-width: 100%; }
+html, body { overscroll-behavior: none; }
