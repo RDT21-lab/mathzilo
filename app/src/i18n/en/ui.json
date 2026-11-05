@@ -29,7 +29,10 @@
   },
   "kind": {
     "zorro": "Fox",
-    "robot": "Robot"
+    "robot": "Robot",
+    "gato": "Cat",
+    "buho": "Owl",
+    "dragon": "Dragon"
   },
   "praise": {
     "0": "Well thought out!",
@@ -189,7 +192,9 @@
     "subjPractice": "For practice",
     "mapLabel": "Map of Spain",
     "okSayGeo": "{{pet}}: “You know your map!”",
-    "miniOkSubGeo": "Now you can find it on the map."
+    "miniOkSubGeo": "Now you can find it on the map.",
+    "geoTopics": "Topics",
+    "geoTopicsFixed": "Topics chosen by your family"
   },
   "parent": {
     "title": "Parent mode",
@@ -279,7 +284,7 @@
     "addChild": "+ Add a child",
     "deleteChild": "Delete {{name}}",
     "deleteChildConfirm": "All of {{name}}'s tests and stars will be deleted. Are you sure?",
-    "starsLead": "Tests only give stars as bonuses (passing, perfect test and streaks). They start at 0; each + adds 0.5.",
+    "starsLead": "Tests only give stars as bonuses (passing, perfect test and streaks). Passing starts at 1 and the rest at 0; each + adds 0.5.",
     "passPct": "Pass mark",
     "passPctSub": "Minimum percentage correct",
     "pb": "Bonus for passing {{n}}",
@@ -420,7 +425,10 @@
     "geoLevel": "Geography level",
     "geoLevelSub": "1: communities, big rivers and mountains · 2: provinces and capitals · 3: the hardest",
     "geo": "Geography",
-    "mapCredit": "Geography map: © Instituto Geográfico Nacional (IGN, Spain), Natural Earth and relief from Terrain Tiles (Mapzen, SRTM)."
+    "mapCredit": "Geography map: © Instituto Geográfico Nacional (IGN, Spain), Natural Earth and relief from Terrain Tiles (Mapzen, SRTM).",
+    "geoTopics": "Geography topics",
+    "geoTopicsSub": "communities and provinces come up twice as often",
+    "geoKidChooses": "Child chooses the topics"
   },
   "onb": {
     "welcome": "Welcome",
@@ -511,5 +519,12 @@
     "restoreBtn": "Restore",
     "restoreDone": "Backup restored.",
     "restoreOnb": "Have an exported backup? Restore it"
+  },
+  "geoTopic": {
+    "ccaa": "Communities",
+    "prov": "Provinces",
+    "caps": "Capitals",
+    "mount": "Mountains",
+    "river": "Rivers"
   }
 }

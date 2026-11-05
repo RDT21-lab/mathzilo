@@ -4,8 +4,9 @@ import { useEffect, useRef, useState } from 'react';
 import { db } from '../../data/db';
 import * as repo from '../../data/repo';
 import type { Child, Family, Lang, Reward, StarEvent } from '../../data/types';
-import { LANGS } from '../../data/types';
+import { KINDS, LANGS, PET_NAMES } from '../../data/types';
 import { addDays, balanceOf, computeStreak, levelSuggestion, roundStars, subjectOf } from '../../data/domain';
+import { GEO_TOPICS, topicsFor, type GeoTopic } from '../../engine';
 import { IDLE_MS, validPin } from '../../data/pin';
 import * as sync from '../../sync/client';
 import { useT, setLang, noteText, fmtNum, rawRes } from '../../i18n';
@@ -410,6 +411,24 @@ function Stepper({ value, label, sub, onChange, min, max, step = 1, fmt }: { val
     </div>
   );
 }
+/** Temas de geografía que permite el padre y si el niño puede elegir entre ellos */
+function GeoTopicsSetting({ child }: { child: Child }) {
+  const t = useT();
+  const allowed = topicsFor({ geoTopics: child.geoTopics, geoTopicsFixed: true });
+  const toggle = (k: GeoTopic) => {
+    const next = allowed.includes(k) ? allowed.filter(x => x !== k) : [...allowed, k];
+    if (next.length) repo.updateChild(child.id, { geoTopics: GEO_TOPICS.filter(x => next.includes(x)) });
+  };
+  return (
+    <>
+      <div className="kindpick"><span className="lb">{t('parent.geoTopics')}<small className="muted"> · {t('parent.geoTopicsSub')}</small></span>
+        <div className="topicsP" role="group">{GEO_TOPICS.map(k => <button key={k} aria-pressed={allowed.includes(k)} onClick={() => toggle(k)}>{t('geoTopic.' + k)}</button>)}</div>
+      </div>
+      <div className="srow"><span className="lb">{t('parent.geoKidChooses')}</span>
+        <Segs value={!child.geoTopicsFixed} options={[[true, t('common.on')], [false, t('common.off')]]} onChange={v => repo.updateChild(child.id, { geoTopicsFixed: !v })} /></div>
+    </>
+  );
+}
 function Segs<T extends string | number | boolean>({ value, options, onChange }: { value: T; options: [T, string][]; onChange: (v: T) => void }) {
   return <span className="segs">{options.map(([v, l]) => <button key={String(v)} aria-pressed={value === v} onClick={() => onChange(v)}>{l}</button>)}</span>;
 }
@@ -432,6 +451,7 @@ function SettingsScreen({ family, toast, onExit }: { family: Family; toast: (m: 
             <div className="kidhd"><Mascot child={k} /><b>{k.name}</b></div>
             <Stepper label={t('parent.level')} value={k.level} min={1} max={6} onChange={v => repo.updateChild(k.id, { level: v })} />
             <Stepper label={t('parent.geoLevel')} sub={t('parent.geoLevelSub')} value={k.geoLevel ?? 1} min={1} max={3} onChange={v => repo.updateChild(k.id, { geoLevel: v })} />
+            <GeoTopicsSetting child={k} />
             <div className="srow"><span className="lb">{t('parent.maxLen')}<small>{t('parent.maxLenSub')}</small></span>
               <Segs value={k.maxLen} options={[[10, '10'], [15, '15'], [20, '20']]} onChange={v => repo.updateChild(k.id, { maxLen: v as 10 | 15 | 20 })} /></div>
             <div className="srow"><span className="lb">{t('parent.childLang')}</span>
@@ -517,8 +537,11 @@ export function NewKidForm({ lang, onDone }: { lang: Lang; onDone: (c: repo.NewC
     <div className="kidform">
       <label className="field">{t('onb.name')}<input type="text" maxLength={20} value={c.name} onChange={e => setC({ ...c, name: e.target.value })} /></label>
       <Stepper label={t('onb.level')} sub={t('onb.levelHelp')} value={c.level} min={1} max={6} onChange={v => setC({ ...c, level: v })} />
-      <div className="srow"><span className="lb">{t('onb.companion')}</span><Segs value={c.kind} options={[['zorro', t('kind.zorro')], ['robot', t('kind.robot')]]} onChange={v => setC({ ...c, kind: v })} /></div>
-      <label className="field">{t('onb.petName')}<input type="text" maxLength={12} value={c.petName} placeholder={c.kind === 'zorro' ? 'Chispa' : 'Bip'} onChange={e => setC({ ...c, petName: e.target.value })} /></label>
+      <div className="kindpick"><span className="lb">{t('onb.companion')}</span>
+        <div className="kinds" role="group">{KINDS.map(k => (
+          <button key={k} aria-pressed={c.kind === k} onClick={() => setC({ ...c, kind: k })}><Mascot child={{ kind: k, petName: PET_NAMES[k], bestStreak: 0 }} />{t('kind.' + k)}</button>
+        ))}</div></div>
+      <label className="field">{t('onb.petName')}<input type="text" maxLength={12} value={c.petName} placeholder={PET_NAMES[c.kind]} onChange={e => setC({ ...c, petName: e.target.value })} /></label>
       <div className="srow"><span className="lb">{t('parent.childLang')}</span><Segs value={c.lang} options={LANGS.map(l => [l, l.toUpperCase()] as [Lang, string])} onChange={v => setC({ ...c, lang: v })} /></div>
       <div className="acts"><button className="pbtn" disabled={!c.name.trim()} onClick={() => onDone(c)}>{t('common.save')}</button><button className="pbtn line" onClick={() => onDone(null)}>{t('common.cancel')}</button></div>
     </div>

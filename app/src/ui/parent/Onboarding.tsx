@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import * as repo from '../../data/repo';
 import type { Lang } from '../../data/types';
-import { LANGS } from '../../data/types';
+import { LANGS, PET_NAMES } from '../../data/types';
 import { validPin } from '../../data/pin';
 import * as sync from '../../sync/client';
 import { useT, setLang } from '../../i18n';
@@ -57,8 +57,8 @@ export function Onboarding({ onDone }: { onDone: () => void }) {
       <h2>{t('onb.kidsTitle')}</h2>
       <p className="lead">{t('onb.kidsLead')}</p>
       {kids.map((k, i) => (
-        <div key={i} className="kidcard static"><div className="hd"><Mascot child={{ kind: k.kind, petName: k.petName || (k.kind === 'zorro' ? 'Chispa' : 'Bip'), bestStreak: 0 }} />
-          <div><div className="nm">{k.name}</div><div className="muted">{t('kid.level', { n: k.level })} · {k.petName || (k.kind === 'zorro' ? 'Chispa' : 'Bip')}</div></div>
+        <div key={i} className="kidcard static"><div className="hd"><Mascot child={{ kind: k.kind, petName: k.petName || PET_NAMES[k.kind], bestStreak: 0 }} />
+          <div><div className="nm">{k.name}</div><div className="muted">{t('kid.level', { n: k.level })} · {k.petName || PET_NAMES[k.kind]}</div></div>
           <button className="link" style={{ marginLeft: 'auto' }} onClick={() => setKids(kids.filter((_, j) => j !== i))}>{t('common.delete')}</button></div></div>
       ))}
       {adding && kids.length < 3 ? <NewKidForm lang={lang} onDone={c => { if (c) setKids([...kids, c]); setAdding(false); }} />

@@ -29,7 +29,10 @@
   },
   "kind": {
     "zorro": "Zorro",
-    "robot": "Robot"
+    "robot": "Robot",
+    "gato": "Gato",
+    "buho": "Búho",
+    "dragon": "Dragón"
   },
   "praise": {
     "0": "¡Bien pensado!",
@@ -189,7 +192,9 @@
     "subjPractice": "Para practicar",
     "mapLabel": "Mapa de España",
     "okSayGeo": "{{pet}}: «¡Te sabes el mapa!»",
-    "miniOkSubGeo": "Ya sabes encontrarlo en el mapa."
+    "miniOkSubGeo": "Ya sabes encontrarlo en el mapa.",
+    "geoTopics": "Temas",
+    "geoTopicsFixed": "Temas elegidos por tu familia"
   },
   "parent": {
     "title": "Modo padre",
@@ -279,7 +284,7 @@
     "addChild": "+ Añadir hijo",
     "deleteChild": "Borrar a {{name}}",
     "deleteChildConfirm": "Se borrarán todos los tests y estrellas de {{name}}. ¿Seguro?",
-    "starsLead": "El test solo da estrellas como bonus (aprobar, test perfecto y rachas). Empiezan en 0; cada + suma 0,5.",
+    "starsLead": "El test solo da estrellas como bonus (aprobar, test perfecto y rachas). Aprobar da 1 de partida y el resto empieza en 0; cada + suma 0,5.",
     "passPct": "Para aprobar",
     "passPctSub": "Porcentaje mínimo de aciertos",
     "pb": "Bonus al aprobar {{n}}",
@@ -420,7 +425,10 @@
     "geoLevel": "Nivel de geografía",
     "geoLevelSub": "1: comunidades, grandes ríos y montañas · 2: provincias y capitales · 3: el más difícil",
     "geo": "Geografía",
-    "mapCredit": "Mapa de geografía: © Instituto Geográfico Nacional (IGN), Natural Earth y relieve de Terrain Tiles (Mapzen, SRTM)."
+    "mapCredit": "Mapa de geografía: © Instituto Geográfico Nacional (IGN), Natural Earth y relieve de Terrain Tiles (Mapzen, SRTM).",
+    "geoTopics": "Temas de geografía",
+    "geoTopicsSub": "comunidades y provincias salen el doble",
+    "geoKidChooses": "El niño elige los temas"
   },
   "onb": {
     "welcome": "Te damos la bienvenida",
@@ -511,5 +519,12 @@
     "restoreBtn": "Restaurar",
     "restoreDone": "Copia restaurada.",
     "restoreOnb": "¿Tienes una copia exportada? Restaurarla"
+  },
+  "geoTopic": {
+    "ccaa": "Comunidades",
+    "prov": "Provincias",
+    "caps": "Capitales",
+    "mount": "Montañas",
+    "river": "Ríos"
   }
 }

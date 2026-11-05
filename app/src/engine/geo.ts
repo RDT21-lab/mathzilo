@@ -92,6 +92,25 @@ export const GEO: Generator[] = [
     }
   },
 
+  {
+    id: 'geo-prov-map1', level: 1,
+    make(r) {
+      const p = pick(r, PROV_IDS);
+      const ds = distract(r, 3, [], PROV_IDS.filter(id => !(PROV_NEIGHBORS[p] ?? []).includes(id)), new Set([p]));
+      return draft('geoProvMap', {}, G('prov', p), ds.map(d => o(G('prov', d.id), d.tag)), map(['prov'], [R('prov', p)]), { p: +p });
+    },
+    explain: provMapExplain
+  },
+  {
+    id: 'geo-capital-of1', level: 1,
+    make(r) {
+      const p = PROV_BY_ID[pick(r, PROV_IDS)], near = new Set(PROV_NEIGHBORS[p.id] ?? []);
+      const ds = distract(r, 3, [], PROV_IDS.filter(id => !near.has(id)).map(id => PROV_BY_ID[id].capital), new Set([p.capital]));
+      return draft('geoCapitalOf', { p: G('prov', p.id) }, G('city', p.capital), ds.map(d => o(G('city', d.id), d.tag)), map(['prov', 'caps'], [R('prov', p.id)]), { p: +p.id });
+    },
+    explain: capitalExplain
+  },
+
   /* ---------------- Nivel 2 ---------------- */
   {
     id: 'geo-prov-map', level: 2,
@@ -296,6 +315,28 @@ function capitalExplain(q: Question, tag: string, given: Val | null) {
   return { steps: [st('ex.geo.capitalOfProv', { c: q.answer, p: G('prov', p.id) }), ...(tag === 'geo-ciudad-grande' && given ? [st('ex.geo.bigCity', { given, p: G('prov', p.id) })] : []),
                    st('ex.geo.provIn', { p: G('prov', p.id), ans: G('ccaa', p.ccaa) })],
            visual: map(['prov', 'caps'], [R('prov', p.id)], R('city', p.capital)) };
+}
+
+/* ---------- Temas ---------- */
+/** Temas que se pueden elegir */
+export type GeoTopic = 'ccaa' | 'prov' | 'caps' | 'mount' | 'river';
+export const GEO_TOPICS: GeoTopic[] = ['ccaa', 'prov', 'caps', 'mount', 'river'];
+/** Con todo elegido, comunidades y provincias salen el doble que el resto */
+export const TOPIC_WEIGHT: Record<GeoTopic, number> = { ccaa: 2, prov: 2, caps: 1, mount: 1, river: 1 };
+export const GEO_TOPIC: Record<string, GeoTopic> = {
+  'geo-ccaa-map': 'ccaa', 'geo-city-ccaa': 'ccaa', 'geo-prov-ccaa': 'ccaa', 'geo-ccaa-count': 'ccaa',
+  'geo-prov-map1': 'prov', 'geo-prov-map': 'prov', 'geo-ccaa-prov': 'prov', 'geo-prov-map-near': 'prov',
+  'geo-capital-of1': 'caps', 'geo-capital-of': 'caps', 'geo-prov-of-capital': 'caps', 'geo-capital-hard': 'caps',
+  'geo-mount-map1': 'mount', 'geo-mount-map': 'mount', 'geo-peak': 'mount', 'geo-mount-ccaa': 'mount',
+  'geo-river-map1': 'river', 'geo-river-map': 'river', 'geo-river-ccaa': 'river', 'geo-river-mouth': 'river', 'geo-river-city': 'river'
+};
+/** Temas que valen para un test: los permitidos por el padre y, si el niño puede elegir, los suyos */
+export function topicsFor(c: { geoTopics?: string[]; geoTopicsFixed?: boolean; geoPick?: string[] }): GeoTopic[] {
+  const ok = (l?: string[]) => (l ?? []).filter((t): t is GeoTopic => (GEO_TOPICS as string[]).includes(t));
+  const allowed = ok(c.geoTopics).length ? ok(c.geoTopics) : GEO_TOPICS;
+  if (c.geoTopicsFixed) return allowed;
+  const pick = ok(c.geoPick).filter(t => allowed.includes(t));
+  return pick.length ? pick : allowed;
 }
 
 /* ---------- Test de geografía ---------- */

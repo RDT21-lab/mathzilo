@@ -124,7 +124,9 @@
     "geo-river-city": "Ríos y ciudades",
     "geo-peak": "Picos y cordilleras",
     "geo-ccaa-count": "Cuántas provincias",
-    "geo-mount-ccaa": "Cordilleras y comunidades"
+    "geo-mount-ccaa": "Cordilleras y comunidades",
+    "geo-prov-map1": "Provincias (fácil)",
+    "geo-capital-of1": "Capitales (fácil)"
   },
   "tagName": {
     "cuenta-mal": "Se equivoca por poco al contar", "decena-mal": "Se equivoca en una decena", "resta-en-vez": "Resta cuando no toca",

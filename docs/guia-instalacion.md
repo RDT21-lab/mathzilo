@@ -54,9 +54,10 @@ Despliegue automático (opcional): en GitHub, añade los secretos `DEPLOY_HOST`,
 
 ## 4. Día a día
 
-- El niño elige su perfil, pulsa **Empezar** y hace el test (10, 15 o 20 preguntas). El test da estrellas solo como bonus (al aprobar, test perfecto y rachas), y solo el primero del día. Esos premios empiezan en 0: el adulto los sube en **Ajustes → Estrellas** de 0,5 en 0,5.
+- El niño elige su perfil, pulsa **Empezar** y hace el test (10, 15 o 20 preguntas). El test da estrellas solo como bonus (al aprobar, test perfecto y rachas), y solo el primero del día. Aprobar da 1 estrella de partida y el resto empieza en 0: el adulto los cambia en **Ajustes → Estrellas** de 0,5 en 0,5.
 - La tablet se puede usar **en horizontal o en vertical**: en vertical, los perfiles de los niños salen uno debajo de otro.
 - **Geografía de España**: en el inicio hay dos botones, **Matemáticas** y **Geografía**. El de geografía hace un test de 10, 15 o 20 preguntas con el mapa de España iluminado y 4 opciones. El mapa enseña solo lo que se pregunta: la división en comunidades, la de provincias (con un punto en cada capital), los ríos o las montañas sobre el relieve, con lo preguntado en dorado y el resto apagado. Cada materia tiene su test del día (con estrellas, si están activadas) y el resto son de práctica; la racha cuenta con cualquiera de los dos.
+- **Temas de geografía**: al empezar un test de geografía, el niño marca los temas que quiere (Comunidades, Provincias, Capitales, Montañas, Ríos). Con todos marcados, comunidades y provincias salen el doble que el resto. Las preguntas de capitales enseñan el mapa de provincias con un punto en cada capital. En Modo padre → **Ajustes** → cada hijo → **Temas de geografía** se eligen los temas permitidos; con **El niño elige los temas** en «No», los temas quedan fijos.
 - Niveles de geografía (Modo padre → **Ajustes** → cada hijo → **Nivel de geografía**):
   - **1**: comunidades autónomas en el mapa, los 5 grandes ríos, las 6 grandes cordilleras y en qué comunidad está una capital.
   - **2**: provincias en el mapa, capitales de provincia (y al revés), en qué comunidad está cada provincia, qué provincias tiene una comunidad, y los 10 ríos y 12 cordilleras.

@@ -1,6 +1,6 @@
 // Copia en módulo ES de src/mascots.js (fase 1). Fuente de las 24 mascotas SVG.
 /* StarMath — generador de mascotas.
-   2 compañeros (zorro, robot) × 4 etapas × 3 emociones = 24 dibujos SVG planos, 200×200.
+   5 compañeros (zorro, robot, gato, búho y dragón) × 4 etapas × 3 emociones = 60 dibujos SVG planos, 200×200.
    La etapa depende de la mejor racha (nunca retrocede). Sin degradados ni sombras.
    Uso: StarMascots.svg('zorro', 2, 'animando')  →  cadena <svg>…</svg>            */
 const StarMascots = (function () {
@@ -13,7 +13,10 @@ const StarMascots = (function () {
     violet: '#6C5CE7', violetDeep: '#4B3FB8', blue: '#4C7DFF', navyBand: '#0F1F5C',
     leather: '#6B3E26', lens: '#9BE1FF',
     foxO: '#FF8A3D', foxD: '#D9531E', foxEar: '#5A2417',
-    rob: '#C9D3FF', robD: '#9AA8FF', robL: '#E3E8FF', visor: '#0D1B4A'
+    rob: '#C9D3FF', robD: '#9AA8FF', robL: '#E3E8FF', visor: '#0D1B4A',
+    cat: '#8D9CC0', catD: '#5E6C93', catPink: '#FFB3C7',
+    owl: '#B07A52', owlD: '#7E5233', owlFace: '#F3DDBF',
+    dra: '#3FBF8B', draD: '#23946A', draBelly: '#FFE08A', horn: '#FFF1DC'
   };
 
   var STAGES = [
@@ -29,7 +32,10 @@ const StarMascots = (function () {
   ];
   var KINDS = [
     { id: 'zorro', name: 'Zorro' },
-    { id: 'robot', name: 'Robot' }
+    { id: 'robot', name: 'Robot' },
+    { id: 'gato', name: 'Gato' },
+    { id: 'buho', name: 'Búho' },
+    { id: 'dragon', name: 'Dragón' }
   ];
 
   function f(n) { return Math.round(n * 10) / 10; }
@@ -229,12 +235,132 @@ const StarMascots = (function () {
     return out;
   }
 
+  /* ---------- Cara estándar (ojos, boca y mofletes) para gato y dragón ---------- */
+  function face(emo, ey, my, cheeks) {
+    var h = '';
+    if (emo === 'happy') {
+      h += '<ellipse cx="79" cy="' + ey + '" rx="5.8" ry="8" fill="' + C.ink + '"/><ellipse cx="121" cy="' + ey + '" rx="5.8" ry="8" fill="' + C.ink + '"/>' +
+        '<circle cx="81" cy="' + (ey - 3) + '" r="2.2" fill="#fff"/><circle cx="123" cy="' + (ey - 3) + '" r="2.2" fill="#fff"/>' +
+        line('M90 ' + my + 'Q95 ' + (my + 6) + ' 100 ' + my + 'Q105 ' + (my + 6) + ' 110 ' + my, C.ink, 3.5);
+    } else if (emo === 'thinking') {
+      h += '<ellipse cx="81" cy="' + (ey - 1) + '" rx="5.8" ry="8" fill="' + C.ink + '"/><ellipse cx="123" cy="' + (ey - 3) + '" rx="5.8" ry="8" fill="' + C.ink + '"/>' +
+        '<circle cx="84" cy="' + (ey - 5) + '" r="2.2" fill="#fff"/><circle cx="126" cy="' + (ey - 7) + '" r="2.2" fill="#fff"/>' +
+        line('M68 ' + (ey - 15) + 'L90 ' + (ey - 12) + 'M110 ' + (ey - 18) + 'Q122 ' + (ey - 27) + ' 135 ' + (ey - 20), C.ink, 3.5) +
+        line('M93 ' + (my + 3) + 'Q101 ' + (my - 1) + ' 110 ' + (my + 4), C.ink, 3.5);
+    } else {
+      h += line('M69 ' + (ey + 5) + 'Q79 ' + (ey - 10) + ' 89 ' + (ey + 5) + 'M111 ' + (ey + 5) + 'Q121 ' + (ey - 10) + ' 131 ' + (ey + 5), C.ink, 4.8) +
+        '<path d="M88 ' + my + 'Q100 ' + (my + 24) + ' 112 ' + my + 'Z" fill="' + C.ink + '"/><path d="M94 ' + (my + 11) + 'Q100 ' + (my + 18) + ' 106 ' + (my + 11) + 'Q100 ' + (my + 7) + ' 94 ' + (my + 11) + 'Z" fill="' + C.coral + '"/>';
+    }
+    if (cheeks && emo !== 'thinking') h += '<circle cx="62" cy="' + (ey + 16) + '" r="6" fill="' + C.coral + '" opacity=".5"/><circle cx="138" cy="' + (ey + 16) + '" r="6" fill="' + C.coral + '" opacity=".5"/>';
+    return h;
+  }
+  function armsUp(color, hand) {
+    return line('M64 172Q30 162 24 126', color, 16) + line('M136 172Q170 162 176 126', color, 16) +
+      '<circle cx="24" cy="122" r="9.5" fill="' + hand + '"/><circle cx="176" cy="122" r="9.5" fill="' + hand + '"/>';
+  }
+  function chinHand(color, hand) {
+    return line('M130 178Q142 160 122 147', color, 15) + '<circle cx="121" cy="145" r="8.5" fill="' + hand + '"/>';
+  }
+  function tiltOf(emo) { return emo === 'thinking' ? ' transform="rotate(-6 100 110)"' : (emo === 'cheering' ? ' transform="translate(0 -3)"' : ''); }
+  function extras(stage, emo, color, hand) {
+    var out = '';
+    if (emo === 'thinking') out += chinHand(color, hand) + thinkDots();
+    if (emo === 'cheering') out += cheerSparks(stage);
+    if (stage === 4) out += orbitFront();
+    return out;
+  }
+
+  /* ---------- Gato ---------- */
+  function cat(stage, emo) {
+    var g = { dy: 0, strap: [46, 154], lensY: 66, lensR: 12 };
+    var out = stage === 4 ? orbitBack() : '';
+    // cola enroscada
+    out += line('M132 186C176 194 196 160 182 136C176 126 164 128 166 140', C.cat, 15) +
+      line('M176 132C170 128 165 132 166 140', C.catD, 15);
+    out += capeBack(stage);
+    out += '<path d="M60 200C60 164 76 148 100 148C124 148 140 164 140 200Z" fill="' + C.cat + '"/>' +
+      '<ellipse cx="100" cy="178" rx="19" ry="25" fill="' + C.cream + '"/>';
+    out += neckItem(stage) + epaulettes(stage);
+    if (emo === 'cheering') out += armsUp(C.cat, C.cream);
+    var h = '<g' + tiltOf(emo) + '>' +
+      '<path d="M48 84L52 30L90 58Z" fill="' + C.cat + '"/><path d="M56 74L59 44L80 59Z" fill="' + C.catPink + '"/>' +
+      '<path d="M152 84L148 30L110 58Z" fill="' + C.cat + '"/><path d="M144 74L141 44L120 59Z" fill="' + C.catPink + '"/>' +
+      '<ellipse cx="100" cy="102" rx="60" ry="50" fill="' + C.cat + '"/>' +
+      '<path d="M84 52L90 70M100 50L100 68M116 52L110 70" stroke="' + C.catD + '" stroke-width="4" stroke-linecap="round"/>' +
+      '<ellipse cx="100" cy="126" rx="24" ry="15" fill="' + C.cream + '"/>' +
+      '<path d="M94 117L106 117L100 124Z" fill="' + C.catPink + '"/>' +
+      line('M76 124L48 118M76 130L48 134M124 124L152 118M124 130L152 134', C.white, 2.2);
+    h += face(emo, 98, 129, true) + headgear(stage, g) + '</g>';
+    return out + h + extras(stage, emo, C.cat, C.cream);
+  }
+
+  /* ---------- Búho ---------- */
+  function owl(stage, emo) {
+    var g = { dy: -2, strap: [42, 158], lensY: 62, lensR: 11 };
+    var out = stage === 4 ? orbitBack() : '';
+    out += capeBack(stage);
+    // cuerpo con plumas
+    out += '<path d="M58 200C56 166 74 146 100 146C126 146 144 166 142 200Z" fill="' + C.owl + '"/>' +
+      '<path d="M76 200C74 176 86 160 100 160C114 160 126 176 124 200Z" fill="' + C.owlFace + '"/>' +
+      line('M90 176Q94 180 98 176M102 176Q106 180 110 176M86 190Q90 194 94 190M98 190Q102 194 106 190M110 190Q114 194 118 190', C.owl, 2.5);
+    out += neckItem(stage) + epaulettes(stage);
+    // alas: arriba al animar, plegadas si no
+    if (emo === 'cheering') out += '<path d="M62 170Q22 160 18 116Q44 124 70 150Z" fill="' + C.owlD + '"/><path d="M138 170Q178 160 182 116Q156 124 130 150Z" fill="' + C.owlD + '"/>';
+    else out += '<path d="M60 156Q44 178 54 200L70 200Z" fill="' + C.owlD + '"/><path d="M140 156Q156 178 146 200L130 200Z" fill="' + C.owlD + '"/>';
+    var h = '<g' + tiltOf(emo) + '>' +
+      '<path d="M50 70L42 26L84 50Z" fill="' + C.owlD + '"/><path d="M150 70L158 26L116 50Z" fill="' + C.owlD + '"/>' +
+      '<ellipse cx="100" cy="98" rx="62" ry="54" fill="' + C.owl + '"/>' +
+      '<path d="M100 70C88 62 52 66 48 98C46 124 70 142 100 128C130 142 154 124 152 98C148 66 112 62 100 70Z" fill="' + C.owlFace + '"/>' +
+      '<circle cx="78" cy="98" r="20" fill="#fff"/><circle cx="122" cy="98" r="20" fill="#fff"/>';
+    if (emo === 'happy') {
+      h += '<circle cx="80" cy="99" r="10" fill="' + C.ink + '"/><circle cx="120" cy="99" r="10" fill="' + C.ink + '"/>' +
+        '<circle cx="83" cy="95" r="3" fill="#fff"/><circle cx="123" cy="95" r="3" fill="#fff"/>';
+    } else if (emo === 'thinking') {
+      h += '<circle cx="84" cy="92" r="10" fill="' + C.ink + '"/><circle cx="126" cy="92" r="10" fill="' + C.ink + '"/>' +
+        '<circle cx="87" cy="89" r="3" fill="#fff"/><circle cx="129" cy="89" r="3" fill="#fff"/>' +
+        line('M60 74L92 78M108 72Q124 62 142 70', C.owlD, 4.5);
+    } else {
+      h += line('M66 102Q78 86 90 102M110 102Q122 86 134 102', C.ink, 5);
+    }
+    h += emo === 'cheering' ? '<path d="M91 112L109 112L100 124Z" fill="' + C.gold + '"/><path d="M93 126L107 126L100 134Z" fill="' + C.goldDeep + '"/>'
+      : '<path d="M90 112L110 112L100 130Z" fill="' + C.gold + '" stroke="' + C.goldDeep + '" stroke-width="2" stroke-linejoin="round"/>';
+    h += headgear(stage, g) + '</g>';
+    out += h;
+    if (emo === 'thinking') out += line('M132 180Q146 160 124 146', C.owlD, 14) + thinkDots();
+    if (emo === 'cheering') out += cheerSparks(stage);
+    if (stage === 4) out += orbitFront();
+    return out;
+  }
+
+  /* ---------- Dragón ---------- */
+  function dragon(stage, emo) {
+    var g = { dy: 0, strap: [44, 156], lensY: 66, lensR: 12 };
+    var out = stage === 4 ? orbitBack() : '';
+    // alas y cola con púas (detrás)
+    out += '<path d="M66 156L18 112L26 140L12 150L36 168Z" fill="' + C.draD + '"/><path d="M134 156L182 112L174 140L188 150L164 168Z" fill="' + C.draD + '"/>' +
+      line('M130 190C168 198 194 176 186 146', C.dra, 15) + '<path d="M178 150L196 132L194 154Z" fill="' + C.draD + '"/>';
+    out += capeBack(stage);
+    out += '<path d="M60 200C60 164 76 148 100 148C124 148 140 164 140 200Z" fill="' + C.dra + '"/>' +
+      '<path d="M82 200C80 176 88 160 100 160C112 160 120 176 118 200Z" fill="' + C.draBelly + '"/>' +
+      line('M88 174L112 174M86 186L114 186', C.goldDeep, 2.5);
+    out += neckItem(stage) + epaulettes(stage);
+    if (emo === 'cheering') out += armsUp(C.dra, C.draBelly);
+    var h = '<g' + tiltOf(emo) + '>' +
+      '<path d="M60 64L46 28L82 52Z" fill="' + C.horn + '"/><path d="M140 64L154 28L118 52Z" fill="' + C.horn + '"/>' +
+      '<path d="M44 104C44 68 70 50 100 50C130 50 156 68 156 104C156 134 132 150 100 150C68 150 44 134 44 104Z" fill="' + C.dra + '"/>' +
+      '<path d="M34 96L46 88L46 108Z" fill="' + C.draD + '"/><path d="M166 96L154 88L154 108Z" fill="' + C.draD + '"/>' +
+      '<ellipse cx="100" cy="128" rx="30" ry="17" fill="' + C.draBelly + '"/>' +
+      '<ellipse cx="91" cy="122" rx="3" ry="2.2" fill="' + C.draD + '"/><ellipse cx="109" cy="122" rx="3" ry="2.2" fill="' + C.draD + '"/>';
+    h += face(emo, 98, 131, true) + headgear(stage, g) + '</g>';
+    return out + h + extras(stage, emo, C.dra, C.draBelly);
+  }
+
   /* ---------- API ---------- */
   function svg(kind, stage, emotion, opts) {
     opts = opts || {};
     var emo = emotion;
     for (var i = 0; i < EMOTIONS.length; i++) if (EMOTIONS[i].id === emotion) emo = EMOTIONS[i].key;
-    var body = kind === 'robot' ? robot(stage, emo) : fox(stage, emo);
+    var body = kind === 'robot' ? robot(stage, emo) : kind === 'gato' ? cat(stage, emo) : kind === 'buho' ? owl(stage, emo) : kind === 'dragon' ? dragon(stage, emo) : fox(stage, emo);
     var title = (opts.title !== undefined) ? opts.title : (kind + ' · ' + STAGES[stage - 1].name + ' · ' + emotion);
     var size = opts.size ? ' width="' + opts.size + '" height="' + opts.size + '"' : '';
     return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"' + size + ' role="img" aria-label="' + title + '"><title>' + title + '</title>' + body + '</svg>';

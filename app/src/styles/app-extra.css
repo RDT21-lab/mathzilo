@@ -310,3 +310,26 @@
 /* en vertical, el mapa se lleva más sitio y las respuestas menos */
 .portrait .qgrid.geo { grid-template-rows: minmax(0, 1.25fr) minmax(320px, 1fr); }
 .portrait .qcard.geo .mascot { width: 60px; height: 60px; }
+/* Elegir compañero (5 mascotas) al dar de alta un hijo */
+.kindpick { display: flex; flex-direction: column; gap: 6px; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 15px; }
+.kinds { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.kinds button { background: var(--card); border: 2px solid transparent; border-radius: 14px; padding: 4px 2px 6px; display: flex; flex-direction: column; align-items: center; gap: 2px;
+                cursor: pointer; font-size: 12.5px; font-weight: 500; min-height: 48px; }
+.kinds button[aria-pressed="true"] { border-color: var(--gold); background: var(--card-raised); }
+.kinds .mascot { width: 52px; height: 52px; }
+.kinds .mascot svg { width: 100%; height: 100%; }
+/* Temas del test de geografía */
+.topics { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px; margin-top: 12px; }
+.topic { display: inline-flex; align-items: center; gap: 8px; min-height: 56px; padding: 0 18px; border-radius: 16px; border: 2px solid var(--line);
+         background: transparent; color: var(--muted); font: inherit; font-size: 18px; font-weight: 700; cursor: pointer; }
+.topic[aria-pressed="true"] { background: var(--gold); border-color: var(--gold); color: var(--gold-ink); }
+.topic[disabled] { cursor: default; opacity: 1; }
+.topic[disabled][aria-pressed="true"] { background: rgba(255,201,51,.85); }
+.topicnote { flex-basis: 100%; text-align: center; }
+.device.kid.big .topic { font-size: 20px; }
+.portrait .topics { gap: 8px; }
+.topicsP { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
+.topicsP button { min-height: 44px; border-radius: 10px; border: 2px solid var(--line); background: transparent; color: var(--muted); font: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer; padding: 0 2px; }
+.topicsP button[aria-pressed="true"] { background: var(--gold); border-color: var(--gold); color: var(--gold-ink); }
+.qcard.geo.nomap { justify-content: center; padding-top: 20px; }
+.qcard.geo.nomap .qanswer { font-size: 32px; }
